@@ -53,11 +53,11 @@ class ClassSession extends Model
     }
     public function attendanceRecords()
     {
-        return $this->hasMany(AttendanceRecord::class);
+        return $this->hasMany(AttendanceRecord::class, 'session_id');
     }
     public function leaveApplications()
     {
-        return $this->hasMany(LeaveApplication::class);
+        return $this->hasMany(LeaveApplication::class, 'session_id');
     }
     public function qrTokens()
     {

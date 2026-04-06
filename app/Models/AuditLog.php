@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 ])]
 class AuditLog extends Model
 {
+    const CREATED_AT = 'created_at';
     public $timestamps = false;
 
     protected function casts(): array

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['user_id', 'course_id', 'period_type', 'xp_at_snapshot', 'rank'])]
 class LeaderboardSnapshot extends Model
 {
+    const CREATED_AT = 'created_at';
     public $timestamps = false;
 
     protected function casts(): array

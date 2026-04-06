@@ -60,7 +60,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(CourseEnrollment::class);
     }
-    public function notifications()
+    public function appNotifications()
     {
         return $this->hasMany(Notification::class);
     }
