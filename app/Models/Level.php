@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 
-#[Fillable(['level_number', 'name', 'xp_required', 'icon_path'])]
+#[Fillable(['level', 'xp_required'])]
 class Level extends Model
 {
     protected function casts(): array

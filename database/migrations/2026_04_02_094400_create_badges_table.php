@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('description');
-            $table->string('icon_path');
+            $table->string('icon_path')->nullable();
             $table->enum('type', ['attendance', 'streak', 'xp']);
             $table->string('requirement_type');
             $table->integer('requirement_value');
