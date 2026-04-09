@@ -1,8 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\StudentAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\StudentAuthController;
 
 Route::post('/student/login', [StudentAuthController::class, 'login']);
 
