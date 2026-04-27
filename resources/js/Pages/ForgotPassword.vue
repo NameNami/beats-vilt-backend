@@ -19,6 +19,7 @@ const submit = () => {
 <template>
     <Head title="Forgot Password" />
 
+    <h1>Forgot Password</h1>
     <div v-if="status">
         {{ status }}
     </div>
