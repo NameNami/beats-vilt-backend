@@ -9,7 +9,7 @@ Route::get('/', function () {
     return Inertia::render('Welcome');
 });
 
-
+// TODO: kena setup permission nanti, ni semua xsetup lagi permissions sebab ni untuk auth so xperlu setup permissions
 // AUTH ---
 // Login Routes
 // 1. The GET route: Displays the login form
