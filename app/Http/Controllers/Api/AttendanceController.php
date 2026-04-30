@@ -8,16 +8,12 @@ use Illuminate\Http\Request;
 use App\Models\ClassSession;
 use App\Services\AttendanceServices;
 use App\Models\AttendanceRecord;
+use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
     public function checkInBle(Request $request, AttendanceServices $attendanceServices)
     {
-
-        // TODO: make sure log history
-        // TODO: make sure compare uuid and rssi
-        // TODO: make sure guna service arrival classification
-        // TODO: make sure guna service arrival timeframe
         $request->validate([
             'timestamp' => 'required|string', // timestamp untuk compare dgn timeframe kelas
             'class_session_id' => 'required|integer',
@@ -25,6 +21,7 @@ class AttendanceController extends Controller
             'rssi' => 'required|integer', // double check rssi dia beacon nk elak fraud
         ]);
 
+        // search class session with room and beacons
         $class_session = ClassSession::with('room.beacons')->findOrFail($request->class_session_id);
 
         // 1. Try to grab the beacon from the room in one step
@@ -47,8 +44,10 @@ class AttendanceController extends Controller
             abort(400, 'Invalid timestamp');
         }
 
+        // calculate xp
         $xp = $attendanceServices->calculateXp($arrivalStatus);
 
+        // check in time from request
         $check_in_time = Carbon::createFromTimestamp($request->timestamp)->toDateTimeString();
 
         // create record for attendance record table
@@ -69,10 +68,5 @@ class AttendanceController extends Controller
                 'check_in_time' => $check_in_time,
             ]
         ]);
-
-
-
-
-
     }
 }
