@@ -19,6 +19,7 @@ class BeaconSeeder extends Seeder
             Beacon::create([
                 'room_id' => $room->id,
                 'uuid' => (string) Str::uuid(),
+                'mac_address' => Str::random(17),
                 'rssi_threshold' => -70,
                 'is_active' => true,
             ]);
