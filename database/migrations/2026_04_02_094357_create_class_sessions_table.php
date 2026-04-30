@@ -24,6 +24,7 @@ return new class extends Migration
             $table->boolean('is_display')->default(false);
             $table->boolean('is_cancelled')->default(false);
             $table->boolean('announce_cancelled')->default(false);
+            $table->boolean('is_completed')->default(false);
             $table->softDeletes();
             $table->timestamps();
         });
