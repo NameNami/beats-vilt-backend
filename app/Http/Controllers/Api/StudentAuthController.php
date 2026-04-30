@@ -32,8 +32,8 @@ class StudentAuthController extends Controller
         $request->validate([
            "student_id" => "required|string",
            "password" => "required|string",
-           "device.name" => "",
-            "device.push_token" => "required|string",
+           "device.name" => ""
+            // "device.push_token" => "required|string" sebb dh adjust untuk buang push noti so comment jela dulu
         ]);
 
         // astu cari student
@@ -48,8 +48,8 @@ class StudentAuthController extends Controller
         }
 
         // save atau un update, dia automatic create record baru kalau nama device tu xde lagi, kalau dh ade update je token tu
-        $student->fcmTokens()->updateOrCreate(['device_name' => $request->input('device.name')],
-            ['device_token' => $request->input('device.push_token')]);
+        //$student->fcmTokens()->updateOrCreate(['device_name' => $request->input('device.name')],
+        //    ['device_token' => $request->input('device.push_token')]);
 
         $deviceName = $request->input('device.name'); // store nama device dari json dlm variable
         $student->tokens()->where('name', $deviceName)->delete(); // astu kalau dh ade dlm sacntum token, delete token tu dulu

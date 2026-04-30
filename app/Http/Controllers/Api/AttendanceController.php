@@ -29,19 +29,36 @@ class AttendanceController extends Controller
 
         // check beacon if it suppose to be in the room
         if (! $scannedBeacon) {  // check beacon
-            abort(403, 'Invalid beacon scanned for this classroom');
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid beacon scanned for this classroom',
+            ], 403);
         }
 
         // check the RSSI distance
         if ($request->rssi < $scannedBeacon->rssi) { // check rssi
-            abort(400, 'Signal too weak');
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Signal too weak',
+            ], 400);
+        }
+
+        // check if user already checked in
+        if ($class_session->attendanceRecords()->where('user_id', $request->user()->id)->exists()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You have already checked in.',
+            ], 409);
         }
 
         // classify arrival status using the timestamp
         $arrivalStatus = $attendanceServices->classifyArrival($class_session, $request->timestamp);
         if ($arrivalStatus === 'invalid') // if timestamp is invalid because API called after the class ended
         {
-            abort(400, 'Invalid timestamp');
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid timestamp',
+            ], 400);
         }
 
         // calculate xp
@@ -56,7 +73,7 @@ class AttendanceController extends Controller
         $attendanceRecord->session_id = $class_session->id;
         $attendanceRecord->check_in_time = $check_in_time;
         $attendanceRecord->status = $arrivalStatus;
-        $attendanceRecord->check_method = 'BLE';
+        $attendanceRecord->checkin_method = 'BLE';
         $attendanceRecord->save();
 
         return response()->json([

@@ -3,10 +3,10 @@
 use App\Http\Controllers\Api\StudentAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use app\Http\Controllers\Api\BeaconHeartbeatController;
-use app\Http\Controllers\Api\AttendanceController;
+use App\Http\Controllers\Api\BeaconHeartbeatController;
+use App\Http\Controllers\Api\AttendanceController;
 use function Pest\Laravel\post;
-use \App\Http\Middleware\CheckRole;
+use App\Http\Middleware\CheckRole;
 
 // Student Auth (Login & Forgot Password)
 Route::post('/student/login', [StudentAuthController::class, 'login'])->name('api.student.login');
@@ -28,7 +28,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 // Check-in
-Route::post('/student/check-in-ble', [AttendanceController::class, 'checkIn'])
+Route::post('/student/check-in-ble', [AttendanceController::class, 'checkInBle'])
     ->name('api.student.check-in')
     ->middleware([
         'auth:sanctum', // 1. Front door: Are they logged in?
