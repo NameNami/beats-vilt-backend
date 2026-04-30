@@ -12,6 +12,7 @@ use \App\Http\Middleware\CheckRole;
 Route::post('/student/login', [StudentAuthController::class, 'login'])->name('api.student.login');
 Route::post('/student/forgot-password', [StudentAuthController::class, 'sendResetLinkEmail']);
 
+// TODO: nanti sekali kan yg permission sama | CheckRole yg sama
 Route::post('/logout', [StudentAuthController::class, 'logout'])
     ->name('api.logout')
     ->middleware([
@@ -29,4 +30,7 @@ Route::get('/user', function (Request $request) {
 // Check-in
 Route::post('/student/check-in-ble', [AttendanceController::class, 'checkIn'])
     ->name('api.student.check-in')
-    ->middleware('auth:sanctum');
+    ->middleware([
+        'auth:sanctum', // 1. Front door: Are they logged in?
+        CheckRole::class.':student' // 2. VIP door: Are they a teacher?
+    ]);

@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['room_id', 'uuid', 'rssi_threshold', 'is_active', 'last_seen'])]
+#[Fillable(['room_id', 'uuid', 'mac_address', 'rssi_threshold', 'is_active', 'last_seen'])]
 class Beacon extends Model
 {
     protected function casts(): array
