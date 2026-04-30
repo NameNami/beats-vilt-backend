@@ -21,4 +21,6 @@ Route::get('/user', function (Request $request) {
 // TODO: add logout aarrrrghhhh how can i forgot about log out
 
 // Check-in
-Route::post('/student/check-in-ble', [AttendanceController::class, 'checkIn'])->name('api.student.check-in');
+Route::post('/student/check-in-ble', [AttendanceController::class, 'checkIn'])
+    ->name('api.student.check-in')
+    ->middleware('auth:sanctum');
