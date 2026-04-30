@@ -11,7 +11,7 @@ class AttendanceServices
 {
     public function classifyArrival(ClassSession $session, string $checkInTimestamp)
     {
-        $checkInTime = Carbon::parse($checkInTimestamp);
+        $checkInTime = Carbon::createFromTimestamp($checkInTimestamp);
         $start = $session->start_time;
         $end = $session->end_time;
         $onTimeThreshold = $session->start_time->copy()->addMinutes(10); // TODO: make this configurable using settings
@@ -20,6 +20,9 @@ class AttendanceServices
         // check if the timestamp is within the past 3 minutes and the future 3 minutes to stop manipulated timestamps
         $pastThreshold = now()->subMinutes(3);
         $futureBuffer = now()->addMinutes(3);
+        echo $pastThreshold->timezone->getName();
+        echo $checkInTime->timezone->getName();
+        echo ("Past Threshold: $pastThreshold, Future Buffer: $futureBuffer, Check-in Time: $checkInTime");
         if (! $checkInTime->between($pastThreshold, $futureBuffer))
         {
             abort(400, 'Invalid timestamp');
@@ -77,6 +80,7 @@ class AttendanceServices
             // then we compare the student list with the attendance record list
             $absentStudentIds = array_diff($expectedStudentIds->toArray(), $presentStudentIds->toArray());
 
+            // gather all absent student to insert into attendance record
             $recordsToInsert = [];
             foreach ($absentStudentIds as $absentStudentId)
             {
@@ -91,11 +95,13 @@ class AttendanceServices
                 ];
             }
 
+            // check if there is any absent student to insert and then insert in bulk
             if (!empty($recordsToInsert))
             {
                 AttendanceRecord::insert($recordsToInsert);
             }
 
+            // mark the class as completed settled cantek
             $endedClass->update(['is_completed' => true]);
         }
     }
