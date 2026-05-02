@@ -9,11 +9,15 @@ use App\Models\ClassSession;
 use App\Services\AttendanceServices;
 use App\Models\AttendanceRecord;
 use Carbon\Carbon;
+use App\Models\QrToken;
 
 class AttendanceController extends Controller
 {
     public function checkInBle(Request $request, AttendanceServices $attendanceServices)
     {
+        // TODO: transfer the validation into services
+        // TODO: check if the class is cancelled
+
         $request->validate([
             'timestamp' => 'required|string', // timestamp untuk compare dgn timeframe kelas
             'class_session_id' => 'required|integer',
@@ -74,6 +78,60 @@ class AttendanceController extends Controller
         $attendanceRecord->check_in_time = $check_in_time;
         $attendanceRecord->status = $arrivalStatus;
         $attendanceRecord->checkin_method = 'BLE';
+        $attendanceRecord->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully checked in.',
+            'data' => [
+                'attendance_status' => $arrivalStatus,
+                'xp_earned' => $xp,
+                'check_in_time' => $check_in_time,
+            ]
+        ]);
+    }
+
+    public function checkInQr(Request $request, AttendanceServices $attendanceServices)
+    {
+        $request->validate([
+            'timestamp' => 'required|string', // timestamp untuk compare dgn timeframe kelas
+            'class_session_id' => 'required|integer',
+            'token' => 'required|string', // qr punye token untuk make sure checkin kelas yg betul gitu
+        ]);
+
+        // check if qr token is valid
+        $class_session = ClassSession::findOrFail($request->class_session_id);
+        $validationResult = $attendanceServices->checkInValidationQr($class_session, $request->timestamp, $request->token, $request->user());
+        if (! $validationResult['status']) // if not valid then return error
+        {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validationResult['message'],
+            ], $validationResult['code']);
+        }
+
+        $arrivalStatus = $attendanceServices->classifyArrival($class_session, $request->timestamp);
+        if ($arrivalStatus === 'invalid') // if timestamp is invalid because API called after the class ended
+        {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid timestamp',
+            ], 400);
+        }
+
+        // calculate xp
+        $xp = $attendanceServices->calculateXp($arrivalStatus);
+
+        // check in time from request
+        $check_in_time = Carbon::createFromTimestamp($request->timestamp)->toDateTimeString();
+
+        // create record for attendance record table
+        $attendanceRecord = new AttendanceRecord();
+        $attendanceRecord->user_id = $request->user()->id;
+        $attendanceRecord->session_id = $class_session->id;
+        $attendanceRecord->check_in_time = $check_in_time;
+        $attendanceRecord->status = $arrivalStatus;
+        $attendanceRecord->checkin_method = 'QR';
         $attendanceRecord->save();
 
         return response()->json([
