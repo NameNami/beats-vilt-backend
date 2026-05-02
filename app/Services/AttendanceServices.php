@@ -24,9 +24,6 @@ class AttendanceServices
         // check if the timestamp is within the past 3 minutes and the future 3 minutes to stop manipulated timestamps
         $pastThreshold = now()->subMinutes(3);
         $futureBuffer = now()->addMinutes(3);
-        echo $pastThreshold->timezone->getName();
-        echo $checkInTime->timezone->getName();
-        echo ("Past Threshold: $pastThreshold, Future Buffer: $futureBuffer, Check-in Time: $checkInTime");
         if (! $checkInTime->between($pastThreshold, $futureBuffer))
         {
             abort(400, 'Invalid timestamp');
@@ -79,7 +76,7 @@ class AttendanceServices
         }
 
         // check the qr token expiration
-        $expiredAt = Carbon::parse($qrToken->expired_at);
+        $expiredAt = Carbon::parse($qrToken->expires_at);
         $checkInTime = Carbon::createFromTimestamp($checkInTimestamp);
         if ($expiredAt->lte($checkInTime))
         {
@@ -104,13 +101,6 @@ class AttendanceServices
         }
 
         return ['status' => true, 'message' => 'Valid QR token'];
-    }
-
-    public function deletionExpiredQr()
-    {
-        // TODO: delete expired qr token, cron job
-        QrToken::where('expired_at', '<', now())->delete();
-        // TODO: renew token for dynamic tokens
     }
 
     // ---- Cron Job ----

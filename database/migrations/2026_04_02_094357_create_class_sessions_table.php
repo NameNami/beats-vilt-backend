@@ -20,7 +20,7 @@ return new class extends Migration
             $table->dateTime('start_time');
             $table->dateTime('end_time');
             $table->enum('mode', ['online', 'physical']);
-            $table->enum('checkin_method', ['BLE', 'dynamic_qr', 'static_qr']);
+            $table->enum('checkin_method', ['ble', 'qr', 'manual']);
             $table->boolean('is_display')->default(false);
             $table->boolean('is_cancelled')->default(false);
             $table->boolean('announce_cancelled')->default(false);

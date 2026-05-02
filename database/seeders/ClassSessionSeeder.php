@@ -43,7 +43,7 @@ class ClassSessionSeeder extends Seeder
                     'start_time'       => $start,
                     'end_time'         => $end,
                     'mode'             => 'physical',
-                    'checkin_method'   => 'BLE',
+                    'checkin_method'   => 'ble',
                     'is_display'       => true,
                     'is_cancelled'     => false,
                     'announce_cancelled' => false,

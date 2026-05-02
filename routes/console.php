@@ -12,3 +12,6 @@ Schedule::command('attendance:process-absences')
     ->everyFiveMinutes()
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/attendance-cron.log'));
+
+Schedule::command('attendance:prune-expired-qr-token')
+    ->everyFiveMinutes();
