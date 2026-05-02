@@ -15,7 +15,6 @@ class AttendanceController extends Controller
 {
     public function checkInBle(Request $request, AttendanceServices $attendanceServices)
     {
-        // TODO: transfer the validation into services
         // TODO: check if the class is cancelled
 
         $request->validate([
@@ -55,6 +54,14 @@ class AttendanceController extends Controller
             ], 409);
         }
 
+        if ($class_session->is_cancelled)
+        {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Class is cancelled',
+            ], 409);
+        }
+
         // classify arrival status using the timestamp
         $arrivalStatus = $attendanceServices->classifyArrival($class_session, $request->timestamp);
         if ($arrivalStatus === 'invalid') // if timestamp is invalid because API called after the class ended
@@ -77,7 +84,7 @@ class AttendanceController extends Controller
         $attendanceRecord->session_id = $class_session->id;
         $attendanceRecord->check_in_time = $check_in_time;
         $attendanceRecord->status = $arrivalStatus;
-        $attendanceRecord->checkin_method = 'BLE';
+        $attendanceRecord->checkin_method = 'ble';
         $attendanceRecord->save();
 
         return response()->json([
@@ -131,7 +138,7 @@ class AttendanceController extends Controller
         $attendanceRecord->session_id = $class_session->id;
         $attendanceRecord->check_in_time = $check_in_time;
         $attendanceRecord->status = $arrivalStatus;
-        $attendanceRecord->checkin_method = 'QR';
+        $attendanceRecord->checkin_method = 'qr';
         $attendanceRecord->save();
 
         return response()->json([
