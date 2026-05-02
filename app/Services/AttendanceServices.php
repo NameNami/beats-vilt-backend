@@ -6,10 +6,14 @@ use Carbon\Carbon;
 use App\Models\ClassSession;
 use App\Models\AttendanceRecord;
 use App\Models\CourseEnrollment;
+use App\Models\QrToken;
+use App\Models\User;
+use phpDocumentor\Reflection\Types\Array_;
+use phpDocumentor\Reflection\Types\Boolean;
 
 class AttendanceServices
 {
-    public function classifyArrival(ClassSession $session, string $checkInTimestamp)
+    public function classifyArrival(ClassSession $session, string $checkInTimestamp): String
     {
         $checkInTime = Carbon::createFromTimestamp($checkInTimestamp);
         $start = $session->start_time;
@@ -57,6 +61,59 @@ class AttendanceServices
             default => 0,
         };
     }
+
+    public function checkInValidationQr(ClassSession $session, string $checkInTimestamp, string $qrToken, User $user): array
+    {
+        // check if the class within the timeframe | gonna use clasifyArrival()
+
+        // check if qr token is valid (not expired and within the token table)
+        $qrToken = QrToken::where('token', $qrToken)->first();
+        if (! $qrToken)
+        {
+            return ['status' => false, 'message' => 'Invalid QR token', 'code' => 403];
+        }
+
+        if ($qrToken->session_id != $session->id)
+        {
+            return ['status' => false, 'message' => 'Invalid QR token', 'code' => 403];
+        }
+
+        // check the qr token expiration
+        $expiredAt = Carbon::parse($qrToken->expired_at);
+        $checkInTime = Carbon::createFromTimestamp($checkInTimestamp);
+        if ($expiredAt->lte($checkInTime))
+        {
+            return ['status' => false, 'message' => 'QR token has expired', 'code' => 410];
+        }
+
+        // check if the class is cancelled
+        if ($session->is_cancelled)
+        {
+            return ['status' => false, 'message' => 'Class is cancelled', 'code' => 403];
+        }
+
+        // check if lecturer is displaying the qr code
+        if (! $session->is_display)
+        {
+            return ['status' => false, 'message' => 'QR code is not displayed', 'code' => 403];
+        }
+
+        // check if user already checked in
+        if ($session->attendanceRecords()->where('user_id', $user->id)->exists()) {
+            return ['status' => false, 'message' => 'You have already checked in.', 'code' => 409];
+        }
+
+        return ['status' => true, 'message' => 'Valid QR token'];
+    }
+
+    public function deletionExpiredQr()
+    {
+        // TODO: delete expired qr token, cron job
+        QrToken::where('expired_at', '<', now())->delete();
+        // TODO: renew token for dynamic tokens
+    }
+
+    // ---- Cron Job ----
 
     public function GenerateAbsentStatus()
     {
