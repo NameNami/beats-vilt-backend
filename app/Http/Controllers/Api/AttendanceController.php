@@ -15,7 +15,6 @@ class AttendanceController extends Controller
 {
     public function checkInBle(Request $request, AttendanceServices $attendanceServices)
     {
-        // TODO: check if the class is cancelled
 
         $request->validate([
             'timestamp' => 'required|string', // timestamp untuk compare dgn timeframe kelas
