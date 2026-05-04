@@ -53,8 +53,9 @@ class AttendanceServices
     {
         return match ($classification) {
             'on-time' => 50,
-            'late' => 20,
-            'early' => 10,
+            'late' => 35,
+            'early' => 100,
+            'present' => 100,
             default => 0,
         };
     }

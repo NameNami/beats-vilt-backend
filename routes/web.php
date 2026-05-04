@@ -4,6 +4,8 @@ use App\Http\Controllers\PasswordResetController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\WebAuthController;
+use App\Http\Controllers\WebAttendanceController;
+use App\Http\Controllers\WebLecturerDashboardController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -28,3 +30,8 @@ Route::post('reset-password', [PasswordResetController::class, 'reset'])->name('
 //Logout
 Route::post('/logout', [WebAuthController::class, 'logout'])->name('logout');
 // --- AUTH
+
+// TODO: select class -> class session -> qr dashboard
+// TODO: add checkrole nanti
+// TODO:
+Route::get('lecturer/dashboard',[WebLecturerDashboardController::class,'lecturerDashboard'])->name('lecturer.dashboard');

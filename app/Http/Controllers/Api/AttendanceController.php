@@ -116,6 +116,7 @@ class AttendanceController extends Controller
             ], $validationResult['code']);
         }
 
+        /*
         $arrivalStatus = $attendanceServices->classifyArrival($class_session, $request->timestamp);
         if ($arrivalStatus === 'invalid') // if timestamp is invalid because API called after the class ended
         {
@@ -124,6 +125,8 @@ class AttendanceController extends Controller
                 'message' => 'Invalid timestamp',
             ], 400);
         }
+        */
+        $arrivalStatus = 'present';
 
         // calculate xp
         $xp = $attendanceServices->calculateXp($arrivalStatus);
