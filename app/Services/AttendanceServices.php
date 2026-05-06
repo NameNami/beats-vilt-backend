@@ -153,4 +153,24 @@ class AttendanceServices
             $endedClass->update(['is_completed' => true]);
         }
     }
+
+    public function averageAttendance()
+    {
+        //
+    }
+
+    public function classTodayCount()
+    {
+        //
+    }
+
+    public function pendingLeaveCount()
+    {
+        //
+    }
+
+    public function atRiskStudentCount()
+    {
+        //
+    }
 }
