@@ -20,8 +20,10 @@ class WebAuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/');
+        return redirect('/login');
     }
+
+    // TODO: add auto redirect to dashboard if already signed in
     public function login(Request $request)
     {
         $credentials = $request->validate(

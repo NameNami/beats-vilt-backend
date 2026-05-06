@@ -1,9 +1,13 @@
 <script setup>
 // Import the layout we just created
 import AppLayout from '../Layouts/AppLayout.vue';
+import { Head } from '@inertiajs/vue3';
 </script>
 
 <template>
+    <Head>
+        <title>Dashboard</title>
+    </Head>
     <AppLayout>
 
         <div>
