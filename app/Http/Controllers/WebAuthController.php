@@ -12,6 +12,16 @@ class WebAuthController extends Controller
 {
     public function showLoginForm()
     {
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->role === 'admin') {
+                return redirect()->route('admin.dashboard');
+            }
+
+            if ($user->role === 'lecturer') {
+                return redirect()->route('lecturer.dashboard');
+            }
+        }
         return Inertia::render('login');
     }
 
@@ -23,7 +33,6 @@ class WebAuthController extends Controller
         return redirect('/login');
     }
 
-    // TODO: add auto redirect to dashboard if already signed in
     public function login(Request $request)
     {
         $credentials = $request->validate(
