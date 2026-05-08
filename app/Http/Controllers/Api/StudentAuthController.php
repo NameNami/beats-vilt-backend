@@ -1,13 +1,31 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 
 class StudentAuthController extends Controller
 {
+    /**
+     * Send a reset link to the given user.
+     */
+    public function sendResetLinkEmail(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $status = Password::sendResetLink(
+            $request->only('email')
+        );
+
+        // return bile email dh sent
+        return $status === Password::RESET_LINK_SENT
+            ? response()->json(['message' => __($status)]) : response()->json(['message' => __($status)], 422);
+    }
+
     public function login(Request $request)
     {
         // check dulu yg dlm incoming json payload
@@ -22,7 +40,7 @@ class StudentAuthController extends Controller
         $student = User::where('student_id', $request->student_id)->first();
 
         // check password kalau xvalid
-        if (! $student || Hash::check($request->password, $student->password))
+        if (! $student || ! Hash::check($request->password, $student->password))
         {
             return response()->json([
                 "message" => "Invalid credentials"
@@ -30,8 +48,8 @@ class StudentAuthController extends Controller
         }
 
         // save atau un update, dia automatic create record baru kalau nama device tu xde lagi, kalau dh ade update je token tu
-        $student->fcmTokens()::updateOrCreate(['device_name' => $request->input('device.name'),
-            'device_token' => $request->input('device.push_token')]);
+        $student->fcmTokens()->updateOrCreate(['device_name' => $request->input('device.name')],
+            ['device_token' => $request->input('device.push_token')]);
 
         $deviceName = $request->input('device.name'); // store nama device dari json dlm variable
         $student->tokens()->where('name', $deviceName)->delete(); // astu kalau dh ade dlm sacntum token, delete token tu dulu
@@ -40,6 +58,14 @@ class StudentAuthController extends Controller
         return response()->json([
             "token" => $token,
             "user" => $student,
+        ]);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+        return response()->json([
+            "message" => "Logged out"
         ]);
     }
 }
