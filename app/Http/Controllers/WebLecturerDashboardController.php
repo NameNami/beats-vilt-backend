@@ -113,6 +113,8 @@ class WebLecturerDashboardController extends Controller
                         ->where('role', 'student')
                         ->count(),
                     'status' => $status,
+                    'is_cancelled' => (bool)$session->is_cancelled,
+                    'is_in_class_time' => $now->between($session->start_time, $session->end_time),
                 ];
             });
 
@@ -123,6 +125,18 @@ class WebLecturerDashboardController extends Controller
             'atRiskStudentCount' => (string)$atRiskStudentCount,
             'scheduleItems' => $scheduleItems,
         ]);
+    }
+
+    public function toggleCancel(ClassSession $session)
+    {
+        if ($session->lecturer_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $session->is_cancelled = !$session->is_cancelled;
+        $session->save();
+
+        return back();
     }
 
     public function averageAttendance()

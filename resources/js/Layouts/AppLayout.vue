@@ -82,7 +82,7 @@ onUnmounted(() => {
                 <Link
                     href="/lecturer/timetable"
                     class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
-                    :class="[ $page.url.startsWith('/timetable') ? 'bg-gray-100 text-orange-400 font-medium border-r-3 border-orange-400' : 'text-gray-600 hover:bg-gray-100' ]"
+                    :class="[ $page.url.startsWith('/lecturer/timetable') ? 'bg-gray-100 text-orange-400 font-medium border-r-3 border-orange-400' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <font-awesome-icon icon="fa-solid fa-calendar" class="text-lg" />
                     Timetable
@@ -91,7 +91,7 @@ onUnmounted(() => {
                 <Link
                     href="/lecturer/leave"
                     class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
-                    :class="[ $page.url.startsWith('/leave') ? 'bg-gray-100 text-orange-400 font-medium border-r-3 border-orange-400' : 'text-gray-600 hover:bg-gray-100' ]"
+                    :class="[ $page.url.startsWith('/lecturer/leave') ? 'bg-gray-100 text-orange-400 font-medium border-r-3 border-orange-400' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <font-awesome-icon icon="fa-solid fa-scroll" class="text-lg" />
                     Leave Applications
@@ -100,7 +100,7 @@ onUnmounted(() => {
                 <Link
                     href="/lecturer/attendance"
                     class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors border-l-4"
-                    :class="[ $page.url.startsWith('/attendance') ? 'bg-gray-100 text-orange-400 font-medium border-r-3 border-orange-400' : 'text-gray-600 hover:bg-gray-100 border-transparent' ]"
+                    :class="[ $page.url.startsWith('/lecturer/attendance') ? 'bg-gray-100 text-orange-400 font-medium border-r-3 border-orange-400' : 'text-gray-600 hover:bg-gray-100 border-transparent' ]"
                 >
                     <font-awesome-icon icon="fa-solid fa-user-clock" class="text-lg" />
                     Attendance
@@ -109,7 +109,7 @@ onUnmounted(() => {
                 <Link
                     href="/lecturer/reports"
                     class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
-                    :class="[ $page.url.startsWith('/reports') ? 'bg-gray-100 text-orange-400 font-medium border-r-3 border-orange-400' : 'text-gray-600 hover:bg-gray-100' ]"
+                    :class="[ $page.url.startsWith('/lecturer/reports') ? 'bg-gray-100 text-orange-400 font-medium border-r-3 border-orange-400' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <font-awesome-icon icon="fa-solid fa-chart-simple" class="text-lg" />
                     Reports
@@ -136,7 +136,7 @@ onUnmounted(() => {
 
         <div class="flex-1 flex flex-col overflow-hidden">
 
-            <header class="h-20 bg-gray-50 flex items-center justify-between px-8 border-b border-gray-200">
+            <header class="h-15 bg-gray-50 flex items-center justify-between px-8 border-b border-gray-200">
 
                 <div class="w-96">
                     <div class="relative">
