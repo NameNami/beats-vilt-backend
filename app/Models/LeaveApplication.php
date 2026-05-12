@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
     'user_id',
     'session_id',
     'reviewed_by',
+    'type',
     'reason',
     'document_path',
     'status',

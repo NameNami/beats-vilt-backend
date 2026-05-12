@@ -16,10 +16,6 @@
         "ziggy-js": "^2.6.2"
     },
     "dependencies": {
-        "@fortawesome/fontawesome-svg-core": "^7.2.0",
-        "@fortawesome/free-regular-svg-icons": "^7.2.0",
-        "@fortawesome/free-solid-svg-icons": "^7.2.0",
-        "@fortawesome/vue-fontawesome": "^3.2.0",
         "@inertiajs/vue3": "^3.0.0",
         "@vitejs/plugin-vue": "^6.0.5",
         "lucide-vue-next": "^1.0.0",

@@ -2,6 +2,19 @@
 import { Link, router } from '@inertiajs/vue3';
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { usePage } from '@inertiajs/vue3';
+import { 
+    LayoutDashboard, 
+    Calendar, 
+    Scroll, 
+    UserCheck, 
+    BarChart3, 
+    Settings, 
+    LogOut, 
+    Bell, 
+    AlertTriangle, 
+    Clock, 
+    Info 
+} from 'lucide-vue-next';
 
 // Grab the user globally from Inertia (explained in Step 3)
 const page = usePage();
@@ -10,6 +23,17 @@ const user = computed(() => page.props.auth.user);
 // Get globally shared notification data
 const notifications = computed(() => page.props.notifications);
 const unreadCount = computed(() => page.props.unread_count);
+
+defineProps({
+    noPadding: {
+        type: Boolean,
+        default: false
+    },
+    noBackground: {
+        type: Boolean,
+        default: false
+    }
+});
 
 // Dropdown state
 const showNotifications = ref(false);
@@ -75,7 +99,7 @@ onUnmounted(() => {
                     class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
                     :class="[ $page.url.startsWith('/lecturer/dashboard') ? 'bg-gray-100 text-orange-400 font-medium border-r-3 border-orange-400' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
-                    <font-awesome-icon icon="fa-solid fa-table-columns" class="text-lg" />
+                    <LayoutDashboard class="w-5 h-5" />
                     Dashboard
                 </Link>
 
@@ -84,7 +108,7 @@ onUnmounted(() => {
                     class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
                     :class="[ $page.url.startsWith('/lecturer/timetable') ? 'bg-gray-100 text-orange-400 font-medium border-r-3 border-orange-400' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
-                    <font-awesome-icon icon="fa-solid fa-calendar" class="text-lg" />
+                    <Calendar class="w-5 h-5" />
                     Timetable
                 </Link>
 
@@ -93,7 +117,7 @@ onUnmounted(() => {
                     class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
                     :class="[ $page.url.startsWith('/lecturer/leave') ? 'bg-gray-100 text-orange-400 font-medium border-r-3 border-orange-400' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
-                    <font-awesome-icon icon="fa-solid fa-scroll" class="text-lg" />
+                    <Scroll class="w-5 h-5" />
                     Leave Applications
                 </Link>
 
@@ -102,7 +126,7 @@ onUnmounted(() => {
                     class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors border-l-4"
                     :class="[ $page.url.startsWith('/lecturer/attendance') ? 'bg-gray-100 text-orange-400 font-medium border-r-3 border-orange-400' : 'text-gray-600 hover:bg-gray-100 border-transparent' ]"
                 >
-                    <font-awesome-icon icon="fa-solid fa-user-clock" class="text-lg" />
+                    <UserCheck class="w-5 h-5" />
                     Attendance
                 </Link>
 
@@ -111,14 +135,14 @@ onUnmounted(() => {
                     class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
                     :class="[ $page.url.startsWith('/lecturer/reports') ? 'bg-gray-100 text-orange-400 font-medium border-r-3 border-orange-400' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
-                    <font-awesome-icon icon="fa-solid fa-chart-simple" class="text-lg" />
+                    <BarChart3 class="w-5 h-5" />
                     Reports
                 </Link>
             </nav>
 
             <div class="p-4 space-y-1 mb-4">
                 <Link href="/lecturer/settings" class="flex items-center gap-3 px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100">
-                    <font-awesome-icon icon="fa-solid fa-gear" class="text-lg" />
+                    <Settings class="w-5 h-5" />
                     Settings
                 </Link>
 
@@ -128,7 +152,7 @@ onUnmounted(() => {
                     as="button"
                     class="flex w-full items-center gap-3 px-3 py-2 text-gray-600 rounded-md transition-all cursor-pointer hover:bg-gray-100 hover:text-gray-900 active:bg-gray-200 active:scale-[0.98]"
                 >
-                    <font-awesome-icon icon="fa-solid fa-right-from-bracket" class="text-lg" />
+                    <LogOut class="w-5 h-5" />
                     Logout
                 </Link>
             </div>
@@ -147,7 +171,7 @@ onUnmounted(() => {
                 <div class="flex items-center gap-6">
                     <div class="relative flex items-center">
                         <button @click="showNotifications = !showNotifications" class="hover:text-gray-700 text-gray-500 relative focus:outline-none transition-colors p-2 rounded-full hover:bg-gray-200 cursor-pointer">
-                            <font-awesome-icon icon="fa-solid fa-bell" class="text-lg" />
+                            <Bell class="w-5 h-5" />
                             <span v-if="unreadCount > 0" class="absolute top-1 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
                         </button>
 
@@ -174,9 +198,9 @@ onUnmounted(() => {
                                     :class="{ 'bg-orange-50/30': !notification.is_read }"
                                 >
                                     <div class="mt-1 flex-shrink-0">
-                                        <font-awesome-icon v-if="notification.type === 'risk'" icon="fa-solid fa-triangle-exclamation" class="text-red-500" />
-                                        <font-awesome-icon v-else-if="notification.type === 'reminder'" icon="fa-solid fa-clock" class="text-blue-500" />
-                                        <font-awesome-icon v-else icon="fa-solid fa-circle-info" class="text-gray-400" />
+                                        <AlertTriangle v-if="notification.type === 'risk'" class="w-5 h-5 text-red-500" />
+                                        <Clock v-else-if="notification.type === 'reminder'" class="w-5 h-5 text-blue-500" />
+                                        <Info v-else class="w-5 h-5 text-gray-400" />
                                     </div>
                                     <div>
                                         <p class="text-sm text-gray-800" :class="{ 'font-semibold': !notification.is_read }">{{ notification.title }}</p>
@@ -203,7 +227,7 @@ onUnmounted(() => {
                 </div>
             </header>
 
-            <main class="flex-1 overflow-y-auto bg-white p-8">
+            <main :class="['flex-1 overflow-y-auto', noPadding ? '' : 'p-8', noBackground ? '' : 'bg-white']">
                 <slot />
             </main>
 

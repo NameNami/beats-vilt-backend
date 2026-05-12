@@ -8,6 +8,7 @@ const props = defineProps({
     sessions: Array
 });
 
+// TODO: add new pop up window when user clicks on a class
     // --- State & Helpers ---
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const HOURS = Array.from({ length: 16 }, (_, i) => i + 8); // 8:00 to 23:00 (15 hours)

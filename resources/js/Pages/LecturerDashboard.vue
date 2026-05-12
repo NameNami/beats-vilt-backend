@@ -2,6 +2,7 @@
 import AppLayout from '../Layouts/AppLayout.vue';
 import {Head, Link, usePage, router} from '@inertiajs/vue3';
 import {computed, ref} from 'vue';
+import { MapPin, Users, CalendarDays } from 'lucide-vue-next';
 
 const props = defineProps({
     overallAttendance: String,
@@ -125,11 +126,11 @@ const toggleCancel = (id) => {
 
                                 <div class="flex items-center text-sm text-slate-500 gap-4 mt-1.5">
                                     <span class="flex items-center gap-1.5">
-                                        <font-awesome-icon icon="fa-solid fa-location-dot" class="text-slate-400" />
+                                        <MapPin class="w-4 h-4 text-slate-400" />
                                         {{ item.location }}
                                     </span>
                                     <span class="flex items-center gap-1.5">
-                                        <font-awesome-icon icon="fa-solid fa-user-group" class="text-slate-400" />
+                                        <Users class="w-4 h-4 text-slate-400" />
                                         {{ item.students }} Students
                                     </span>
                                 </div>
@@ -171,7 +172,7 @@ const toggleCancel = (id) => {
                 <!-- Empty State -->
                 <div v-else class="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center">
                     <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-50 text-slate-400 mb-4">
-                        <font-awesome-icon icon="fa-solid fa-calendar-day" class="text-2xl" />
+                        <CalendarDays class="w-8 h-8" />
                     </div>
                     <h3 class="text-lg font-bold text-slate-900 mb-1">No classes scheduled for today</h3>
                     <p class="text-slate-500 text-sm max-w-xs mx-auto">

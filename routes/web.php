@@ -8,6 +8,8 @@ use App\Http\Controllers\WebAttendanceController;
 use App\Http\Controllers\WebLecturerDashboardController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\WebLecturerTimetableController;
+use App\Http\Controllers\WebLecturerLeave;
+use App\Http\Middleware\CheckRoleWeb;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -34,11 +36,12 @@ Route::post('/logout', [WebAuthController::class, 'logout'])->name('logout');
 // --- AUTH
 
 // TODO: select class -> class session -> qr dashboard
-// TODO: add checkrole lecturer
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', CheckRoleWeb::class . ':lecturer'])->group(function () {
     Route::get('lecturer/dashboard',[WebLecturerDashboardController::class,'lecturerDashboard'])->name('lecturer.dashboard');
     Route::post('lecturer/sessions/{session}/toggle-cancel', [WebLecturerDashboardController::class, 'toggleCancel'])->name('lecturer.sessions.toggle-cancel');
     Route::get('lecturer/timetable',[WebLecturerTimetableController::class,'lecturerTimetable'])->name('lecturer.timetable');
+    Route::get('lecturer/leave', [WebLecturerLeave::class, 'index'])->name('lecturer.leave');
+    Route::post('lecturer/leave/{application}/status', [WebLecturerLeave::class, 'updateStatus'])->name('lecturer.leave.status');
 
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead']);
