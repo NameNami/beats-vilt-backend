@@ -6,6 +6,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\WebAuthController;
 use App\Http\Controllers\WebAttendanceController;
 use App\Http\Controllers\WebLecturerDashboardController;
+use App\Http\Controllers\WebLecturerReport;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\WebLecturerTimetableController;
 use App\Http\Controllers\WebLecturerLeave;
@@ -48,6 +49,9 @@ Route::middleware(['auth', CheckRoleWeb::class . ':lecturer'])->group(function (
     Route::post('lecturer/sessions/{session}/mark-attendance', [WebAttendanceController::class, 'markAttendance'])->name('lecturer.sessions.mark-attendance');
     Route::post('lecturer/sessions/{session}/mark-all-present', [WebAttendanceController::class, 'markAllPresent'])->name('lecturer.sessions.mark-all-present');
     Route::post('lecturer/sessions/{session}/reset-attendance', [WebAttendanceController::class, 'resetAttendance'])->name('lecturer.sessions.reset-attendance');
+
+    Route::get('lecturer/reports', [WebLecturerReport::class, 'index'])->name('lecturer.reports');
+    Route::get('lecturer/reports/export', [WebLecturerReport::class, 'exportCsv'])->name('lecturer.reports.export');
 
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead']);

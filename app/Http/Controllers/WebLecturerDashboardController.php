@@ -6,6 +6,7 @@ use App\Models\AttendanceRecord;
 use App\Models\ClassSession;
 use App\Models\CourseEnrollment;
 use App\Models\LeaveApplication;
+use App\Models\SystemSetting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -69,11 +70,47 @@ class WebLecturerDashboardController extends Controller
 
         $overallAttendance = $totalExpected > 0 ? round(($totalPresent / $totalExpected) * 100, 1) : 0;
 
+        $threshold = (float) SystemSetting::get('min_attendance_threshold', 80) / 100;
+
+        // Sync at-risk calculation with WebAttendanceController logic
         $atRiskStudentCount = 0;
-        foreach ($studentAttendance as $stats) {
-            $rate = $stats['total'] > 0 ? ($stats['present'] / $stats['total']) : 1;
-            if ($rate < 0.8) {
-                $atRiskStudentCount++;
+        
+        // Get courses for this lecturer
+        $courses = \App\Models\Course::whereHas('enrollments', function ($query) use ($lecturerId) {
+            $query->where('user_id', $lecturerId)->where('role', 'lecturer');
+        })->get();
+
+        foreach ($courses as $course) {
+            $enrolledStudents = \App\Models\User::whereHas('courseEnrollments', function($q) use ($course) {
+                $q->where('course_id', $course->id)->where('role', 'student');
+            })->with(['courseEnrollments' => function($q) use ($course) {
+                $q->where('course_id', $course->id);
+            }])->get();
+
+            foreach ($enrolledStudents as $student) {
+                $studentEnrollment = $student->courseEnrollments->first();
+                
+                $studentPastSessionIds = ClassSession::where('course_id', $course->id)
+                    ->where('lecturer_id', $lecturerId)
+                    ->where('is_completed', true)
+                    ->where(function($q) use ($studentEnrollment) {
+                        $q->whereNull('lab_id')
+                          ->orWhere('lab_id', $studentEnrollment->lab_id);
+                    })
+                    ->pluck('id');
+
+                $totalPastCount = $studentPastSessionIds->count();
+                if ($totalPastCount === 0) continue;
+
+                $presentPastCount = AttendanceRecord::whereIn('session_id', $studentPastSessionIds)
+                    ->where('user_id', $student->id)
+                    ->whereIn('status', ['early', 'on-time', 'late', 'present'])
+                    ->count();
+                
+                $rate = $presentPastCount / $totalPastCount;
+                if ($rate < $threshold) {
+                    $atRiskStudentCount++;
+                }
             }
         }
 

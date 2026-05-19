@@ -34,7 +34,7 @@ test('lecturer can see sessions for current week', function () {
     ]);
     
     $lab = Lab::create([
-        'name' => 'Lab A',
+        'name' => 'L01',
         'capacity' => 30,
         'course_id' => $course->id,
         'lecturer_id' => $lecturer->id
@@ -100,7 +100,7 @@ test('lecturer can see sessions for a specific week', function () {
     ]);
     
     $lab = Lab::create([
-        'name' => 'Lab A',
+        'name' => 'L01',
         'capacity' => 30,
         'course_id' => $course->id,
         'lecturer_id' => $lecturer->id

@@ -336,16 +336,16 @@ const navigateWeek = (direction) => {
                             :key="event.id"
                             :class="[
               'flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 p-4 sm:p-5 bg-white rounded-2xl border transition-all hover:shadow-md',
-              event.isOngoing ? 'border-orange-500 ring-1 ring-orange-500 shadow-lg shadow-orange-100' : (isCurrentDay ? 'border-orange-200' : 'border-slate-200')
+              event.isOngoing ? 'border-orange-500 ring-1 ring-orange-500 shadow-lg shadow-orange-100' : 'border-slate-200'
             ]"
                         >
                             <!-- Time Box -->
                             <div :class="[
               'w-full sm:w-24 sm:h-24 py-3 sm:py-0 rounded-2xl border flex flex-row sm:flex-col justify-center items-center shrink-0',
-              isCurrentDay ? 'border-orange-200/70 bg-orange-50/50 text-orange-700' : 'border-slate-200 bg-slate-50 text-slate-600'
+              event.isOngoing ? 'border-orange-200/70 bg-orange-50/50 text-orange-700' : 'border-slate-200 bg-slate-50 text-slate-600'
             ]">
                                 <span class="text-[14px] font-bold">{{ event.start }}</span>
-                                <div :class="['hidden sm:block w-6 border-b-2 my-1.5', isCurrentDay ? 'border-orange-200' : 'border-slate-200']"></div>
+                                <div :class="['hidden sm:block w-6 border-b-2 my-1.5', event.isOngoing ? 'border-orange-200' : 'border-slate-200']"></div>
                                 <span class="text-[14px] font-bold sm:hidden mx-2">-</span>
                                 <span class="text-[14px] font-bold">{{ event.end }}</span>
                             </div>

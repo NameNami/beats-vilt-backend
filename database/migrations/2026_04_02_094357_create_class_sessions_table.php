@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('class_sessions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('course_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('lab_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('lab_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('lecturer_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('room_id')->nullable()->constrained()->nullOnDelete();
             $table->dateTime('start_time');

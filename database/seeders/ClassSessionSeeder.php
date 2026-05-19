@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\ClassSession;
 use App\Models\Lab;
+use App\Models\Course;
 use App\Models\Room;
 use Illuminate\Support\Carbon;
 
@@ -15,92 +16,95 @@ class ClassSessionSeeder extends Seeder
      */
     public function run(): void
     {
-        $labs = Lab::with('course')->get();
+        $courses = Course::with('labs')->get();
+        $labs = Lab::all();
         $rooms = Room::all();
-        if ($rooms->isEmpty() || $labs->isEmpty()) {
+        
+        if ($rooms->isEmpty() || $courses->isEmpty()) {
             return; // prerequisites not met
         }
 
         $roomCount = $rooms->count();
         $now = Carbon::now();
-
         $sessionIndex = 0;
-        foreach ($labs as $lab) {
-            // Create a mix of sessions: 1 Past, 1 Ongoing, 2 Future
+
+        // Generate sessions for the last 6 weeks and next 2 weeks
+        for ($weekOffset = -6; $weekOffset <= 2; $weekOffset++) {
             
-            // 1. Past Session (Completed)
-            $startPast = $now->copy()->subDays(2)->setTime(10, 0);
-            $endPast = $startPast->copy()->addHours(2);
-            ClassSession::create([
-                'course_id'        => $lab->course_id,
-                'lab_id'           => $lab->id,
-                'lecturer_id'      => $lab->lecturer_id,
-                'room_id'          => $rooms[$sessionIndex % $roomCount]->id,
-                'start_time'       => $startPast,
-                'end_time'         => $endPast,
-                'mode'             => 'physical',
-                'checkin_method'   => 'ble',
-                'is_display'       => true,
-                'is_cancelled'     => false,
-                'is_completed'     => true,
-                'announce_cancelled' => false,
-            ]);
+            // 1. Generate LECTURES for each course (1 per week)
+            foreach ($courses as $course) {
+                // Lectures are usually on a fixed day, let's say Monday
+                $baseDate = $now->copy()->startOfWeek()->addWeeks($weekOffset);
+                
+                $isPast = $baseDate->lt($now->copy()->startOfDay());
+                $isToday = $baseDate->isToday();
 
-            // 2. Ongoing Session (Active)
-            $startOngoing = $now->copy()->subHour();
-            $endOngoing = $startOngoing->copy()->addHours(2);
-            ClassSession::create([
-                'course_id'        => $lab->course_id,
-                'lab_id'           => $lab->id,
-                'lecturer_id'      => $lab->lecturer_id,
-                'room_id'          => $rooms[($sessionIndex + 1) % $roomCount]->id,
-                'start_time'       => $startOngoing,
-                'end_time'         => $endOngoing,
-                'mode'             => 'physical',
-                'checkin_method'   => 'ble',
-                'is_display'       => true,
-                'is_cancelled'     => false,
-                'is_completed'     => false,
-                'announce_cancelled' => false,
-            ]);
+                $start = $baseDate->copy()->setTime(10, 0); // 10:00 AM
+                $end = $baseDate->copy()->setTime(12, 0);   // 12:00 PM
 
-            // 3. Future Session (Upcoming)
-            $startFuture = $now->copy()->addDays(1)->setTime(9, 0);
-            $endFuture = $startFuture->copy()->addHours(2);
-            ClassSession::create([
-                'course_id'        => $lab->course_id,
-                'lab_id'           => $lab->id,
-                'lecturer_id'      => $lab->lecturer_id,
-                'room_id'          => $rooms[($sessionIndex + 2) % $roomCount]->id,
-                'start_time'       => $startFuture,
-                'end_time'         => $endFuture,
-                'mode'             => 'physical',
-                'checkin_method'   => 'ble',
-                'is_display'       => true,
-                'is_cancelled'     => false,
-                'is_completed'     => false,
-                'announce_cancelled' => false,
-            ]);
+                $is_completed = $isPast || ($isToday && $now->gt($end));
+                $is_active = $isToday && $now->between($start, $end);
 
-            // 4. Cancelled Session
-            $startCancelled = $now->copy()->addDays(2)->setTime(14, 0);
-            $endCancelled = $startCancelled->copy()->addHours(2);
-            ClassSession::create([
-                'course_id'        => $lab->course_id,
-                'lab_id'           => $lab->id,
-                'lecturer_id'      => $lab->lecturer_id,
-                'room_id'          => $rooms[($sessionIndex + 3) % $roomCount]->id,
-                'start_time'       => $startCancelled,
-                'end_time'         => $endCancelled,
-                'mode'             => 'physical',
-                'checkin_method'   => 'ble',
-                'is_display'       => true,
-                'is_cancelled'     => true,
-                'is_completed'     => false,
-                'announce_cancelled' => true,
-            ]);
+                // Use the lecturer from the first lab or a default
+                $lecturerId = $course->labs->first()?->lecturer_id ?? 1;
 
-            $sessionIndex++;
+                ClassSession::create([
+                    'course_id'        => $course->id,
+                    'lab_id'           => null, // This signifies a Lecture
+                    'lecturer_id'      => $lecturerId,
+                    'room_id'          => $rooms[$sessionIndex % $roomCount]->id,
+                    'start_time'       => $start,
+                    'end_time'         => $end,
+                    'mode'             => 'physical',
+                    'checkin_method'   => 'qr', // Lectures often use QR
+                    'is_display'       => $is_active,
+                    'is_cancelled'     => false,
+                    'is_completed'     => $is_completed,
+                    'announce_cancelled' => false,
+                ]);
+                $sessionIndex++;
+            }
+
+            // 2. Generate LAB SESSIONS for each lab
+            foreach ($labs as $lab) {
+                // Determine the day of the week based on lab ID to distribute classes
+                // Skip Monday (reserved for lectures above)
+                $dayOffset = ($lab->id % 4) + 1; // Tuesday to Friday
+                $baseDate = $now->copy()->startOfWeek()->addWeeks($weekOffset)->addDays($dayOffset);
+                
+                $isPast = $baseDate->lt($now->copy()->startOfDay());
+                $isToday = $baseDate->isToday();
+
+                // Create 2 sessions per lab per week at different times
+                $times = [
+                    ['start' => '09:00', 'end' => '11:00'],
+                    ['start' => '14:00', 'end' => '16:00'],
+                ];
+
+                foreach ($times as $time) {
+                    $start = $baseDate->copy()->setTimeFromTimeString($time['start']);
+                    $end = $baseDate->copy()->setTimeFromTimeString($time['end']);
+
+                    $is_completed = $isPast || ($isToday && $now->gt($end));
+                    $is_active = $isToday && $now->between($start, $end);
+                    
+                    ClassSession::create([
+                        'course_id'        => $lab->course_id,
+                        'lab_id'           => $lab->id,
+                        'lecturer_id'      => $lab->lecturer_id,
+                        'room_id'          => $rooms[$sessionIndex % $roomCount]->id,
+                        'start_time'       => $start,
+                        'end_time'         => $end,
+                        'mode'             => 'physical',
+                        'checkin_method'   => 'ble',
+                        'is_display'       => $is_active,
+                        'is_cancelled'     => false,
+                        'is_completed'     => $is_completed,
+                        'announce_cancelled' => false,
+                    ]);
+                    $sessionIndex++;
+                }
+            }
         }
     }
 }

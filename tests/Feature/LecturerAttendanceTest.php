@@ -13,7 +13,7 @@ uses(RefreshDatabase::class);
 function createTestSession($lecturer, $courseCode = 'CS101') {
     $course = Course::create(['code' => $courseCode, 'name' => 'Test Course', 'faculty' => 'FOC']);
     $course->lecturers()->attach($lecturer->id); // Ensure lecturer is enrolled
-    $lab = Lab::create(['name' => 'Lab X', 'capacity' => 30, 'course_id' => $course->id]);
+    $lab = Lab::create(['name' => 'L01', 'capacity' => 30, 'course_id' => $course->id]);
     
     return ClassSession::create([
         'course_id' => $course->id,
@@ -50,10 +50,6 @@ test('lecturer can toggle session display status', function () {
     $response = $this->actingAs($lecturer, 'web')->postJson(route('lecturer.sessions.toggle-display', $session->id), [
         'is_display' => true
     ]);
-
-    if ($response->status() === 302) {
-        dd($response->headers->get('Location'));
-    }
 
     $response->assertStatus(200);
     expect($session->refresh()->is_display)->toBeTrue();

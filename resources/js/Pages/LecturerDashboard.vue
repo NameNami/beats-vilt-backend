@@ -15,7 +15,8 @@ import {
     Activity,
     CheckCircle2,
     RefreshCw,
-    Search
+    Search,
+    AlertTriangle
 } from 'lucide-vue-next';
 import axios from 'axios';
 
@@ -468,11 +469,18 @@ onUnmounted(() => {
                                 v-for="student in filteredStudents"
                                 :key="student.id"
                                 class="px-6 py-4 border-b border-slate-50 flex items-center justify-between hover:bg-slate-50/50 transition-colors"
+                                :class="{'bg-rose-50/50': student.is_at_risk}"
                             >
                                 <div class="flex items-center gap-4">
+                                    <div v-if="student.is_at_risk" class="p-1.5 bg-rose-100 rounded-full text-rose-600">
+                                        <AlertTriangle class="w-4 h-4" />
+                                    </div>
                                     <div>
                                         <p class="font-bold text-slate-900 text-sm leading-tight">{{ student.name }}</p>
-                                        <p class="text-[11px] font-medium text-slate-400 mt-0.5">{{ student.student_id }}</p>
+                                        <div class="flex items-center gap-2 mt-0.5">
+                                            <p class="text-[11px] font-medium text-slate-400">{{ student.student_id }}</p>
+                                            <span v-if="student.is_at_risk" class="text-[10px] font-bold text-rose-600 uppercase">At Risk ({{ student.attendance_rate }}%)</span>
+                                        </div>
                                     </div>
                                 </div>
 

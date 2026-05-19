@@ -12,7 +12,8 @@ import {
     Activity,
     CheckCircle2,
     RefreshCw,
-    Search
+    Search,
+    AlertTriangle
 } from 'lucide-vue-next';
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { Head, router } from '@inertiajs/vue3';
@@ -20,11 +21,15 @@ import axios from 'axios';
 
 const props = defineProps({
     courses: Array,
-    sessions: Array
+    sessions: Array,
+    atRiskCount: Number,
+    atRiskStudents: Array,
+    threshold: Number
 });
 
 // --- State ---
 const expandedClassId = ref(props.courses.length > 0 ? props.courses[0].id : null);
+const expandedAtRiskCourses = ref([]);
 const showModal = ref(false);
 const selectedSessionData = ref(null);
 const studentsList = ref([]);
@@ -40,6 +45,21 @@ const isProcessing = ref(false);
 const isQrGenerated = ref(false);
 
 // --- Computed ---
+const groupedAtRiskStudents = computed(() => {
+    const groups = {};
+    props.atRiskStudents.forEach(student => {
+        if (!groups[student.course_code]) {
+            groups[student.course_code] = {
+                code: student.course_code,
+                name: student.course_name,
+                students: []
+            };
+        }
+        groups[student.course_code].students.push(student);
+    });
+    return Object.values(groups);
+});
+
 const activeSessionsCount = computed(() => {
     return props.sessions.filter(s => s.status === 'active').length;
 });
@@ -58,6 +78,15 @@ const filteredStudents = computed(() => {
 });
 
 // --- Handlers ---
+const toggleAtRiskCourse = (courseCode) => {
+    const index = expandedAtRiskCourses.value.indexOf(courseCode);
+    if (index === -1) {
+        expandedAtRiskCourses.value.push(courseCode);
+    } else {
+        expandedAtRiskCourses.value.splice(index, 1);
+    }
+};
+
 const toggleClass = (classId) => {
     expandedClassId.value = expandedClassId.value === classId ? null : classId;
 };
@@ -66,17 +95,37 @@ const hasActiveSession = (courseId) => {
     return props.sessions.some(s => s.course_id === courseId && s.status === 'active');
 };
 
-const getSortedSessions = (courseId) => {
+const getSessionsByLab = (courseId) => {
     const sessions = props.sessions.filter(s => s.course_id === courseId);
+    if (sessions.length === 0) return [];
+
+    const groups = {};
+
+    sessions.forEach(session => {
+        const labName = session.lab || 'Lecture';
+        if (!groups[labName]) {
+            groups[labName] = [];
+        }
+        groups[labName].push(session);
+    });
+
     const order = { 'active': 1, 'upcoming': 2, 'completed': 3, 'cancelled': 4 };
-    return sessions.sort((a, b) => order[a.status] - order[b.status]);
+
+    return Object.keys(groups).sort((a, b) => {
+        if (a === 'Lecture') return -1;
+        if (b === 'Lecture') return 1;
+        return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+    }).map(labName => ({
+        name: labName,
+        sessions: groups[labName].sort((a, b) => order[a.status] - order[b.status])
+    }));
 };
 
 const fetchSessionDetails = async (sessionId) => {
     try {
         const response = await axios.get(route('lecturer.sessions.show', sessionId));
         selectedSessionData.value = response.data.session;
-        
+
         // Preserve pending states during refresh
         const pendingMap = new Map();
         studentsList.value.forEach(s => {
@@ -87,7 +136,7 @@ const fetchSessionDetails = async (sessionId) => {
             ...s,
             isPending: pendingMap.has(s.id)
         }));
-        
+
         sessionStats.value = response.data.stats;
     } catch (error) {
         console.error('Error fetching session details:', error);
@@ -132,7 +181,7 @@ const handleMarkAttendance = async (userId, status) => {
     if (!student) return;
 
     const originalStatus = student.status;
-    
+
     // Optimistic UI update
     student.status = status;
     student.isPending = true;
@@ -208,7 +257,7 @@ onUnmounted(() => {
                 <div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
 
                     <!-- Stats Row -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                             <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">My Classes</p>
                             <p class="text-3xl font-bold text-slate-900">{{ courses.length }}</p>
@@ -222,6 +271,76 @@ onUnmounted(() => {
                         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                             <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Students</p>
                             <p class="text-3xl font-bold text-slate-900">{{ totalStudentsCount }}</p>
+                        </div>
+
+                        <div class="bg-rose-50 p-6 rounded-2xl border border-rose-200 shadow-sm relative overflow-hidden">
+                            <p class="text-sm font-semibold text-rose-600 uppercase tracking-wider mb-1">At-Risk Students</p>
+                            <p class="text-3xl font-bold text-rose-700">{{ atRiskCount }}</p>
+                            <AlertTriangle class="absolute -right-2 -bottom-2 w-16 h-16 text-rose-100" />
+                        </div>
+                    </div>
+
+                    <!-- At-Risk Students Section -->
+                    <div v-if="atRiskStudents.length > 0">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                <AlertTriangle class="w-5 h-5 text-rose-600" />
+                                Students at Risk (Below {{ threshold }}%)
+                            </h2>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div v-for="group in groupedAtRiskStudents" :key="group.code"
+                                class="bg-white border border-rose-100 rounded-xl overflow-hidden shadow-sm transition-all">
+
+                                <!-- Course Header -->
+                                <div @click="toggleAtRiskCourse(group.code)"
+                                    class="p-4 flex items-center justify-between cursor-pointer hover:bg-rose-50/30 transition-colors select-none">
+                                    <div class="flex items-center gap-4">
+                                        <div>
+                                            <div class="flex items-center gap-2 mb-0.5">
+                                                <span class="px-2 py-0.5 bg-rose-100 text-rose-700 text-[10px] font-bold rounded">
+                                                    {{ group.code }}
+                                                </span>
+                                                <span class="text-[10px] font-bold text-rose-600 uppercase">
+                                                    {{ group.students.length }} Students at risk
+                                                </span>
+                                            </div>
+                                            <h3 class="text-sm font-bold text-slate-900">{{ group.name }}</h3>
+                                        </div>
+                                    </div>
+                                    <div class="text-rose-400 p-2">
+                                        <ChevronUp v-if="expandedAtRiskCourses.includes(group.code)" class="w-4 h-4" />
+                                        <ChevronDown v-else class="w-4 h-4" />
+                                    </div>
+                                </div>
+
+                                <!-- Students List (Dropdown Body) -->
+                                <div v-if="expandedAtRiskCourses.includes(group.code)" class="border-t border-rose-50 bg-rose-50/10">
+                                    <div class="divide-y divide-rose-50">
+                                        <div v-for="student in group.students" :key="student.id"
+                                            class="p-4 flex items-center justify-between hover:bg-rose-50/20 transition-colors">
+                                            <div class="flex items-center gap-4">
+                                                <div>
+                                                    <p class="text-sm font-bold text-slate-900 leading-tight">{{ student.name }}</p>
+                                                    <p class="text-[11px] font-medium text-slate-500 mt-1">{{ student.student_id }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="flex items-center gap-2 justify-end">
+                                                    <span class="text-xs font-bold text-rose-700">{{ student.attendance_rate }}%</span>
+                                                    <span class="text-[10px] text-slate-400 font-medium italic">
+                                                        ({{ student.present_count }}/{{ student.total_count }} sessions)
+                                                    </span>
+                                                </div>
+                                                <div class="w-32 h-1.5 bg-rose-100 rounded-full mt-1.5 overflow-hidden">
+                                                    <div class="h-full bg-rose-500 rounded-full" :style="{ width: student.attendance_rate + '%' }"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -240,9 +359,6 @@ onUnmounted(() => {
                                     class="p-5 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors select-none"
                                 >
                                     <div class="flex items-center gap-4">
-                                        <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700 font-bold">
-                                            {{ course.code.slice(0, 3) }}
-                                        </div>
                                         <div>
                                             <div class="flex items-center gap-2 mb-0.5">
                                                 <span class="px-2 py-0.5 bg-slate-100 text-slate-700 text-xs font-bold rounded">
@@ -265,74 +381,58 @@ onUnmounted(() => {
                                 </div>
 
                                 <!-- Accordion Body (Sessions) -->
-                                <div v-if="expandedClassId === course.id" class="border-t border-slate-100 bg-slate-50/50 p-5">
-                                    <p v-if="getSortedSessions(course.id).length === 0" class="text-sm text-slate-500 text-center py-4">
+                                <div v-if="expandedClassId === course.id" class="border-t border-slate-100 bg-slate-50/50 p-6 space-y-8">
+                                    <p v-if="getSessionsByLab(course.id).length === 0" class="text-sm text-slate-500 text-center py-4 font-medium">
                                         No sessions scheduled.
                                     </p>
-                                    <div v-else class="space-y-3">
-                                        <div
-                                            v-for="session in getSortedSessions(course.id)"
-                                            :key="session.id"
-                                            :class="[
-                                                'flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white border rounded-xl transition-all',
-                                                session.status === 'completed'
-                                                    ? 'border-rose-200 bg-rose-50/10'
-                                                    : session.status === 'cancelled'
-                                                    ? 'border-slate-200 opacity-75'
-                                                    : session.status === 'active'
-                                                    ? 'border-orange-600 shadow-sm ring-1 ring-orange-100'
-                                                    : 'border-slate-200 hover:border-slate-300 hover:shadow-sm'
-                                            ]"
-                                        >
-                                            <!-- Session Info -->
-                                            <div class="flex-1">
-                                                <div class="flex items-center gap-2 mb-2">
-                                                    <span v-if="session.status === 'active'" class="px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider text-white bg-orange-600 rounded">
-                                                        On Going
+                                    <div v-else v-for="labGroup in getSessionsByLab(course.id)" :key="labGroup.name" class="space-y-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="h-4 w-1 bg-orange-500 rounded-full"></div>
+                                            <h4 class="text-xs font-bold text-slate-800 uppercase tracking-widest">{{ labGroup.name }}</h4>
+                                        </div>
+                                        <div class="flex overflow-x-auto gap-4 pb-2 snap-x snap-mandatory">
+                                            <div
+                                                v-for="session in labGroup.sessions"
+                                                :key="session.id"
+                                                @click="openAttendanceWindow(session)"
+                                                class="w-44 h-33 shrink-0 snap-start flex flex-col p-4 bg-white border rounded-2xl transition-all duration-200 hover:shadow-md cursor-pointer select-none group"
+                                                :class="[
+                                                    session.status === 'completed'
+                                                        ? 'border-rose-100 bg-rose-50/5 hover:border-rose-300'
+                                                        : session.status === 'active'
+                                                        ? 'border-orange-400 bg-orange-50/5 hover:border-orange-400 ring-1 ring-orange-100 shadow-sm shadow-orange-500/10'
+                                                        : session.status === 'upcoming'
+                                                        ? 'border-blue-100 hover:border-blue-400'
+                                                        : 'border-slate-100 opacity-60 grayscale hover:opacity-100 hover:grayscale-0'
+                                                ]"
+                                            >
+                                                <!-- Top Status -->
+                                                <div class="flex justify-between items-start mb-auto">
+                                                    <span :class="[
+                                                        'text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded',
+                                                        session.status === 'completed' ? 'bg-rose-100 text-rose-600' :
+                                                        session.status === 'active' ? 'bg-orange-400 text-white' :
+                                                        session.status === 'upcoming' ? 'bg-blue-100 text-blue-600' :
+                                                        'bg-slate-200 text-slate-600'
+                                                    ]">
+                                                        {{ session.status === 'active' ? 'Live' : (session.status === 'completed' ? 'Passed' : session.status) }}
                                                     </span>
-                                                    <span v-if="session.status === 'upcoming'" class="px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider text-blue-700 bg-blue-50 border border-blue-200 rounded">
-                                                        Incoming
-                                                    </span>
-                                                    <span v-if="session.status === 'completed'" class="px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider text-rose-600 bg-rose-50 border border-rose-200 rounded">
-                                                        Passed
-                                                    </span>
-                                                    <span v-if="session.status === 'cancelled'" class="px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider text-slate-600 bg-slate-100 border border-slate-200 rounded">
-                                                        Cancelled
-                                                    </span>
-
-                                                    <span v-if="session.lab" class="px-2 py-0.5 text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded">
-                                                        {{ session.lab }}
+                                                    <span class="text-[10px] font-bold text-slate-800 uppercase tracking-tighter">
+                                                        W{{ session.week }}
                                                     </span>
                                                 </div>
 
-                                                <div class="flex flex-wrap items-center gap-4 text-sm text-slate-600 font-medium">
-                                                    <span class="flex items-center gap-1.5"><Calendar class="w-4 h-4 text-slate-400" /> {{ session.date }}</span>
-                                                    <span class="flex items-center gap-1.5"><Clock class="w-4 h-4 text-slate-400" /> {{ session.time }}</span>
-                                                    <span class="flex items-center gap-1.5"><MapPin class="w-4 h-4 text-slate-400" /> {{ session.location }}</span>
+                                                <!-- Middle: Date -->
+                                                <div class="flex-1 flex flex-col items-center justify-center text-center">
+                                                    <p class="text-sm font-bold text-slate-800 leading-tight">{{ session.date }}</p>
+                                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5xzc">{{ session.day }}</p>
+                                                    <p class="text-[10px] font-bold text-slate-800 uppercase tracking-widest mt-0.5xzc">{{ session.time }}</p>
+                                                    <p class="text-[10px] font-bold text-slate-800 uppercase tracking-widest mt-0.5xzc">{{ session.location }}</p>
                                                 </div>
-                                            </div>
-
-                                            <!-- Action Button -->
-                                            <div class="mt-4 sm:mt-0 w-full sm:w-auto shrink-0 pl-0 sm:pl-4">
-                                                <button
-                                                    @click="openAttendanceWindow(session)"
-                                                    :class="[
-                                                        'w-full sm:w-auto px-5 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer',
-                                                        session.status === 'completed'
-                                                            ? 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50'
-                                                            : session.status === 'cancelled'
-                                                            ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                                            : session.status === 'active'
-                                                            ? 'bg-orange-600 text-white hover:bg-orange-700 shadow-sm shadow-orange-500/20'
-                                                            : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50'
-                                                    ]"
-                                                    :disabled="session.status === 'cancelled'"
-                                                >
-                                                    {{ session.status === 'completed' ? 'View Report' : (session.status === 'active' ? 'Attendance Window' : 'Open Window') }}
-                                                </button>
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
                         </div>
@@ -377,9 +477,9 @@ onUnmounted(() => {
                                         <div class="w-80 h-80 bg-slate-50 rounded-lg flex items-center justify-center overflow-hidden border border-slate-100 relative">
                                             <!-- Revealed State -->
                                             <div v-if="isQrGenerated" class="w-full h-full flex items-center justify-center">
-                                                <img 
+                                                <img
                                                     v-if="selectedSessionData?.qr_token"
-                                                    :src="`https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${selectedSessionData.qr_token}`" 
+                                                    :src="`https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${selectedSessionData.qr_token}`"
                                                     alt="Attendance QR"
                                                     class="w-full h-full p-2"
                                                 >
@@ -401,7 +501,7 @@ onUnmounted(() => {
                                                     </div>
                                                 </div>
 
-                                                <button 
+                                                <button
                                                     @click="generateQr"
                                                     class="mt-4 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-lg shadow-orange-600/20 active:scale-95 cursor-pointer"
                                                 >
@@ -468,11 +568,18 @@ onUnmounted(() => {
                                         v-for="student in filteredStudents"
                                         :key="student.id"
                                         class="px-6 py-4 border-b border-slate-50 flex items-center justify-between hover:bg-slate-50/50 transition-colors"
+                                        :class="{'bg-rose-50/50': student.is_at_risk}"
                                     >
                                         <div class="flex items-center gap-4">
+                                            <div v-if="student.is_at_risk" class="p-1.5 bg-rose-100 rounded-full text-rose-600">
+                                                <AlertTriangle class="w-4 h-4" />
+                                            </div>
                                             <div>
                                                 <p class="font-bold text-slate-900 text-sm leading-tight">{{ student.name }}</p>
-                                                <p class="text-[11px] font-medium text-slate-400 mt-0.5">{{ student.student_id }}</p>
+                                                <div class="flex items-center gap-2 mt-0.5">
+                                                    <p class="text-[11px] font-medium text-slate-400">{{ student.student_id }}</p>
+                                                    <span v-if="student.is_at_risk" class="text-[10px] font-bold text-rose-600 uppercase">At Risk ({{ student.attendance_rate }}%)</span>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -537,5 +644,13 @@ onUnmounted(() => {
 <style scoped>
 .zoom-in-95 {
     transform: scale(0.95);
+}
+
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
 }
 </style>

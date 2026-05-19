@@ -35,6 +35,7 @@ class SystemSettingSeeder extends Seeder
             ['key' => 'points_on_time',             'value' => '5',                     'description' => 'Points awarded for on-time check-in'],
             ['key' => 'points_early',               'value' => '8',                     'description' => 'Points awarded for early check-in'],
             ['key' => 'points_late',                'value' => '2',                     'description' => 'Points awarded for late check-in'],
+            ['key' => 'min_attendance_threshold',   'value' => '80',                    'description' => 'Minimum attendance percentage before a student is considered at risk'],
         ];
 
         foreach ($settings as $setting) {
