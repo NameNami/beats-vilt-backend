@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Database\Seeders\AttendanceSeeder;
+use Database\Seeders\LeaveApplicationSeeder;
 use Database\Seeders\BadgeSeeder;
 use Database\Seeders\BeaconSeeder;
 use Database\Seeders\ClassSessionSeeder;
@@ -45,6 +46,7 @@ class DatabaseSeeder extends Seeder
             CourseEnrollmentSeeder::class,
             ClassSessionSeeder::class,
             AttendanceSeeder::class,
+            LeaveApplicationSeeder::class,
             GamificationSeeder::class,
         ]);
     }

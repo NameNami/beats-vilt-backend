@@ -45,6 +45,7 @@ Route::middleware(['auth', CheckRoleWeb::class . ':lecturer'])->group(function (
     Route::post('lecturer/leave/{application}/status', [WebLecturerLeave::class, 'updateStatus'])->name('lecturer.leave.status');
     Route::get('lecturer/attendance', [WebAttendanceController::class, 'index'])->name('lecturer.attendance');
     Route::get('lecturer/sessions/{session}', [WebAttendanceController::class, 'show'])->name('lecturer.sessions.show');
+    Route::post('lecturer/sessions/{session}/generate-qr', [WebAttendanceController::class, 'generateQr'])->name('lecturer.sessions.generate-qr');
     Route::post('lecturer/sessions/{session}/toggle-display', [WebAttendanceController::class, 'toggleDisplay'])->name('lecturer.sessions.toggle-display');
     Route::post('lecturer/sessions/{session}/mark-attendance', [WebAttendanceController::class, 'markAttendance'])->name('lecturer.sessions.mark-attendance');
     Route::post('lecturer/sessions/{session}/mark-all-present', [WebAttendanceController::class, 'markAllPresent'])->name('lecturer.sessions.mark-all-present');

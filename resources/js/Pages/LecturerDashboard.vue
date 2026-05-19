@@ -6,6 +6,9 @@ import {
     MapPin,
     Users,
     CalendarDays,
+    ChevronDown,
+    ChevronUp,
+    Calendar,
     Clock,
     X,
     QrCode,
@@ -121,8 +124,16 @@ const closeAttendanceWindow = async () => {
     isQrGenerated.value = false;
 };
 
-const generateQr = () => {
-    isQrGenerated.value = true;
+const generateQr = async () => {
+    if (!selectedSessionData.value) return;
+
+    try {
+        const response = await axios.post(route('lecturer.sessions.generate-qr', selectedSessionData.value.id));
+        selectedSessionData.value.qr_token = response.data.token;
+        isQrGenerated.value = true;
+    } catch (error) {
+        console.error('Error generating QR token:', error);
+    }
 };
 
 const handleMarkAttendance = async (userId, status) => {

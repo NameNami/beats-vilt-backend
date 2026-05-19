@@ -13,11 +13,14 @@ use phpDocumentor\Reflection\Types\Boolean;
 
 class AttendanceServices
 {
-    public function classifyArrival(ClassSession $session, string $checkInTimestamp): String
+    public function classifyArrival(ClassSession $session, string $checkInTimestamp, string $method = 'qr'): String
     {
+        if (strtolower($session->mode) === 'online' || $method === 'manual') {
+            return 'present';
+        }
+
         $checkInTime = Carbon::createFromTimestamp($checkInTimestamp);
         $start = $session->start_time;
-        $end = $session->end_time;
         $onTimeThreshold = $session->start_time->copy()->addMinutes(10); // TODO: make this configurable using settings
         $earlyThreshold = $session->start_time->copy()->subMinutes(30); // TODO: make this configurable using settings
 
@@ -29,24 +32,18 @@ class AttendanceServices
             abort(400, 'Invalid timestamp');
         }
 
-        if ($checkInTime->between($start, $end)) // if scan with in the class time
-        {
-            if ($checkInTime < $onTimeThreshold) // if timestamp checkin is under the on time threshold then its on time
-            {
-                return 'on-time';
-            }
-            else { // else its late
-                return 'late';
-            }
-        }
-        elseif ($checkInTime->between($earlyThreshold, $start)) // if scan with in the early time threshold
+        if ($checkInTime->between($earlyThreshold, $start)) // if scan with in the early time threshold
         {
             return 'early';
         }
-        else
+
+        if ($checkInTime->lt($onTimeThreshold)) // if timestamp checkin is under the on time threshold then its on time
         {
-            return 'invalid';
+            return 'on-time';
         }
+
+        // Everything else is late, including after class end time (as long as token is valid)
+        return 'late';
     }
 
     public function calculateXp(string $classification): int
@@ -62,8 +59,6 @@ class AttendanceServices
 
     public function checkInValidationQr(ClassSession $session, string $checkInTimestamp, string $qrToken, User $user): array
     {
-        // check if the class within the timeframe | gonna use clasifyArrival()
-
         // check if qr token is valid (not expired and within the token table)
         $qrToken = QrToken::where('token', $qrToken)->first();
         if (! $qrToken)
@@ -96,8 +91,10 @@ class AttendanceServices
             return ['status' => false, 'message' => 'QR code is not displayed', 'code' => 403];
         }
 
-        // check if user already checked in
-        if ($session->attendanceRecords()->where('user_id', $user->id)->exists()) {
+        // Allow check-in even if is_completed is true (for extensions)
+        // Check if student already has a non-absent record
+        $existingRecord = $session->attendanceRecords()->where('user_id', $user->id)->first();
+        if ($existingRecord && $existingRecord->status !== 'absent') {
             return ['status' => false, 'message' => 'You have already checked in.', 'code' => 409];
         }
 

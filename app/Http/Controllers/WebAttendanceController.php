@@ -10,8 +10,10 @@ use App\Models\ClassSession;
 use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Carbon\Carbon;
+use App\Models\QrToken;
 
 class WebAttendanceController extends Controller
 {
@@ -223,6 +225,32 @@ class WebAttendanceController extends Controller
         ]);
 
         return response()->json(['success' => true]);
+    }
+
+    public function generateQr(ClassSession $session)
+    {
+        $now = now();
+        $expiresAt = null;
+
+        if ($now->lt($session->end_time)) {
+            // During class: Check for existing active token
+            $existingToken = $session->activeQrToken;
+            if ($existingToken && $existingToken->expires_at->eq($session->end_time)) {
+                return response()->json(['token' => $existingToken->token]);
+            }
+            $expiresAt = $session->end_time;
+        } else {
+            // After class: 15-minute rolling expiration
+            $expiresAt = $now->addMinutes(15);
+        }
+
+        $token = QrToken::create([
+            'session_id' => $session->id,
+            'token' => Str::random(64),
+            'expires_at' => $expiresAt,
+        ]);
+
+        return response()->json(['token' => $token->token]);
     }
 
     public function markAttendance(Request $request, ClassSession $session)

@@ -4,6 +4,7 @@ import {
     ChevronDown,
     ChevronUp,
     Users,
+    Calendar,
     Clock,
     MapPin,
     X,
@@ -169,8 +170,16 @@ const closeAttendanceWindow = async () => {
     isQrGenerated.value = false;
 };
 
-const generateQr = () => {
-    isQrGenerated.value = true;
+const generateQr = async () => {
+    if (!selectedSessionData.value) return;
+
+    try {
+        const response = await axios.post(route('lecturer.sessions.generate-qr', selectedSessionData.value.id));
+        selectedSessionData.value.qr_token = response.data.token;
+        isQrGenerated.value = true;
+    } catch (error) {
+        console.error('Error generating QR token:', error);
+    }
 };
 
 const handleMarkAttendance = async (userId, status) => {
@@ -370,8 +379,8 @@ onUnmounted(() => {
                                         </div>
                                     </div>
                                     <div class="text-slate-400 p-2 flex items-center gap-3">
-                                        <span v-if="hasActiveSession(course.id)" class="px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider text-white bg-orange-600 rounded">
-                                            Active
+                                        <span v-if="hasActiveSession(course.id)" class="px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider text-white bg-orange-400 rounded">
+                                            On Going
                                         </span>
                                         <ChevronUp v-if="expandedClassId === course.id" class="w-5 h-5" />
                                         <ChevronDown v-else class="w-5 h-5" />
