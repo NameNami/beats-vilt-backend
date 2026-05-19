@@ -76,7 +76,18 @@ const fetchSessionDetails = async (sessionId) => {
     try {
         const response = await axios.get(route('lecturer.sessions.show', sessionId));
         selectedSessionData.value = response.data.session;
-        studentsList.value = response.data.students;
+        
+        // Preserve pending states during refresh
+        const pendingMap = new Map();
+        studentsList.value.forEach(s => {
+            if (s.isPending) pendingMap.set(s.id, true);
+        });
+
+        studentsList.value = response.data.students.map(s => ({
+            ...s,
+            isPending: pendingMap.has(s.id)
+        }));
+        
         sessionStats.value = response.data.stats;
     } catch (error) {
         console.error('Error fetching session details:', error);
@@ -117,15 +128,30 @@ const generateQr = () => {
 const handleMarkAttendance = async (userId, status) => {
     if (!selectedSessionData.value) return;
 
+    const student = studentsList.value.find(s => s.id === userId);
+    if (!student) return;
+
+    const originalStatus = student.status;
+    
+    // Optimistic UI update
+    student.status = status;
+    student.isPending = true;
+
     try {
         await axios.post(route('lecturer.sessions.mark-attendance', selectedSessionData.value.id), {
             user_id: userId,
             status: status
         });
-        // Refresh data immediately
+        // Refresh to get confirmed state and updated stats
         await fetchSessionDetails(selectedSessionData.value.id);
     } catch (error) {
+        // Revert on error
+        const targetStudent = studentsList.value.find(s => s.id === userId) || student;
+        targetStudent.status = originalStatus;
         console.error('Error marking attendance:', error);
+    } finally {
+        const targetStudent = studentsList.value.find(s => s.id === userId) || student;
+        targetStudent.isPending = false;
     }
 };
 
@@ -456,9 +482,14 @@ onUnmounted(() => {
                                             <div
                                                 class="absolute h-9 rounded-md transition-all duration-300 ease-in-out shadow-sm"
                                                 :class="[
-                                                    student.status === 'present' ? 'bg-emerald-500 left-1 w-[76px]' :
-                                                    student.status === 'absent' ? 'bg-rose-500 left-[81.5px] w-[76px]' :
-                                                    'bg-amber-500 left-[162px] w-[76px]'
+                                                    student.isPending ? 'bg-slate-400' : (
+                                                        student.status === 'present' ? 'bg-emerald-500' :
+                                                        student.status === 'absent' ? 'bg-rose-500' :
+                                                        'bg-amber-500'
+                                                    ),
+                                                    student.status === 'present' ? 'left-1 w-[76px]' :
+                                                    student.status === 'absent' ? 'left-[81.5px] w-[76px]' :
+                                                    'left-[162px] w-[76px]'
                                                 ]"
                                             ></div>
 
