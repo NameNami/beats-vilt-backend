@@ -1,8 +1,8 @@
 <script setup>
 import AppLayout from '../Layouts/AppLayout.vue';
-import {Head, Link, usePage} from '@inertiajs/vue3';
+import {Head} from '@inertiajs/vue3';
 import {computed, ref} from 'vue';
-import { Calendar, List, Clock, MapPin, User, Tag, Users, Globe, Building2, ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { Calendar, List, MapPin, User, Users, Globe, Building2, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import { router } from '@inertiajs/vue3';
 
 const props = defineProps({
@@ -147,15 +147,15 @@ const navigateWeek = (direction) => {
                                 :disabled="!canNavigatePrev"
                                 :class="[
                                     'p-1.5 rounded-md transition-all',
-                                    canNavigatePrev 
-                                        ? 'text-slate-500 hover:text-slate-900 hover:bg-white hover:shadow-sm' 
+                                    canNavigatePrev
+                                        ? 'text-slate-500 hover:text-slate-900 hover:bg-white hover:shadow-sm'
                                         : 'text-slate-300 cursor-not-allowed'
                                 ]"
                                 title="Previous Week"
                             >
                                 <ChevronLeft class="w-5 h-5" />
                             </button>
-                            
+
                             <button
                                 @click="navigateWeek('today')"
                                 class="px-3 py-1.5 text-xs font-bold text-slate-600 hover:text-orange-600 transition-colors uppercase tracking-wider"
@@ -168,8 +168,8 @@ const navigateWeek = (direction) => {
                                 :disabled="!canNavigateNext"
                                 :class="[
                                     'p-1.5 rounded-md transition-all',
-                                    canNavigateNext 
-                                        ? 'text-slate-500 hover:text-slate-900 hover:bg-white hover:shadow-sm' 
+                                    canNavigateNext
+                                        ? 'text-slate-500 hover:text-slate-900 hover:bg-white hover:shadow-sm'
                                         : 'text-slate-300 cursor-not-allowed'
                                 ]"
                                 title="Next Week"
@@ -265,7 +265,7 @@ const navigateWeek = (direction) => {
                       width: `calc(${getDurationPercent(event.start, event.end)}% - 4px)`,
                       marginLeft: '2px'
                     }"
-                                            :title="`${event.title}\n${event.start} - ${event.end}\n${event.location}`"
+                                            :title="`${event.title}\nGroup: ${event.lab}\n${event.start} - ${event.end}\nLocation: ${event.location}`"
                                         >
                                             <div :class="['font-semibold text-[13px] leading-tight whitespace-nowrap truncate', event.isCancelled ? 'line-through opacity-50' : '']">{{ event.title }}</div>
                                             <div class="flex items-center gap-1.5 mt-1">
@@ -281,13 +281,13 @@ const navigateWeek = (direction) => {
                                                     Cancelled
                                                 </div>
                                             </div>
-                                            <div class="flex flex-col gap-1 mt-1.5 opacity-90">
-                                                <div class="text-[10px] font-medium flex items-center gap-1.5">
-                                                    <Clock class="w-3 h-3" />
-                                                    {{ event.start }} - {{ event.end }}
+                                            <div class="flex flex-col gap-0.5 mt-1 opacity-90">
+                                                <div class="text-[9px] font-medium flex items-center gap-1 truncate">
+                                                    <Users class="w-2.5 h-2.5" />
+                                                    {{ event.lab }}
                                                 </div>
-                                                <div class="text-[10px] font-medium flex items-center gap-1.5 truncate">
-                                                    <MapPin class="w-3 h-3" />
+                                                <div class="text-[9px] font-medium flex items-center gap-1 truncate">
+                                                    <MapPin class="w-2.5 h-2.5" />
                                                     {{ event.location }}
                                                 </div>
                                             </div>
@@ -371,6 +371,10 @@ const navigateWeek = (direction) => {
                                 </div>
 
                                 <div class="flex flex-wrap items-center gap-5 text-sm text-slate-500 mt-1">
+                                    <div class="flex items-center gap-2">
+                                        <Users class="w-4 h-4 text-slate-400" />
+                                        {{ event.lab }}
+                                    </div>
                                     <div class="flex items-center gap-2">
                                         <MapPin class="w-4 h-4 text-slate-400" />
                                         {{ event.location }}

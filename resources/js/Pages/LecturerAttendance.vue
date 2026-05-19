@@ -4,7 +4,6 @@ import {
     ChevronDown,
     ChevronUp,
     Users,
-    Calendar,
     Clock,
     MapPin,
     X,
@@ -16,7 +15,7 @@ import {
     AlertTriangle
 } from 'lucide-vue-next';
 import AppLayout from "@/Layouts/AppLayout.vue";
-import { Head, router } from '@inertiajs/vue3';
+import { Head} from '@inertiajs/vue3';
 import axios from 'axios';
 
 const props = defineProps({
@@ -249,7 +248,6 @@ onUnmounted(() => {
                 <div class="flex items-center gap-4 mb-8">
                     <div>
                         <h1 class="text-2xl font-bold text-[#0f172a]">Attendance Portal</h1>
-                        <p class="text-sm font-medium text-slate-500 mt-1 flex items-center gap-2">Manage your classes and check-in sessions.</p>
                     </div>
                 </div>
 
@@ -390,7 +388,7 @@ onUnmounted(() => {
                                             <div class="h-4 w-1 bg-orange-500 rounded-full"></div>
                                             <h4 class="text-xs font-bold text-slate-800 uppercase tracking-widest">{{ labGroup.name }}</h4>
                                         </div>
-                                        <div class="flex overflow-x-auto gap-4 pb-2 snap-x snap-mandatory">
+                                        <div class="flex overflow-x-auto gap-4 pb-2 snap-x snap-mandatory hide-scrollbar">
                                             <div
                                                 v-for="session in labGroup.sessions"
                                                 :key="session.id"
@@ -415,7 +413,7 @@ onUnmounted(() => {
                                                         session.status === 'upcoming' ? 'bg-blue-100 text-blue-600' :
                                                         'bg-slate-200 text-slate-600'
                                                     ]">
-                                                        {{ session.status === 'active' ? 'Live' : (session.status === 'completed' ? 'Passed' : session.status) }}
+                                                        {{ session.status === 'active' ? 'On Going' : (session.status === 'completed' ? 'Passed' : session.status) }}
                                                     </span>
                                                     <span class="text-[10px] font-bold text-slate-800 uppercase tracking-tighter">
                                                         W{{ session.week }}
@@ -456,6 +454,7 @@ onUnmounted(() => {
                                 </div>
                                 <div class="flex items-center gap-4 text-xs font-medium text-slate-500">
                                     <span class="flex items-center gap-1.5"><Clock class="w-3.5 h-3.5" /> {{ selectedSessionData?.start_time }} - {{ selectedSessionData?.end_time }}</span>
+                                    <span class="flex items-center gap-1.5"><Users class="w-3.5 h-3.5" /> {{ selectedSessionData?.lab }}</span>
                                     <span class="flex items-center gap-1.5"><MapPin class="w-3.5 h-3.5" /> {{ selectedSessionData?.location }}</span>
                                     <span class="flex items-center gap-1.5 capitalize"><Activity class="w-3.5 h-3.5" /> Mode: {{ selectedSessionData?.mode }}</span>
                                 </div>

@@ -1,14 +1,11 @@
 <script setup>
 import AppLayout from '../Layouts/AppLayout.vue';
-import {Head, Link, usePage, router} from '@inertiajs/vue3';
+import {Head, Link, router} from '@inertiajs/vue3';
 import {computed, ref, onUnmounted} from 'vue';
 import {
     MapPin,
     Users,
     CalendarDays,
-    ChevronDown,
-    ChevronUp,
-    Calendar,
     Clock,
     X,
     QrCode,
@@ -79,7 +76,7 @@ const fetchSessionDetails = async (sessionId) => {
     try {
         const response = await axios.get(route('lecturer.sessions.show', sessionId));
         selectedSessionData.value = response.data.session;
-        
+
         // Preserve pending states during refresh
         const pendingMap = new Map();
         studentsList.value.forEach(s => {
@@ -90,7 +87,7 @@ const fetchSessionDetails = async (sessionId) => {
             ...s,
             isPending: pendingMap.has(s.id)
         }));
-        
+
         sessionStats.value = response.data.stats;
     } catch (error) {
         console.error('Error fetching session details:', error);
@@ -135,7 +132,7 @@ const handleMarkAttendance = async (userId, status) => {
     if (!student) return;
 
     const originalStatus = student.status;
-    
+
     // Optimistic UI update
     student.status = status;
     student.isPending = true;
@@ -282,6 +279,10 @@ onUnmounted(() => {
 
                                 <div class="flex items-center text-sm text-slate-500 gap-4 mt-1.5">
                                     <span class="flex items-center gap-1.5">
+                                        <Users class="w-4 h-4 text-slate-400" />
+                                        {{ item.lab }}
+                                    </span>
+                                    <span class="flex items-center gap-1.5">
                                         <MapPin class="w-4 h-4 text-slate-400" />
                                         {{ item.location }}
                                     </span>
@@ -356,6 +357,7 @@ onUnmounted(() => {
                         </div>
                         <div class="flex items-center gap-4 text-xs font-medium text-slate-500">
                             <span class="flex items-center gap-1.5"><Clock class="w-3.5 h-3.5" /> {{ selectedSessionData?.start_time }} - {{ selectedSessionData?.end_time }}</span>
+                            <span class="flex items-center gap-1.5"><Users class="w-3.5 h-3.5" /> {{ selectedSessionData?.lab }}</span>
                             <span class="flex items-center gap-1.5"><MapPin class="w-3.5 h-3.5" /> {{ selectedSessionData?.location }}</span>
                             <span class="flex items-center gap-1.5 capitalize"><Activity class="w-3.5 h-3.5" /> Mode: {{ selectedSessionData?.mode }}</span>
                         </div>

@@ -142,7 +142,8 @@ class WebLecturerDashboardController extends Controller
                     'end_time' => $session->end_time->format('H:i'),
                     'code' => $session->course->code ?? 'N/A',
                     'title' => $session->course->name ?? 'N/A',
-                    'location' => ($session->lab->name ?? ($session->room->name ?? 'N/A')),
+                    'lab' => $session->lab->name ?? 'Lecture',
+                    'location' => $session->room->name ?? 'N/A',
                     'students' => CourseEnrollment::where('course_id', $session->course_id)
                         ->when($session->lab_id, function ($query) use ($session) {
                             return $query->where('lab_id', $session->lab_id);
