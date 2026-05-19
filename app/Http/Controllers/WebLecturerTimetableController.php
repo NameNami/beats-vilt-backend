@@ -7,16 +7,28 @@ use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 use App\Models\ClassSession;
+use App\Models\SystemSetting;
 use Carbon\Carbon;
 
 class WebLecturerTimetableController extends Controller
 {
-    public function lecturerTimetable()
+    public function lecturerTimetable(Request $request)
     {
         $lecturerId = Auth::id();
 
+        $date = $request->input('date') ? Carbon::parse($request->input('date')) : now();
+        $startOfWeek = $date->copy()->startOfWeek(Carbon::MONDAY);
+        $endOfWeek = $date->copy()->endOfWeek(Carbon::SUNDAY);
+
+        $semesterStartDate = Carbon::parse(SystemSetting::get('semester_start_date', '2026-03-04'));
+        $totalWeeks = (int) SystemSetting::get('semester_total_weeks', 14);
+        $semesterEndDate = $semesterStartDate->copy()->addWeeks($totalWeeks)->endOfWeek(Carbon::SUNDAY);
+        
+        $currentWeek = (int) $semesterStartDate->diffInWeeks($startOfWeek) + 1;
+
         $sessions = ClassSession::with(['course', 'room', 'lab'])
             ->where('lecturer_id', $lecturerId)
+            ->whereBetween('start_time', [$startOfWeek, $endOfWeek])
             ->get();
 
         // Map unique courses to colors
@@ -34,6 +46,7 @@ class WebLecturerTimetableController extends Controller
                 'courseCode' => $session->course->code,
                 'title' => $session->course->name,
                 'day' => $session->start_time->format('l'),
+                'date' => $session->start_time->toDateString(),
                 'start' => $session->start_time->format('H:i'),
                 'end' => $session->end_time->format('H:i'),
                 'mode' => $session->mode,
@@ -47,7 +60,11 @@ class WebLecturerTimetableController extends Controller
         });
 
         return Inertia::render('LecturerTimetable', [
-            'sessions' => $formattedSessions
+            'sessions' => $formattedSessions,
+            'weekStartDate' => $startOfWeek->toDateString(),
+            'currentWeek' => $currentWeek,
+            'semesterStart' => $semesterStartDate->toDateString(),
+            'semesterEnd' => $semesterEndDate->toDateString(),
         ]);
     }
 

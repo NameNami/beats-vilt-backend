@@ -11,7 +11,7 @@ use Illuminate\Console\Command;
 use App\Services\AttendanceServices;
 
 //#[AsCommand(name: 'attendance:process-absences', description: 'Marks missing students as absent.')]
-class ProcessAbsences extends Command
+class npmProcessAbsences extends Command
 {
     protected $signature = 'attendance:process-absences';
     protected $description = 'Marks missing students as absent for ended classes.';

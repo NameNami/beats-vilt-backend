@@ -33,7 +33,7 @@ class AttendanceServices
         {
             if ($checkInTime < $onTimeThreshold) // if timestamp checkin is under the on time threshold then its on time
             {
-                return 'on time';
+                return 'on-time';
             }
             else { // else its late
                 return 'late';

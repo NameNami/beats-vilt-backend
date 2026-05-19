@@ -2,24 +2,45 @@
 import AppLayout from '../Layouts/AppLayout.vue';
 import {Head, Link, usePage} from '@inertiajs/vue3';
 import {computed, ref} from 'vue';
-import { Calendar, List, Clock, MapPin, User, Tag, Users, Globe, Building2 } from 'lucide-vue-next';
+import { Calendar, List, Clock, MapPin, User, Tag, Users, Globe, Building2, ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { router } from '@inertiajs/vue3';
 
 const props = defineProps({
-    sessions: Array
+    sessions: Array,
+    weekStartDate: String,
+    currentWeek: Number,
+    semesterStart: String,
+    semesterEnd: String
 });
 
 // TODO: add new pop up window when user clicks on a class
+// TODO: add labs to the schedule
     // --- State & Helpers ---
-const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const DAYS_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const HOURS = Array.from({ length: 16 }, (_, i) => i + 8); // 8:00 to 23:00 (15 hours)
 
-const CURRENT_DAY = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date());
+const today = new Date();
+const TODAY_DATE = today.toISOString().split('T')[0];
+const CURRENT_DAY = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(today);
+
+const weekDates = computed(() => {
+    const start = new Date(props.weekStartDate);
+    return DAYS_NAMES.map((day, index) => {
+        const date = new Date(start);
+        date.setDate(start.getDate() + index);
+        return {
+            name: day,
+            date: date.toISOString().split('T')[0],
+            displayDate: date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })
+        };
+    });
+});
 
 const SCHEDULE_DATA = computed(() => props.sessions || []);
 
 const groupedSessions = computed(() => {
-    return DAYS.reduce((acc, day) => {
-        acc[day] = SCHEDULE_DATA.value.filter(event => event.day === day);
+    return weekDates.value.reduce((acc, day) => {
+        acc[day.name] = SCHEDULE_DATA.value.filter(event => event.date === day.date);
         return acc;
     }, {});
 });
@@ -42,12 +63,34 @@ const selectedDay = ref(CURRENT_DAY);
     // --- Computed Properties ---
 const displayHours = computed(() => HOURS.slice(0, -1));
 
-const isCurrentDay = computed(() => selectedDay.value === CURRENT_DAY);
+const selectedDayData = computed(() => weekDates.value.find(d => d.name === selectedDay.value));
+
+const isCurrentDay = computed(() => selectedDayData.value?.date === TODAY_DATE);
 
 const dayEvents = computed(() => {
+    const date = selectedDayData.value?.date;
     return SCHEDULE_DATA.value
-    .filter((e) => e.day === selectedDay.value)
+    .filter((e) => e.date === date)
     .sort((a, b) => a.start.localeCompare(b.start));
+});
+
+const weekRangeDisplay = computed(() => {
+    const start = new Date(weekDates.value[0].date);
+    const end = new Date(weekDates.value[6].date);
+    const options = { month: 'short', day: 'numeric', year: 'numeric' };
+    return `${start.toLocaleDateString('en-US', options)} - ${end.toLocaleDateString('en-US', options)}`;
+});
+
+const canNavigatePrev = computed(() => {
+    const currentStart = new Date(props.weekStartDate);
+    const semesterStart = new Date(props.semesterStart);
+    return currentStart > semesterStart;
+});
+
+const canNavigateNext = computed(() => {
+    const currentEnd = new Date(weekDates.value[6].date);
+    const semesterEnd = new Date(props.semesterEnd);
+    return currentEnd < semesterEnd;
 });
 
     // --- Methods ---
@@ -60,6 +103,23 @@ const timeToPercent = (timeStr) => {
 
 const getDurationPercent = (start, end) => {
     return timeToPercent(end) - timeToPercent(start);
+};
+
+const navigateWeek = (direction) => {
+    if (direction === 'prev' && !canNavigatePrev.value) return;
+    if (direction === 'next' && !canNavigateNext.value) return;
+
+    const current = new Date(props.weekStartDate);
+    if (direction === 'prev') {
+        current.setDate(current.getDate() - 7);
+    } else if (direction === 'next') {
+        current.setDate(current.getDate() + 7);
+    } else if (direction === 'today') {
+        router.get(route('lecturer.timetable'), {}, { preserveState: true });
+        return;
+    }
+
+    router.get(route('lecturer.timetable'), { date: current.toISOString().split('T')[0] }, { preserveState: true });
 };
 
 </script>
@@ -79,32 +139,76 @@ const getDurationPercent = (start, end) => {
                         <p class="text-slate-500 text-sm font-medium mt-0.5">Manage your weekly schedule and classes.</p>
                     </div>
 
-                    <!-- View Toggles -->
-                    <div class="flex bg-slate-100/80 p-1 rounded-lg border border-slate-200/60">
-                        <button
-                            @click="view = 'week'"
-                            :class="[
-              'flex items-center gap-2 px-5 py-2 rounded-md text-sm font-semibold transition-all',
-              view === 'week'
-                ? 'bg-white text-orange-600 shadow-sm border border-slate-200/50'
-                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50 border border-transparent'
-            ]"
-                        >
-                            <Calendar class="w-4 h-4" />
-                            Week
-                        </button>
-                        <button
-                            @click="view = 'day'"
-                            :class="[
-              'flex items-center gap-2 px-5 py-2 rounded-md text-sm font-semibold transition-all',
-              view === 'day'
-                ? 'bg-white text-orange-600 shadow-sm border border-slate-200/50'
-                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50 border border-transparent'
-            ]"
-                        >
-                            <List class="w-4 h-4" />
-                            Day
-                        </button>
+                    <div class="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+                        <!-- Week Navigation -->
+                        <div class="flex items-center bg-slate-100/80 p-1 rounded-lg border border-slate-200/60 shadow-sm">
+                            <button
+                                @click="navigateWeek('prev')"
+                                :disabled="!canNavigatePrev"
+                                :class="[
+                                    'p-1.5 rounded-md transition-all',
+                                    canNavigatePrev 
+                                        ? 'text-slate-500 hover:text-slate-900 hover:bg-white hover:shadow-sm' 
+                                        : 'text-slate-300 cursor-not-allowed'
+                                ]"
+                                title="Previous Week"
+                            >
+                                <ChevronLeft class="w-5 h-5" />
+                            </button>
+                            
+                            <button
+                                @click="navigateWeek('today')"
+                                class="px-3 py-1.5 text-xs font-bold text-slate-600 hover:text-orange-600 transition-colors uppercase tracking-wider"
+                            >
+                                Week {{ currentWeek }}
+                            </button>
+
+                            <button
+                                @click="navigateWeek('next')"
+                                :disabled="!canNavigateNext"
+                                :class="[
+                                    'p-1.5 rounded-md transition-all',
+                                    canNavigateNext 
+                                        ? 'text-slate-500 hover:text-slate-900 hover:bg-white hover:shadow-sm' 
+                                        : 'text-slate-300 cursor-not-allowed'
+                                ]"
+                                title="Next Week"
+                            >
+                                <ChevronRight class="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <div class="text-sm font-bold text-slate-700 bg-slate-50 px-4 py-2 rounded-lg border border-slate-200">
+                            {{ weekRangeDisplay }}
+                        </div>
+
+                        <!-- View Toggles -->
+                        <div class="flex bg-slate-100/80 p-1 rounded-lg border border-slate-200/60">
+                            <button
+                                @click="view = 'week'"
+                                :class="[
+                  'flex items-center gap-2 px-5 py-2 rounded-md text-sm font-semibold transition-all',
+                  view === 'week'
+                    ? 'bg-white text-orange-600 shadow-sm border border-slate-200/50'
+                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50 border border-transparent'
+                ]"
+                            >
+                                <Calendar class="w-4 h-4" />
+                                Week
+                            </button>
+                            <button
+                                @click="view = 'day'"
+                                :class="[
+                  'flex items-center gap-2 px-5 py-2 rounded-md text-sm font-semibold transition-all',
+                  view === 'day'
+                    ? 'bg-white text-orange-600 shadow-sm border border-slate-200/50'
+                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50 border border-transparent'
+                ]"
+                            >
+                                <List class="w-4 h-4" />
+                                Day
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -134,20 +238,22 @@ const getDurationPercent = (start, end) => {
                                 </div>
 
                                 <!-- Day Rows -->
-                                <div v-for="day in DAYS" :key="day" class="flex group border-b border-slate-100 last:border-b-0">
+                                <div v-for="day in weekDates" :key="day.date" class="flex group border-b border-slate-100 last:border-b-0">
                                     <!-- Day Label -->
                                     <div :class="[
-                  'w-24 flex-shrink-0 border-r border-slate-200 p-2 flex items-center justify-center text-sm font-medium z-10 bg-white transition-colors relative',
-                  day === CURRENT_DAY ? 'text-orange-600 font-bold bg-orange-50/10' : 'text-slate-600 group-hover:bg-slate-50/50'
+                  'w-24 flex-shrink-0 border-r border-slate-200 p-2 flex flex-col items-center justify-center z-10 bg-white transition-colors relative',
+                  day.date === TODAY_DATE ? 'text-orange-600 bg-orange-50/10' : 'text-slate-600 group-hover:bg-slate-50/50'
                 ]">
-                                        <div v-if="day === CURRENT_DAY" class="absolute left-0 top-0 bottom-0 w-1 bg-orange-300 rounded-r"></div>
-                                        {{ day.slice(0, 3) }}
+                                        <div v-if="day.date === TODAY_DATE" class="absolute left-0 top-0 bottom-0 w-1 bg-orange-300 rounded-r"></div>
+                                        <span class="text-[10px] font-bold uppercase tracking-tight opacity-60">{{ day.name.slice(0, 3) }}</span>
+                                        <span class="text-sm font-bold">{{ day.displayDate.split(' ')[0] }}</span>
+                                        <span class="text-[10px] font-medium opacity-60">{{ day.displayDate.split(' ')[1] }}</span>
                                     </div>
 
                                     <!-- Event Container for the Day -->
                                     <div class="flex-1 relative h-[110px] group-hover:bg-slate-50/30 transition-colors">
                                         <div
-                                            v-for="event in groupedSessions[day]"
+                                            v-for="event in groupedSessions[day.name]"
                                             :key="event.id"
                                             :class="[
                       'absolute top-2 bottom-2 rounded-lg border p-2 overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer hover:z-20 hover:scale-[1.01]',
@@ -198,18 +304,19 @@ const getDurationPercent = (start, end) => {
                     <!-- Day Selector Tabs -->
                     <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                         <button
-                            v-for="day in DAYS"
-                            :key="day"
-                            @click="selectedDay = day"
+                            v-for="day in weekDates"
+                            :key="day.date"
+                            @click="selectedDay = day.name"
                             :class="[
-              'relative px-5 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap',
-              selectedDay === day
+              'relative px-5 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap flex flex-col items-center min-w-[100px]',
+              selectedDay === day.name
                 ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
                 : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300 hover:bg-slate-50'
             ]"
                         >
-                            {{ day }}
-                            <span v-if="day === CURRENT_DAY && selectedDay !== CURRENT_DAY" class="absolute top-2 right-2 w-2 h-2 rounded-full bg-orange-500"></span>
+                            <span class="text-[10px] uppercase tracking-wider opacity-80">{{ day.name }}</span>
+                            <span class="text-base font-bold">{{ day.displayDate }}</span>
+                            <span v-if="day.date === TODAY_DATE && selectedDay !== day.name" class="absolute top-2 right-2 w-2 h-2 rounded-full bg-orange-500"></span>
                         </button>
                     </div>
 

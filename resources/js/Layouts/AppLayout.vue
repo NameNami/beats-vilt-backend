@@ -2,18 +2,18 @@
 import { Link, router } from '@inertiajs/vue3';
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { usePage } from '@inertiajs/vue3';
-import { 
-    LayoutDashboard, 
-    Calendar, 
-    Scroll, 
-    UserCheck, 
-    BarChart3, 
-    Settings, 
-    LogOut, 
-    Bell, 
-    AlertTriangle, 
-    Clock, 
-    Info 
+import {
+    LayoutDashboard,
+    Calendar,
+    Scroll,
+    UserCheck,
+    BarChart3,
+    Settings,
+    LogOut,
+    Bell,
+    AlertTriangle,
+    Clock,
+    Info
 } from 'lucide-vue-next';
 
 // Grab the user globally from Inertia (explained in Step 3)
@@ -23,6 +23,12 @@ const user = computed(() => page.props.auth.user);
 // Get globally shared notification data
 const notifications = computed(() => page.props.notifications);
 const unreadCount = computed(() => page.props.unread_count);
+
+const profilePhoto = computed(() => {
+    return user.value?.profile_photo_path
+        ? `/images/${user.value.profile_photo_path}`
+        : '/images/default-avatar.png';
+});
 
 defineProps({
     noPadding: {
@@ -123,7 +129,7 @@ onUnmounted(() => {
 
                 <Link
                     href="/lecturer/attendance"
-                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors border-l-4"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
                     :class="[ $page.url.startsWith('/lecturer/attendance') ? 'bg-gray-100 text-orange-400 font-medium border-r-3 border-orange-400' : 'text-gray-600 hover:bg-gray-100 border-transparent' ]"
                 >
                     <UserCheck class="w-5 h-5" />
@@ -219,7 +225,7 @@ onUnmounted(() => {
                             <p class="text-xs text-gray-500">{{ user.email }}</p>
                         </div>
                         <img
-                            :src="'/images/'+user.profile_photo_path || '/images/default-avatar.png'"
+                            :src="profilePhoto"
                             alt="Profile"
                             class="w-10 h-10 rounded-lg object-cover"
                         >
