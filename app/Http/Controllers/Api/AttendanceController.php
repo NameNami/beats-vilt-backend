@@ -13,7 +13,7 @@ use App\Models\QrToken;
 
 class AttendanceController extends Controller
 {
-    public function checkInBle(Request $request, AttendanceServices $attendanceServices)
+    public function checkInBle(Request $request, AttendanceServices $attendanceServices, \App\Services\GamificationService $gamificationService)
     {
 
         $request->validate([
@@ -71,9 +71,6 @@ class AttendanceController extends Controller
             ], 400);
         }
 
-        // calculate xp
-        $xp = $attendanceServices->calculateXp($arrivalStatus);
-
         // check in time from request
         $check_in_time = Carbon::createFromTimestamp($request->timestamp)->toDateTimeString();
 
@@ -86,18 +83,23 @@ class AttendanceController extends Controller
         $attendanceRecord->checkin_method = 'ble';
         $attendanceRecord->save();
 
+        // calculate and award rewards
+        $rewards = $gamificationService->awardAttendanceRewards($request->user(), $arrivalStatus);
+
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully checked in.',
             'data' => [
                 'attendance_status' => $arrivalStatus,
-                'xp_earned' => $xp,
+                'xp_earned' => $rewards['xp'],
+                'total_xp' => $rewards['new_total_xp'],
+                'level' => $rewards['level'],
                 'check_in_time' => $check_in_time,
             ]
         ]);
     }
 
-    public function checkInQr(Request $request, AttendanceServices $attendanceServices)
+    public function checkInQr(Request $request, AttendanceServices $attendanceServices, \App\Services\GamificationService $gamificationService)
     {
         $request->validate([
             'timestamp' => 'required|string', // timestamp untuk compare dgn timeframe kelas
@@ -128,9 +130,6 @@ class AttendanceController extends Controller
         */
         $arrivalStatus = 'present';
 
-        // calculate xp
-        $xp = $attendanceServices->calculateXp($arrivalStatus);
-
         // check in time from request
         $check_in_time = Carbon::createFromTimestamp($request->timestamp)->toDateTimeString();
 
@@ -143,12 +142,17 @@ class AttendanceController extends Controller
         $attendanceRecord->checkin_method = 'qr';
         $attendanceRecord->save();
 
+        // calculate and award rewards
+        $rewards = $gamificationService->awardAttendanceRewards($request->user(), $arrivalStatus);
+
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully checked in.',
             'data' => [
                 'attendance_status' => $arrivalStatus,
-                'xp_earned' => $xp,
+                'xp_earned' => $rewards['xp'],
+                'total_xp' => $rewards['new_total_xp'],
+                'level' => $rewards['level'],
                 'check_in_time' => $check_in_time,
             ]
         ]);

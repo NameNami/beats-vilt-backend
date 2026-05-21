@@ -549,7 +549,7 @@ onUnmounted(() => {
                                         <button
                                             @click="handleMarkAllPresent"
                                             :disabled="isProcessing"
-                                            class="flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-[10px] font-bold uppercase transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
+                                            class="flex items-center gap-2 px-4 py-2 bg-orange-400 hover:bg-orange-600 text-white rounded-lg text-[10px] font-bold uppercase transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
                                         >
                                             <CheckCircle2 class="w-4 h-4" />
                                             Mark All Present
@@ -579,14 +579,11 @@ onUnmounted(() => {
                                         :class="{'bg-rose-50/50': student.is_at_risk}"
                                     >
                                         <div class="flex items-center gap-4">
-                                            <div v-if="student.is_at_risk" class="p-1.5 bg-rose-100 rounded-full text-rose-600">
-                                                <AlertTriangle class="w-4 h-4" />
-                                            </div>
                                             <div>
                                                 <p class="font-bold text-slate-900 text-sm leading-tight">{{ student.name }}</p>
                                                 <div class="flex items-center gap-2 mt-0.5">
                                                     <p class="text-[11px] font-medium text-slate-400">{{ student.student_id }}</p>
-                                                    <span v-if="student.is_at_risk" class="text-[10px] font-bold text-rose-600 uppercase">At Risk ({{ student.attendance_rate }}%)</span>
+                                                    <span v-if="student.is_at_risk" class="text-[10px] font-bold text-rose-600 uppercase">{{ student.attendance_rate }}%</span>
                                                 </div>
                                             </div>
                                         </div>
