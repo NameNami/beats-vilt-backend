@@ -25,9 +25,12 @@ const notifications = computed(() => page.props.notifications);
 const unreadCount = computed(() => page.props.unread_count);
 
 const profilePhoto = computed(() => {
-    return user.value?.profile_photo_path
-        ? `/images/${user.value.profile_photo_path}`
-        : '/images/default-avatar.png';
+    if (user.value?.profile_photo_path) {
+        return user.value.profile_photo_path.startsWith('http')
+            ? user.value.profile_photo_path
+            : `/storage/${user.value.profile_photo_path}`;
+    }
+    return '/images/default-avatar.png';
 });
 
 defineProps({
@@ -82,10 +85,10 @@ onUnmounted(() => {
 });
 </script>
 <template>
-    <div class="flex h-screen bg-gray-50 text-gray-800 font-sans">
+    <div class="flex h-screen  text-gray-800 font-sans">
 
 
-        <aside class="w-64 bg-gray-50 border-r border-gray-200 flex flex-col">
+        <aside class="w-64  border-r border-gray-200 flex flex-col">
 
             <div class="h-15 flex items-center px-6 mt-4">
                 <div class="flex items-center gap-3">
@@ -103,7 +106,7 @@ onUnmounted(() => {
                 <Link
                     href="/lecturer/dashboard"
                     class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
-                    :class="[ $page.url.startsWith('/lecturer/dashboard') ? 'bg-gray-100 text-orange-400 font-medium border-r-3 border-orange-400' : 'text-gray-600 hover:bg-gray-100' ]"
+                    :class="[ $page.url.startsWith('/lecturer/dashboard') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <LayoutDashboard class="w-5 h-5" />
                     Dashboard
@@ -112,7 +115,7 @@ onUnmounted(() => {
                 <Link
                     href="/lecturer/timetable"
                     class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
-                    :class="[ $page.url.startsWith('/lecturer/timetable') ? 'bg-gray-100 text-orange-400 font-medium border-r-3 border-orange-400' : 'text-gray-600 hover:bg-gray-100' ]"
+                    :class="[ $page.url.startsWith('/lecturer/timetable') ? 'text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <Calendar class="w-5 h-5" />
                     Timetable
@@ -121,7 +124,7 @@ onUnmounted(() => {
                 <Link
                     href="/lecturer/leave"
                     class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
-                    :class="[ $page.url.startsWith('/lecturer/leave') ? 'bg-gray-100 text-orange-400 font-medium border-r-3 border-orange-400' : 'text-gray-600 hover:bg-gray-100' ]"
+                    :class="[ $page.url.startsWith('/lecturer/leave') ? 'text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <Scroll class="w-5 h-5" />
                     Leave Applications
@@ -130,7 +133,7 @@ onUnmounted(() => {
                 <Link
                     href="/lecturer/attendance"
                     class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
-                    :class="[ $page.url.startsWith('/lecturer/attendance') ? 'bg-gray-100 text-orange-400 font-medium border-r-3 border-orange-400' : 'text-gray-600 hover:bg-gray-100 border-transparent' ]"
+                    :class="[ $page.url.startsWith('/lecturer/attendance') ? 'text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100 border-transparent' ]"
                 >
                     <UserCheck class="w-5 h-5" />
                     Attendance
@@ -139,7 +142,7 @@ onUnmounted(() => {
                 <Link
                     href="/lecturer/reports"
                     class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
-                    :class="[ $page.url.startsWith('/lecturer/reports') ? 'bg-gray-100 text-orange-400 font-medium border-r-3 border-orange-400' : 'text-gray-600 hover:bg-gray-100' ]"
+                    :class="[ $page.url.startsWith('/lecturer/reports') ? 'text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <BarChart3 class="w-5 h-5" />
                     Reports
@@ -147,7 +150,12 @@ onUnmounted(() => {
             </nav>
 
             <div class="p-4 space-y-1 mb-4">
-                <Link href="/lecturer/settings" class="flex items-center gap-3 px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100">
+                <Link
+                    href="/lecturer/settings"
+                    class="flex items-center gap-3 px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100"
+                    :class="[ $page.url.startsWith('/lecturer/settings') ? 'text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100 border-transparent' ]"
+
+                >
                     <Settings class="w-5 h-5" />
                     Settings
                 </Link>
@@ -166,7 +174,7 @@ onUnmounted(() => {
 
         <div class="flex-1 flex flex-col overflow-hidden">
 
-            <header class="h-15 bg-gray-50 flex items-center justify-between px-8 border-b border-gray-200">
+            <header class="h-15  flex items-center justify-between px-8 border-b border-gray-200">
 
                 <div class="w-96">
                     <div class="relative">

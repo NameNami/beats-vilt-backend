@@ -7,6 +7,8 @@ use App\Models\ClassSession;
 use App\Models\CourseEnrollment;
 use App\Models\LeaveApplication;
 use App\Models\SystemSetting;
+use App\Models\User;
+use App\Models\Course;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -74,14 +76,14 @@ class WebLecturerDashboardController extends Controller
 
         // Sync at-risk calculation with WebAttendanceController logic
         $atRiskStudentCount = 0;
-        
+
         // Get courses for this lecturer
-        $courses = \App\Models\Course::whereHas('enrollments', function ($query) use ($lecturerId) {
+        $courses = Course::whereHas('enrollments', function ($query) use ($lecturerId) {
             $query->where('user_id', $lecturerId)->where('role', 'lecturer');
         })->get();
 
         foreach ($courses as $course) {
-            $enrolledStudents = \App\Models\User::whereHas('courseEnrollments', function($q) use ($course) {
+            $enrolledStudents = User::whereHas('courseEnrollments', function($q) use ($course) {
                 $q->where('course_id', $course->id)->where('role', 'student');
             })->with(['courseEnrollments' => function($q) use ($course) {
                 $q->where('course_id', $course->id);
@@ -89,7 +91,7 @@ class WebLecturerDashboardController extends Controller
 
             foreach ($enrolledStudents as $student) {
                 $studentEnrollment = $student->courseEnrollments->first();
-                
+
                 $studentPastSessionIds = ClassSession::where('course_id', $course->id)
                     ->where('lecturer_id', $lecturerId)
                     ->where('is_completed', true)
@@ -106,7 +108,7 @@ class WebLecturerDashboardController extends Controller
                     ->where('user_id', $student->id)
                     ->whereIn('status', ['early', 'on-time', 'late', 'present'])
                     ->count();
-                
+
                 $rate = $presentPastCount / $totalPastCount;
                 if ($rate < $threshold) {
                     $atRiskStudentCount++;

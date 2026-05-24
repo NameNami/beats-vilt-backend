@@ -161,10 +161,10 @@ const areaPoints = computed(() => {
     <AppLayout>
         <div>
             <!-- Header & Top Bar -->
-            <div class="py-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="py-3 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
                     <div>
-                        <h1 class="text-xl font-bold text-slate-900 leading-tight">Analytical Dashboard</h1>
+                        <h1 class="text-2xl font-semibold mb-2 text-gray-900">Analytical Dashboard</h1>
                         <div class="flex items-center gap-2 mt-0.5">
                             <span class="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] font-bold rounded-full">Week {{ semesterInfo.current_week }} / {{ semesterInfo.total_weeks }}</span>
                             <span class="text-[11px] text-slate-500 font-medium">{{ semesterInfo.semester }}</span>
@@ -175,7 +175,7 @@ const areaPoints = computed(() => {
                 <button
                     @click="generateInsights"
                     :disabled="isGeneratingInsights"
-                    class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-sm transition-all active:scale-95 disabled:opacity-70"
+                    class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-sm font-bold  transition-all active:scale-95 disabled:opacity-70"
                 >
                     <Sparkles v-if="!isGeneratingInsights" class="w-4 h-4 text-orange-400" />
                     <div v-else class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
@@ -184,7 +184,7 @@ const areaPoints = computed(() => {
             </div>
 
             <!-- Compact Inline Filters -->
-            <div class="bg-white rounded-2xl border border-slate-200 p-2 shadow-sm mb-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-2  mb-6">
                 <div class="flex flex-wrap items-center gap-2">
                     <div class="p-2 text-slate-400">
                         <Filter class="w-4 h-4" />
@@ -213,7 +213,7 @@ const areaPoints = computed(() => {
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
                 <!-- KPI Cards (3 columns in 4-col grid) -->
                 <div class="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 ">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Avg Attendance</p>
                         <div class="flex items-end justify-between">
                             <h3 class="text-2xl font-black text-slate-900">{{ stats.avgAttendance }}%</h3>
@@ -226,7 +226,7 @@ const areaPoints = computed(() => {
                         </div>
                     </div>
 
-                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 ">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Students Evaluated</p>
                         <div class="flex items-end justify-between">
                             <h3 class="text-2xl font-black text-slate-900">{{ stats.totalStudents }}</h3>
@@ -234,7 +234,7 @@ const areaPoints = computed(() => {
                         </div>
                     </div>
 
-                    <div class="bg-rose-50 p-4 rounded-2xl border border-rose-100 shadow-sm">
+                    <div class="bg-rose-50 p-4 rounded-2xl border border-rose-100 ">
                         <p class="text-[10px] font-bold text-rose-500 uppercase tracking-widest mb-1">At-Risk Cases</p>
                         <div class="flex items-end justify-between">
                             <h3 class="text-2xl font-black text-rose-700">{{ stats.atRiskCount }}</h3>
@@ -284,7 +284,7 @@ const areaPoints = computed(() => {
             <!-- Visualizations -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                 <!-- Attendance Trend -->
-                <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 ">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-sm font-bold text-slate-800">Attendance Trend</h2>
                         <span class="text-[10px] font-bold text-slate-400 uppercase">Last 8 Weeks</span>
@@ -331,7 +331,7 @@ const areaPoints = computed(() => {
                 </div>
 
                 <!-- Arrival Breakdown -->
-                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 ">
                     <h2 class="text-sm font-bold text-slate-800 mb-4">Arrival Breakdown</h2>
                     <div class="space-y-4">
                         <div v-for="(val, key) in { Early: {color: 'indigo', class: 'bg-indigo-500', text: 'text-indigo-600'}, OnTime: {color: 'emerald', class: 'bg-emerald-500', text: 'text-emerald-600'}, Late: {color: 'amber', class: 'bg-amber-500', text: 'text-amber-600'}, Absent: {color: 'rose', class: 'bg-rose-500', text: 'text-rose-600'}, Leave: {color: 'slate', class: 'bg-slate-400', text: 'text-slate-600'} }" :key="key" class="space-y-1">
@@ -354,7 +354,7 @@ const areaPoints = computed(() => {
             <!-- Action Center -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <!-- At-Risk Students -->
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[400px]">
+                <div class="bg-white rounded-2xl border border-slate-200  flex flex-col h-[400px]">
                     <div class="p-4 border-b border-slate-100 flex items-center justify-between">
                         <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
                             <AlertTriangle class="w-4 h-4 text-rose-500" />
@@ -374,7 +374,7 @@ const areaPoints = computed(() => {
                                 </div>
                                 <button
                                     @click="draftEmail(student)"
-                                    class="opacity-0 group-hover:opacity-100 flex items-center gap-1 bg-white border border-slate-200 text-indigo-600 px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm transition-all active:scale-95"
+                                    class="opacity-0 group-hover:opacity-100 flex items-center gap-1 bg-white border border-slate-200 text-indigo-600 px-2 py-1 rounded-lg text-[10px] font-bold  transition-all active:scale-95"
                                 >
                                     <Sparkles class="w-3 h-3" />
                                     Draft
@@ -385,7 +385,7 @@ const areaPoints = computed(() => {
                 </div>
 
                 <!-- Pending Leaves -->
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[400px]">
+                <div class="bg-white rounded-2xl border border-slate-200  flex flex-col h-[400px]">
                     <div class="p-4 border-b border-slate-100 flex items-center justify-between">
                         <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
                             <Calendar class="w-4 h-4 text-amber-500" />
@@ -413,14 +413,14 @@ const areaPoints = computed(() => {
                 </div>
 
                 <!-- Gamification Hub -->
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[400px]">
+                <div class="bg-white rounded-2xl border border-slate-200  flex flex-col h-[400px]">
                     <div class="p-1 border-b border-slate-100">
                         <div class="flex p-1 bg-slate-50 rounded-xl">
                             <button
                                 @click="activeHubTab = 'leaderboard'"
                                 :class="[
                                     'flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-[11px] font-bold transition-all',
-                                    activeHubTab === 'leaderboard' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500'
+                                    activeHubTab === 'leaderboard' ? 'bg-white text-indigo-600 ' : 'text-slate-500'
                                 ]"
                             >
                                 <Trophy class="w-3.5 h-3.5" /> Leaderboard
@@ -429,7 +429,7 @@ const areaPoints = computed(() => {
                                 @click="activeHubTab = 'badges'"
                                 :class="[
                                     'flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-[11px] font-bold transition-all',
-                                    activeHubTab === 'badges' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500'
+                                    activeHubTab === 'badges' ? 'bg-white text-indigo-600 ' : 'text-slate-500'
                                 ]"
                             >
                                 <Award class="w-3.5 h-3.5" /> Badges
@@ -474,7 +474,7 @@ const areaPoints = computed(() => {
             </div>
 
             <!-- Overall Attendance Summary Table -->
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="bg-white rounded-2xl border border-slate-200  overflow-hidden">
                 <div class="p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <h2 class="text-sm font-bold text-slate-800">Overall Attendance Summary</h2>
                     <div class="relative w-full md:w-64">
@@ -561,7 +561,7 @@ const areaPoints = computed(() => {
                                 <!-- Expandable Breakdown -->
                                 <tr v-if="expandedRows.has(student.id + student.course_code)" class="bg-slate-50/50">
                                     <td colspan="8" class="px-6 py-4">
-                                        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+                                        <div class="bg-white rounded-xl border border-slate-200 p-4 ">
                                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Course Breakdown</p>
                                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                                 <div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg">

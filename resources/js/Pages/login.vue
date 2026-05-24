@@ -50,7 +50,7 @@ const submitLogin = () => {
                     </div>
 
                     <div class="flex justify-center mt-12 mb-6">
-                        <button type="submit" :disabled="form.processing" class="w-2/3 max-w-[200px] bg-orange-500 text-white font-semibold py-3 px-6 rounded-lg shadow hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 disabled:opacity-50 mx-auto">
+                        <button type="submit" :disabled="form.processing" class="w-2/3 max-w-[200px] bg-orange-500 text-white font-semibold py-3 px-6 rounded-lg shadow hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 disabled:opacity-50 mx-auto cursor-pointer">
                             <span v-if="form.processing">Signing In...</span>
                             <span v-else>Sign in</span>
                         </button>

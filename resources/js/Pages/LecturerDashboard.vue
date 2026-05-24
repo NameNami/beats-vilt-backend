@@ -206,7 +206,7 @@ onUnmounted(() => {
     </Head>
     <AppLayout>
         <div class="mb-6">
-            <h2 class="text-xl font-bold text-slate-900 mb-4">Overview</h2>
+            <h2 class="text-2xl font-semibold mb-2 text-gray-900">Overview</h2>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
 

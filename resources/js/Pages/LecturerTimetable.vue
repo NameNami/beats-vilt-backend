@@ -126,7 +126,7 @@ const navigateWeek = (direction) => {
 
 <template>
     <Head>
-        <title>Dashboard</title>
+        <title>Timetable</title>
     </Head>
     <AppLayout>
         <div class="min-h-screen bg-white text-slate-900 font-sans p-0">
@@ -135,20 +135,20 @@ const navigateWeek = (direction) => {
                 <!-- Header Area -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h1 class="text-2xl font-bold text-[#0f172a]">Timetable</h1>
+                        <h1 class="text-2xl font-semibold mb-2 text-gray-900">Timetable</h1>
                         <p class="text-slate-500 text-sm font-medium mt-0.5">Manage your weekly schedule and classes.</p>
                     </div>
 
                     <div class="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
                         <!-- Week Navigation -->
-                        <div class="flex items-center bg-slate-100/80 p-1 rounded-lg border border-slate-200/60 shadow-sm">
+                        <div class="flex items-center bg-slate-100/80 p-1 rounded-lg border border-slate-200/60">
                             <button
                                 @click="navigateWeek('prev')"
                                 :disabled="!canNavigatePrev"
                                 :class="[
                                     'p-1.5 rounded-md transition-all',
                                     canNavigatePrev
-                                        ? 'text-slate-500 hover:text-slate-900 hover:bg-white hover:shadow-sm'
+                                        ? 'text-slate-500 hover:text-slate-900 hover:bg-white'
                                         : 'text-slate-300 cursor-not-allowed'
                                 ]"
                                 title="Previous Week"
@@ -169,7 +169,7 @@ const navigateWeek = (direction) => {
                                 :class="[
                                     'p-1.5 rounded-md transition-all',
                                     canNavigateNext
-                                        ? 'text-slate-500 hover:text-slate-900 hover:bg-white hover:shadow-sm'
+                                        ? 'text-slate-500 hover:text-slate-900 hover:bg-white hover:'
                                         : 'text-slate-300 cursor-not-allowed'
                                 ]"
                                 title="Next Week"
@@ -189,7 +189,7 @@ const navigateWeek = (direction) => {
                                 :class="[
                   'flex items-center gap-2 px-5 py-2 rounded-md text-sm font-semibold transition-all',
                   view === 'week'
-                    ? 'bg-white text-orange-600 shadow-sm border border-slate-200/50'
+                    ? 'bg-white text-orange-600  border border-slate-200/50'
                     : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50 border border-transparent'
                 ]"
                             >
@@ -201,7 +201,7 @@ const navigateWeek = (direction) => {
                                 :class="[
                   'flex items-center gap-2 px-5 py-2 rounded-md text-sm font-semibold transition-all',
                   view === 'day'
-                    ? 'bg-white text-orange-600 shadow-sm border border-slate-200/50'
+                    ? 'bg-white text-orange-600  border border-slate-200/50'
                     : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50 border border-transparent'
                 ]"
                             >
@@ -215,7 +215,7 @@ const navigateWeek = (direction) => {
                 <!-- Content Area -->
 
                 <!-- Week View -->
-                <div v-if="view === 'week'" class="mt-4 border border-slate-200 rounded-xl bg-white overflow-hidden shadow-sm">
+                <div v-if="view === 'week'" class="mt-4 border border-slate-200 rounded-xl bg-white overflow-hidden ">
                     <div class="overflow-x-auto">
                         <div class="min-w-[1200px]">
                             <!-- Header Row (Time Slots) -->
@@ -256,7 +256,7 @@ const navigateWeek = (direction) => {
                                             v-for="event in groupedSessions[day.name]"
                                             :key="event.id"
                                             :class="[
-                      'absolute top-2 bottom-2 rounded-lg border p-2 overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer hover:z-20 hover:scale-[1.01]',
+                      'absolute top-2 bottom-2 rounded-lg border p-2 overflow-hidden  hover:shadow-md transition-all cursor-pointer hover:z-20 hover:scale-[1.01]',
                       COLOR_MAP[event.color],
                       event.isOngoing ? 'border-2 border-orange-300 z-30 shadow-md shadow-orange-50/50' : ''
                     ]"
@@ -271,7 +271,7 @@ const navigateWeek = (direction) => {
                                             <div class="flex items-center gap-1.5 mt-1">
                                                 <span :class="[
                                                     'px-1.5 py-0.5 text-[9px] font-bold rounded uppercase flex items-center gap-1',
-                                                    event.mode === 'online' ? 'bg-blue-100 text-blue-600' : 'bg-emerald-100 text-emerald-600'
+                                                    event.mode === 'online' ? 'bg-blue-100 text-blue-600' : 'bg-orange-100 text-orange-600'
                                                 ]">
                                                     <Globe v-if="event.mode === 'online'" class="w-2.5 h-2.5" />
                                                     <Building2 v-else class="w-2.5 h-2.5" />

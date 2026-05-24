@@ -247,7 +247,7 @@ onUnmounted(() => {
 
 <template>
     <Head>
-        <title>Attendance Portal</title>
+        <title>Attendance</title>
     </Head>
     <AppLayout>
         <div class="min-h-screen bg-white text-slate-900 font-sans p-0">
@@ -256,7 +256,7 @@ onUnmounted(() => {
                 <!-- Global Header -->
                 <div class="flex items-center gap-4 mb-8">
                     <div>
-                        <h1 class="text-2xl font-bold text-[#0f172a]">Attendance Portal</h1>
+                        <h1 class="text-2xl font-semibold mb-2 text-gray-900">Attendance Portal</h1>
                     </div>
                 </div>
 
@@ -265,22 +265,22 @@ onUnmounted(() => {
 
                     <!-- Stats Row -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200">
                             <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">My Classes</p>
                             <p class="text-3xl font-bold text-slate-900">{{ courses.length }}</p>
                         </div>
 
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 relative overflow-hidden">
                             <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Active Sessions</p>
                             <p class="text-3xl font-bold text-orange-600">{{ activeSessionsCount }}</p>
                         </div>
 
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200">
                             <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Students</p>
                             <p class="text-3xl font-bold text-slate-900">{{ totalStudentsCount }}</p>
                         </div>
 
-                        <div class="bg-rose-50 p-6 rounded-2xl border border-rose-200 shadow-sm relative overflow-hidden">
+                        <div class="bg-rose-50 p-6 rounded-2xl border border-rose-200 relative overflow-hidden">
                             <p class="text-sm font-semibold text-rose-600 uppercase tracking-wider mb-1">At-Risk Students</p>
                             <p class="text-3xl font-bold text-rose-700">{{ atRiskCount }}</p>
                             <AlertTriangle class="absolute -right-2 -bottom-2 w-16 h-16 text-rose-100" />
@@ -298,7 +298,7 @@ onUnmounted(() => {
 
                         <div class="space-y-3">
                             <div v-for="group in groupedAtRiskStudents" :key="group.code"
-                                class="bg-white border border-rose-100 rounded-xl overflow-hidden shadow-sm transition-all">
+                                class="bg-white border border-rose-100 rounded-xl overflow-hidden transition-all">
 
                                 <!-- Course Header -->
                                 <div @click="toggleAtRiskCourse(group.code)"
@@ -358,7 +358,7 @@ onUnmounted(() => {
                             <div
                                 v-for="course in courses"
                                 :key="course.id"
-                                class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm transition-all"
+                                class="bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all"
                             >
                                 <!-- Accordion Header -->
                                 <div

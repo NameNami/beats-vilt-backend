@@ -70,7 +70,7 @@ const getLeaveTypeStyle = (type) => {
 
 <template>
     <Head>
-        <title>Leave Absence</title>
+        <title>Leave Application</title>
     </Head>
     <AppLayout>
         <div class="min-h-screen bg-white text-slate-900 font-sans p-0">
@@ -78,27 +78,27 @@ const getLeaveTypeStyle = (type) => {
 
                 <!-- Header Area -->
                 <div class="mb-8">
-                    <h1 class="text-2xl font-bold text-[#0f172a]">Leave Applications</h1>
+                    <h1 class="text-2xl font-semibold mb-2 text-gray-900">Leave Applications</h1>
                     <p class="text-slate-500 text-sm font-medium mt-1">Review and manage student absence requests.</p>
                 </div>
 
                 <!-- Stats Section -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                    <div class="bg-white border border-slate-200 rounded-xl p-4">
                         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Total</p>
                         <p class="text-2xl font-bold text-slate-900">{{ stats.total }}</p>
                     </div>
-                    <div class="bg-white border border-orange-200 rounded-xl p-4 shadow-sm flex flex-col justify-between relative overflow-hidden">
+                    <div class="bg-white border border-orange-200 rounded-xl p-4 flex flex-col justify-between relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-16 h-16 bg-orange-50 rounded-bl-full -z-10"></div>
                         <p class="text-xs font-semibold text-orange-600 uppercase tracking-wider mb-1">Pending</p>
                         <p class="text-2xl font-bold text-orange-700">{{ stats.pending }}</p>
                     </div>
-                    <div class="bg-white border border-emerald-200 rounded-xl p-4 shadow-sm flex flex-col justify-between relative overflow-hidden">
+                    <div class="bg-white border border-emerald-200 rounded-xl p-4 flex flex-col justify-between relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-16 h-16 bg-emerald-50 rounded-bl-full -z-10"></div>
                         <p class="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-1">Approved</p>
                         <p class="text-2xl font-bold text-emerald-700">{{ stats.approved }}</p>
                     </div>
-                    <div class="bg-white border border-rose-200 rounded-xl p-4 shadow-sm flex flex-col justify-between relative overflow-hidden">
+                    <div class="bg-white border border-rose-200 rounded-xl p-4 flex flex-col justify-between relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-16 h-16 bg-rose-50 rounded-bl-full -z-10"></div>
                         <p class="text-xs font-semibold text-rose-600 uppercase tracking-wider mb-1">Rejected</p>
                         <p class="text-2xl font-bold text-rose-700">{{ stats.rejected }}</p>
@@ -106,7 +106,7 @@ const getLeaveTypeStyle = (type) => {
                 </div>
 
                 <!-- Filters Section -->
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 bg-white p-2 border border-slate-200 rounded-xl shadow-sm">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 bg-white p-2 border border-slate-200 rounded-xl">
 
                     <!-- Status Tabs -->
                     <div class="flex gap-1 overflow-x-auto w-full sm:w-auto">
@@ -159,7 +159,7 @@ const getLeaveTypeStyle = (type) => {
                         v-for="app in filteredApplications"
                         :key="app.id"
                         :class="[
-            'bg-white rounded-2xl border p-6 shadow-sm hover:shadow-md transition-shadow',
+            'bg-white rounded-2xl border p-6 hover:shadow-md transition-shadow',
             app.status === 'pending' ? 'border-orange-200' : 'border-slate-200'
           ]"
                     >

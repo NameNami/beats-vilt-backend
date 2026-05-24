@@ -11,9 +11,10 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\WebLecturerTimetableController;
 use App\Http\Controllers\WebLecturerLeave;
 use App\Http\Middleware\CheckRoleWeb;
+use App\Http\Controllers\WebLecturerSettingsController;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome');
+    return redirect('/login');
 });
 
 // TODO: kena setup permission nanti, ni semua xsetup lagi permissions sebab ni untuk auth so xperlu setup permissions
@@ -36,7 +37,6 @@ Route::post('reset-password', [PasswordResetController::class, 'reset'])->name('
 Route::post('/logout', [WebAuthController::class, 'logout'])->name('logout');
 // --- AUTH
 
-// TODO: select class -> class session -> qr dashboard
 Route::middleware(['auth', CheckRoleWeb::class . ':lecturer'])->group(function () {
     Route::get('lecturer/dashboard',[WebLecturerDashboardController::class,'lecturerDashboard'])->name('lecturer.dashboard');
     Route::post('lecturer/sessions/{session}/toggle-cancel', [WebLecturerDashboardController::class, 'toggleCancel'])->name('lecturer.sessions.toggle-cancel');
@@ -56,5 +56,11 @@ Route::middleware(['auth', CheckRoleWeb::class . ':lecturer'])->group(function (
 
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead']);
+
+    Route::get('lecturer/settings', [WebLecturerSettingsController::class, 'settings'])->name('lecturer.settings');
+    Route::post('lecturer/settings/profile', [WebLecturerSettingsController::class, 'updateProfile'])->name('lecturer.settings.profile');
+    Route::post('lecturer/settings/password', [WebLecturerSettingsController::class, 'updatePassword'])->name('lecturer.settings.password');
+    Route::post('lecturer/settings/photo', [WebLecturerSettingsController::class, 'updatePhoto'])->name('lecturer.settings.photo');
+    Route::delete('lecturer/settings/photo', [WebLecturerSettingsController::class, 'deletePhoto'])->name('lecturer.settings.photo.delete');
 });
 
