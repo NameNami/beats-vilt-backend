@@ -4,12 +4,20 @@ use App\Http\Controllers\PasswordResetController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\WebAuthController;
+use App\Http\Controllers\WebAttendanceController;
+use App\Http\Controllers\WebLecturerDashboardController;
+use App\Http\Controllers\WebLecturerReport;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\WebLecturerTimetableController;
+use App\Http\Controllers\WebLecturerLeave;
+use App\Http\Middleware\CheckRoleWeb;
+use App\Http\Controllers\WebLecturerSettingsController;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome');
+    return redirect('/login');
 });
 
-
+// TODO: kena setup permission nanti, ni semua xsetup lagi permissions sebab ni untuk auth so xperlu setup permissions
 // AUTH ---
 // Login Routes
 // 1. The GET route: Displays the login form
@@ -28,3 +36,31 @@ Route::post('reset-password', [PasswordResetController::class, 'reset'])->name('
 //Logout
 Route::post('/logout', [WebAuthController::class, 'logout'])->name('logout');
 // --- AUTH
+
+Route::middleware(['auth', CheckRoleWeb::class . ':lecturer'])->group(function () {
+    Route::get('lecturer/dashboard',[WebLecturerDashboardController::class,'lecturerDashboard'])->name('lecturer.dashboard');
+    Route::post('lecturer/sessions/{session}/toggle-cancel', [WebLecturerDashboardController::class, 'toggleCancel'])->name('lecturer.sessions.toggle-cancel');
+    Route::get('lecturer/timetable',[WebLecturerTimetableController::class,'lecturerTimetable'])->name('lecturer.timetable');
+    Route::get('lecturer/leave', [WebLecturerLeave::class, 'index'])->name('lecturer.leave');
+    Route::post('lecturer/leave/{application}/status', [WebLecturerLeave::class, 'updateStatus'])->name('lecturer.leave.status');
+    Route::get('lecturer/attendance', [WebAttendanceController::class, 'index'])->name('lecturer.attendance');
+    Route::get('lecturer/sessions/{session}', [WebAttendanceController::class, 'show'])->name('lecturer.sessions.show');
+    Route::post('lecturer/sessions/{session}/generate-qr', [WebAttendanceController::class, 'generateQr'])->name('lecturer.sessions.generate-qr');
+    Route::post('lecturer/sessions/{session}/toggle-display', [WebAttendanceController::class, 'toggleDisplay'])->name('lecturer.sessions.toggle-display');
+    Route::post('lecturer/sessions/{session}/mark-attendance', [WebAttendanceController::class, 'markAttendance'])->name('lecturer.sessions.mark-attendance');
+    Route::post('lecturer/sessions/{session}/mark-all-present', [WebAttendanceController::class, 'markAllPresent'])->name('lecturer.sessions.mark-all-present');
+    Route::post('lecturer/sessions/{session}/reset-attendance', [WebAttendanceController::class, 'resetAttendance'])->name('lecturer.sessions.reset-attendance');
+
+    Route::get('lecturer/reports', [WebLecturerReport::class, 'index'])->name('lecturer.reports');
+    Route::get('lecturer/reports/export', [WebLecturerReport::class, 'exportCsv'])->name('lecturer.reports.export');
+
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead']);
+
+    Route::get('lecturer/settings', [WebLecturerSettingsController::class, 'settings'])->name('lecturer.settings');
+    Route::post('lecturer/settings/profile', [WebLecturerSettingsController::class, 'updateProfile'])->name('lecturer.settings.profile');
+    Route::post('lecturer/settings/password', [WebLecturerSettingsController::class, 'updatePassword'])->name('lecturer.settings.password');
+    Route::post('lecturer/settings/photo', [WebLecturerSettingsController::class, 'updatePhoto'])->name('lecturer.settings.photo');
+    Route::delete('lecturer/settings/photo', [WebLecturerSettingsController::class, 'deletePhoto'])->name('lecturer.settings.photo.delete');
+});
+

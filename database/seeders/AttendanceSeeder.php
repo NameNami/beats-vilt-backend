@@ -15,37 +15,59 @@ class AttendanceSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seed attendance records for a small subset of sessions
-        $sessions = ClassSession::orderBy('start_time')->take(2)->get();
+        // Seed attendance records for completed sessions
+        $sessions = ClassSession::where('is_completed', true)->get();
         if ($sessions->isEmpty()) {
             return; // prerequisites not met
         }
 
         foreach ($sessions as $session) {
-            $studentIds = CourseEnrollment::where('course_id', $session->course_id)
+            $enrollments = CourseEnrollment::where('course_id', $session->course_id)
                 ->where('role', 'student')
-                ->limit(12)
-                ->pluck('user_id');
+                ->where(function($q) use ($session) {
+                    $q->whereNull('lab_id')->orWhere('lab_id', $session->lab_id);
+                })
+                ->get();
 
-            $statuses = ['early', 'on-time', 'late'];
+            foreach ($enrollments as $enrollment) {
+                $userId = $enrollment->user_id;
+                
+                // Create some deterministic "at-risk" students based on their ID
+                // Students with IDs divisible by 3 will have poor attendance (~60%)
+                // Others will have good attendance (~90%)
+                $isAtRiskCandidate = ($userId % 3 === 0);
+                $random = rand(1, 100);
+                
+                $status = 'absent';
+                $checkIn = null;
+                $method = 'manual';
 
-            foreach ($studentIds as $index => $userId) {
-                $status = $statuses[$index % count($statuses)];
-                $start  = Carbon::parse($session->start_time);
+                if ($isAtRiskCandidate) {
+                    if ($random <= 60) {
+                        $status = $this->getRandomPresentStatus();
+                    } elseif ($random <= 70) {
+                        $status = 'leave';
+                    }
+                } else {
+                    if ($random <= 90) {
+                        $status = $this->getRandomPresentStatus();
+                    } elseif ($random <= 95) {
+                        $status = 'leave';
+                    }
+                }
 
-                // Determine check-in time based on status
-                $checkIn = match ($status) {
-                    'early'   => $start->copy()->subMinutes(5),
-                    'on-time' => $start->copy(),
-                    'late'    => $start->copy()->addMinutes(3),
-                    default   => $start->copy(),
-                };
-
-                // Choose a valid check-in method
-                $method = match ($status) {
-                    'late'    => 'manual',
-                    default   => $session->checkin_method, // BLE/dynamic_qr/static_qr
-                };
+                if (in_array($status, ['early', 'on-time', 'late', 'present'])) {
+                    $start = Carbon::parse($session->start_time);
+                    $checkIn = match ($status) {
+                        'early'   => $start->copy()->subMinutes(rand(5, 15)),
+                        'on-time' => $start->copy()->addMinutes(rand(0, 5)),
+                        'late'    => $start->copy()->addMinutes(rand(11, 25)),
+                        'present' => $start->copy()->addMinutes(rand(0, 10)),
+                    };
+                    $method = ($status === 'late') ? 'manual' : 'ble';
+                } else {
+                    $checkIn = Carbon::parse($session->start_time)->addMinutes(rand(0, 120));
+                }
 
                 AttendanceRecord::updateOrCreate(
                     ['user_id' => $userId, 'session_id' => $session->id],
@@ -53,9 +75,27 @@ class AttendanceSeeder extends Seeder
                         'check_in_time' => $checkIn,
                         'status'        => $status,
                         'checkin_method'=> $method,
+                        'created_at'    => $checkIn,
+                        'updated_at'    => $checkIn,
                     ]
                 );
             }
         }
+    }
+
+    private function getRandomPresentStatus()
+    {
+        $statuses = ['early', 'on-time', 'late', 'present'];
+        $weights = [20, 50, 20, 10]; // Probabilities
+        
+        $r = rand(1, 100);
+        $current = 0;
+        foreach ($weights as $index => $weight) {
+            $current += $weight;
+            if ($r <= $current) {
+                return $statuses[$index];
+            }
+        }
+        return 'on-time';
     }
 }

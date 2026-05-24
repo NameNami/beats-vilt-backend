@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('session_id')->constrained('class_sessions')->cascadeOnDelete();
             $table->dateTime('check_in_time');
-            $table->enum('status', ['early', 'on-time', 'late', 'absent']);
-            $table->enum('checkin_method', ['BLE', 'dynamic_qr', 'static_qr', 'manual']);
+            $table->enum('status', ['early', 'on-time', 'late', 'absent', 'present']);
+            $table->enum('checkin_method', ['ble', 'qr', 'manual']);
             $table->unique(['user_id', 'session_id']);
             $table->timestamps();
         });

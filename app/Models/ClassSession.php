@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'checkin_method',
     'is_display',
     'is_cancelled',
+    'is_completed',
     'announce_cancelled',
 ])]
 
