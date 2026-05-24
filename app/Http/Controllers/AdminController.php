@@ -10,6 +10,7 @@ use App\Models\ClassSession;
 use App\Models\Room;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -102,8 +103,12 @@ class AdminController extends Controller
      */
     public function manageSessions()
     {
+        $sessions = ClassSession::with(['course', 'lab', 'lecturer', 'room'])
+            ->orderBy('start_time', 'desc')
+            ->get();
+
         return Inertia::render('Admin/ManageSessions', [
-            'sessions' => ClassSession::with(['course', 'lab', 'lecturer', 'room'])->get(),
+            'sessions' => $sessions,
             'courses' => Course::all(),
             'labs' => Lab::all(),
             'lecturers' => User::where('role', 'lecturer')->get(),
@@ -115,13 +120,13 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'course_id' => 'required|exists:courses,id',
-            'lab_id' => 'nullable|exists:labs,id',
-            'lecturer_id' => 'required|exists:users,id',
-            'room_id' => 'required|exists:rooms,id',
+            'lab_id' => 'required|exists:labs,id',
+            'lecturer_id' => 'nullable|exists:users,id',
+            'room_id' => 'nullable|exists:rooms,id',
             'start_time' => 'required|date',
             'end_time' => 'required|date|after:start_time',
-            'mode' => 'required|in:lecture,lab,tutorial',
-            'checkin_method' => 'required|in:qr,beacon,manual',
+            'mode' => 'required|in:online,physical',
+            'checkin_method' => 'required|in:ble,qr,manual',
         ]);
 
         ClassSession::create($validated);
@@ -134,13 +139,13 @@ class AdminController extends Controller
         $session = ClassSession::findOrFail($id);
         $validated = $request->validate([
             'course_id' => 'required|exists:courses,id',
-            'lab_id' => 'nullable|exists:labs,id',
-            'lecturer_id' => 'required|exists:users,id',
-            'room_id' => 'required|exists:rooms,id',
+            'lab_id' => 'required|exists:labs,id',
+            'lecturer_id' => 'nullable|exists:users,id',
+            'room_id' => 'nullable|exists:rooms,id',
             'start_time' => 'required|date',
             'end_time' => 'required|date|after:start_time',
-            'mode' => 'required|in:lecture,lab,tutorial',
-            'checkin_method' => 'required|in:qr,beacon,manual',
+            'mode' => 'required|in:online,physical',
+            'checkin_method' => 'required|in:ble,qr,manual',
         ]);
 
         $session->update($validated);
@@ -219,5 +224,136 @@ class AdminController extends Controller
         ]);
 
         return back()->with('success', 'Student enrolled successfully.');
+    }
+    // =====================================================================
+    // 7. USER MANAGEMENT (CRUD)
+    // =====================================================================
+
+    public function manageUsers()
+    {
+        // Fetch all users, order them by role, then by name for easy reading
+        $users = User::orderBy('role')->orderBy('name')->get();
+
+        return Inertia::render('Admin/ManageUsers', [
+            'users' => $users
+        ]);
+    }
+
+    /**
+     * Bulk Import Students via CSV
+     */
+    public function importStudents(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt|max:2048', // Max 2MB CSV
+        ]);
+
+        $file = $request->file('file');
+
+        // Open and read the CSV file natively
+        $csvData = file_get_contents($file);
+        $rows = array_map('str_getcsv', explode("\n", $csvData));
+
+        // Remove the header row (Name, Email, Student ID)
+        array_shift($rows);
+
+        $importedCount = 0;
+
+        foreach ($rows as $row) {
+            // Ensure the row actually has 3 columns to prevent crashes
+            if (count($row) >= 3) {
+                $name = trim($row[0]);
+                $email = trim($row[1]);
+                $studentId = trim($row[2]);
+
+                if ($name && $email && $studentId) {
+                    // Extract a default username from email
+                    $username = explode('@', $email)[0] . rand(10, 99);
+                    
+                    // UpdateOrCreate prevents duplicates! If email exists, it updates. If not, it creates.
+                    User::updateOrCreate(
+                        ['email' => $email],
+                        [
+                            'name' => $name,
+                            'username' => $username,
+                            'student_id' => $studentId,
+                            'role' => 'student',
+                            // FYP Trick: Set their default password to their Student ID!
+                            'password' => \Illuminate\Support\Facades\Hash::make($studentId)
+                        ]
+                    );
+                    $importedCount++;
+                }
+            }
+        }
+
+        return back()->with('success', "Successfully imported or updated {$importedCount} student accounts!");
+    }
+
+    public function storeUser(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users',
+            'email' => 'required|string|email|max:255|unique:users',
+            'student_id' => 'nullable|string|max:255|unique:users', // Used for student/staff login IDs
+            'role' => 'required|in:admin,lecturer,student',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'username' => $request->username,
+            'email' => $request->email,
+            'student_id' => $request->student_id,
+            'role' => $request->role,
+            'password' => Hash::make($request->password), // Securely hash the password
+        ]);
+
+        return back()->with('success', 'User account created successfully.');
+    }
+
+    public function updateUser(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,username,' . $id,
+            // Ignore THIS user's current email/student_id when checking for uniqueness
+            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
+            'student_id' => 'nullable|string|max:255|unique:users,student_id,' . $id,
+            'role' => 'required|in:admin,lecturer,student',
+            // Password is optional when updating
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
+
+        $user->name = $request->name;
+        $user->username = $request->username;
+        $user->email = $request->email;
+        $user->student_id = $request->student_id;
+        $user->role = $request->role;
+
+        // Only update the password if the admin typed a new one in
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
+        return back()->with('success', 'User account updated successfully.');
+    }
+
+    public function deleteUser($id)
+    {
+        // Safety check: Prevent the admin from deleting themselves
+        if (auth()->id() == $id) {
+            return back()->withErrors(['message' => 'You cannot delete your own active admin account.']);
+        }
+
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        return back()->with('success', 'User account deleted successfully.');
     }
 }
