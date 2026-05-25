@@ -14,6 +14,7 @@ use App\Models\QrToken;
 class AttendanceController extends Controller
 {
     public function checkInBle(Request $request, AttendanceServices $attendanceServices, \App\Services\GamificationService $gamificationService)
+    //public function checkInBle(Request $request, AttendanceServices $attendanceServices)
     {
 
         $request->validate([
@@ -71,6 +72,9 @@ class AttendanceController extends Controller
             ], 400);
         }
 
+        // calculate xp
+        //$xp = $attendanceServices->calculateXp($arrivalStatus);
+
         // check in time from request
         $check_in_time = Carbon::createFromTimestamp($request->timestamp)->toDateTimeString();
 
@@ -94,12 +98,14 @@ class AttendanceController extends Controller
                 'xp_earned' => $rewards['xp'],
                 'total_xp' => $rewards['new_total_xp'],
                 'level' => $rewards['level'],
+                //'xp_earned' => $xp,
                 'check_in_time' => $check_in_time,
             ]
         ]);
     }
 
     public function checkInQr(Request $request, AttendanceServices $attendanceServices, \App\Services\GamificationService $gamificationService)
+    //public function checkInQr(Request $request, AttendanceServices $attendanceServices)
     {
         $request->validate([
             'timestamp' => 'required|string', // timestamp untuk compare dgn timeframe kelas
@@ -130,6 +136,10 @@ class AttendanceController extends Controller
         */
         $arrivalStatus = 'present';
 
+        // calculate xp
+        // TODO: check ni
+        //$xp = $attendanceServices->calculateXp($arrivalStatus);
+
         // check in time from request
         $check_in_time = Carbon::createFromTimestamp($request->timestamp)->toDateTimeString();
 
@@ -153,6 +163,7 @@ class AttendanceController extends Controller
                 'xp_earned' => $rewards['xp'],
                 'total_xp' => $rewards['new_total_xp'],
                 'level' => $rewards['level'],
+                //'xp_earned' => $xp,
                 'check_in_time' => $check_in_time,
             ]
         ]);

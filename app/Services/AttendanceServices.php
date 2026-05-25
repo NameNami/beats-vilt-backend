@@ -14,6 +14,7 @@ use phpDocumentor\Reflection\Types\Boolean;
 class AttendanceServices
 {
     public function classifyArrival(ClassSession $session, string $checkInTimestamp, string $method = 'qr'): String
+    //public function classifyArrival(ClassSession $session, string $checkInTimestamp): String
     {
         if (strtolower($session->mode) === 'online' || $method === 'manual') {
             return 'present';
@@ -21,6 +22,7 @@ class AttendanceServices
 
         $checkInTime = Carbon::createFromTimestamp($checkInTimestamp);
         $start = $session->start_time;
+        //$end = $session->end_time;
         $onTimeThreshold = $session->start_time->copy()->addMinutes(10); // TODO: make this configurable using settings
         $earlyThreshold = $session->start_time->copy()->subMinutes(30); // TODO: make this configurable using settings
 
@@ -32,10 +34,28 @@ class AttendanceServices
             abort(400, 'Invalid timestamp');
         }
 
+        //if ($checkInTime->between($start, $end)) // if scan with in the class time
         if ($checkInTime->between($earlyThreshold, $start)) // if scan with in the early time threshold
+            /*
+        {
+            if ($checkInTime < $onTimeThreshold) // if timestamp checkin is under the on time threshold then its on time
+            {
+                return 'on-time';
+            }
+            else { // else its late
+                return 'late';
+            }
+        }
+        elseif ($checkInTime->between($earlyThreshold, $start)) // if scan with in the early time threshold
         {
             return 'early';
         }
+        else
+        {
+            return 'invalid';
+        }
+            return 'early';
+        }*/
 
         if ($checkInTime->lt($onTimeThreshold)) // if timestamp checkin is under the on time threshold then its on time
         {
@@ -59,6 +79,8 @@ class AttendanceServices
 
     public function checkInValidationQr(ClassSession $session, string $checkInTimestamp, string $qrToken, User $user): array
     {
+        // check if the class within the timeframe | gonna use clasifyArrival()
+
         // check if qr token is valid (not expired and within the token table)
         $qrToken = QrToken::where('token', $qrToken)->first();
         if (! $qrToken)

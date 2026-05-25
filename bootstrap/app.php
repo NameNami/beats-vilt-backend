@@ -12,8 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->web(append: [
-            \App\Http\Middleware\HandleInertiaRequests::class,
+        $middleware->alias([
+            // 👇 Here is the fix! Changed CheckRole to CheckRoleWeb
+            'role' => \App\Http\Middleware\CheckRoleWeb::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -12,6 +12,8 @@ use App\Http\Controllers\WebLecturerTimetableController;
 use App\Http\Controllers\WebLecturerLeave;
 use App\Http\Middleware\CheckRoleWeb;
 use App\Http\Controllers\WebLecturerSettingsController;
+use App\Http\Controllers\LecturerController;
+use App\Http\Controllers\AdminController;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -23,7 +25,7 @@ Route::get('/', function () {
 // 1. The GET route: Displays the login form
 Route::get('/login', [WebAuthController::class, 'showLoginForm'])->name('login');
 // 2. The POST route: Handles the form submission
-Route::post('/login', [WebAuthController::class, 'login']);
+Route::post('/login', [WebAuthController::class, 'login'])->name('login.post');
 
 // Forgot Password Route
 Route::get('forgot-password', [PasswordResetController::class, 'showForgotPasswordForm'])->name('password.request');
@@ -33,9 +35,58 @@ Route::post('forgot-password', [PasswordResetController::class, 'sendResetLinkEm
 Route::get('reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
 Route::post('reset-password', [PasswordResetController::class, 'reset'])->name('password.update');
 
-//Logout
+// Logout Route
 Route::post('/logout', [WebAuthController::class, 'logout'])->name('logout');
-// --- AUTH
+
+// =====================================================================
+// ADMIN ROUTES
+// =====================================================================
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+
+    // Dashboard
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+
+    // Lecturer Management
+    Route::get('/lecturers', [AdminController::class, 'manageLecturers'])->name('lecturers.index');
+    Route::post('/lecturers/assign', [AdminController::class, 'assignLecturer'])->name('lecturers.assign');
+    Route::post('/lecturers/assignment/{id}', [AdminController::class, 'removeLecturerAssignment'])->name('lecturers.remove');
+
+    // Student Management
+    Route::get('/students', [AdminController::class, 'manageStudents'])->name('students.index');
+    Route::post('/students/assign', [AdminController::class, 'assignStudent'])->name('students.assign');
+
+    // Course & Lab Management (CRUD)
+    Route::get('/courses', [AdminController::class, 'manageCourses'])->name('courses.index');
+    Route::post('/courses', [AdminController::class, 'storeCourse'])->name('courses.store');
+    Route::post('/courses/update/{id}', [AdminController::class, 'updateCourse'])->name('courses.update');
+    Route::post('/labs', [AdminController::class, 'storeLab'])->name('labs.store');
+    // User Management
+    Route::get('/users', [AdminController::class, 'manageUsers'])->name('users.index');
+    Route::post('/users', [AdminController::class, 'storeUser'])->name('users.store');
+    Route::post('/users/update/{id}', [AdminController::class, 'updateUser'])->name('users.update');
+    Route::post('/users/{id}', [AdminController::class, 'deleteUser'])->name('users.destroy');
+    Route::post('/users/import', [AdminController::class, 'importStudents'])->name('users.import');
+
+    // Class Session Management (Scheduling)
+    Route::get('/sessions', [AdminController::class, 'manageSessions'])->name('sessions.index');
+    Route::post('/sessions', [AdminController::class, 'storeSession'])->name('sessions.store');
+    Route::post('/sessions/update/{id}', [AdminController::class, 'updateSession'])->name('sessions.update');
+    Route::post('/sessions/{id}', [AdminController::class, 'deleteSession'])->name('sessions.destroy');
+
+    // Analytics
+    Route::get('/analytics', [App\Http\Controllers\WebAnalyticsController::class, 'globalAnalytics'])->name('analytics');
+
+    // Core System Deletions (Soft Deletes)
+    Route::post('/courses/delete/{id}', [AdminController::class, 'deleteCourse'])->name('courses.destroy');
+    Route::post('/labs/delete/{id}', [AdminController::class, 'deleteLab'])->name('labs.destroy');
+
+    Route::get('/settings', [App\Http\Controllers\AdminSettingsController::class, 'index'])->name('settings');
+    Route::post('/settings', [App\Http\Controllers\AdminSettingsController::class, 'update'])->name('settings.update');
+});
+
+    //TODO: select class -> class session -> qr dashboard
+    //TODO: add checkrole lecturer
+
 
 Route::middleware(['auth', CheckRoleWeb::class . ':lecturer'])->group(function () {
     Route::get('lecturer/dashboard',[WebLecturerDashboardController::class,'lecturerDashboard'])->name('lecturer.dashboard');

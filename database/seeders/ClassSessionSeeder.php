@@ -19,7 +19,7 @@ class ClassSessionSeeder extends Seeder
         $courses = Course::with('labs')->get();
         $labs = Lab::all();
         $rooms = Room::all();
-        
+
         if ($rooms->isEmpty() || $courses->isEmpty()) {
             return; // prerequisites not met
         }
@@ -30,12 +30,12 @@ class ClassSessionSeeder extends Seeder
 
         // Generate sessions for the last 6 weeks and next 2 weeks
         for ($weekOffset = -6; $weekOffset <= 2; $weekOffset++) {
-            
+
             // 1. Generate LECTURES for each course (1 per week)
             foreach ($courses as $course) {
                 // Lectures are usually on a fixed day, let's say Monday
                 $baseDate = $now->copy()->startOfWeek()->addWeeks($weekOffset);
-                
+
                 $isPast = $baseDate->lt($now->copy()->startOfDay());
                 $isToday = $baseDate->isToday();
 
@@ -71,7 +71,7 @@ class ClassSessionSeeder extends Seeder
                 // Skip Monday (reserved for lectures above)
                 $dayOffset = ($lab->id % 4) + 1; // Tuesday to Friday
                 $baseDate = $now->copy()->startOfWeek()->addWeeks($weekOffset)->addDays($dayOffset);
-                
+
                 $isPast = $baseDate->lt($now->copy()->startOfDay());
                 $isToday = $baseDate->isToday();
 
@@ -87,7 +87,7 @@ class ClassSessionSeeder extends Seeder
 
                     $is_completed = $isPast || ($isToday && $now->gt($end));
                     $is_active = $isToday && $now->between($start, $end);
-                    
+
                     ClassSession::create([
                         'course_id'        => $lab->course_id,
                         'lab_id'           => $lab->id,
