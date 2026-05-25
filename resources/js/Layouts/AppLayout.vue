@@ -18,11 +18,11 @@ import {
 
 // Grab the user globally from Inertia (explained in Step 3)
 const page = usePage();
-const user = computed(() => page.props.auth.user);
+const user = computed(() => page.props.auth?.user || {});
 
 // Get globally shared notification data
-const notifications = computed(() => page.props.notifications);
-const unreadCount = computed(() => page.props.unread_count);
+const notifications = computed(() => page.props.notifications || []);
+const unreadCount = computed(() => page.props.unread_count || 0);
 
 const profilePhoto = computed(() => {
     if (user.value?.profile_photo_path) {

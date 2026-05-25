@@ -21,7 +21,7 @@ class BeaconSeeder extends Seeder
                 'uuid' => (string) Str::uuid(),
                 'mac_address' => Str::random(17),
                 'rssi_threshold' => -70,
-                'is_active' => true,
+                'status' => 'active',
             ]);
         }
     }

@@ -1,15 +1,15 @@
 import { createApp, h } from 'vue'
 import { createInertiaApp } from '@inertiajs/vue3'
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
-import { ZiggyVue } from 'ziggy-js';
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { ZiggyVue, route } from 'ziggy-js';
 
-// TODO: nanti import specific icon instead of semua icon free sebab nanti slow ler
-import { fas } from '@fortawesome/free-solid-svg-icons';
-import { far } from '@fortawesome/free-regular-svg-icons';
+window.route = route;
 
-library.add(fas, far);
+// import { library } from '@fortawesome/fontawesome-svg-core';
+// import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+// import { faUser } from '@fortawesome/free-solid-svg-icons'; // Example of specific icon import
+
+// library.add(faUser);
 
 createInertiaApp({
     title: (title) => `${title} - BEATS`,
@@ -22,7 +22,7 @@ createInertiaApp({
         createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)
-            .component('font-awesome-icon', FontAwesomeIcon)
+            // .component('font-awesome-icon', FontAwesomeIcon)
             .mount(el)
     },
 })

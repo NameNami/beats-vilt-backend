@@ -5,12 +5,12 @@ import { ref, computed } from "vue";
 import { Trash2, Camera, X, Check } from "lucide-vue-next";
 
 const page = usePage();
-const user = computed(() => page.props.auth.user);
+const user = computed(() => page.props.auth?.user || {});
 
 // Profile Form
 const profileForm = useForm({
-    name: user.value.name,
-    username: user.value.username,
+    name: user.value?.name || '',
+    username: user.value?.username || '',
 });
 
 const updateProfile = () => {
@@ -131,7 +131,7 @@ const profilePhotoUrl = computed(() => {
             <h1 class="text-2xl font-semibold mb-2 text-gray-900">Settings</h1>
             <p class="text-gray-500">Manage your account settings</p>
 
-            <div v-if="$page.props.flash.success" class="mt-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl flex items-center gap-3">
+            <div v-if="$page.props.flash?.success" class="mt-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl flex items-center gap-3">
                 <Check class="w-5 h-5" />
                 {{ $page.props.flash.success }}
             </div>
