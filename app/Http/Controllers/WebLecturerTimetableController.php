@@ -23,7 +23,7 @@ class WebLecturerTimetableController extends Controller
         $semesterStartDate = Carbon::parse(SystemSetting::get('semester_start_date', '2026-03-04'));
         $totalWeeks = (int) SystemSetting::get('semester_total_weeks', 14);
         $semesterEndDate = $semesterStartDate->copy()->addWeeks($totalWeeks)->endOfWeek(Carbon::SUNDAY);
-        
+
         $currentWeek = (int) $semesterStartDate->diffInWeeks($startOfWeek) + 1;
 
         $sessions = ClassSession::with(['course', 'room', 'lab'])
@@ -35,7 +35,7 @@ class WebLecturerTimetableController extends Controller
         $courseIds = $sessions->pluck('course_id')->unique()->values();
         $availableColors = ['blue', 'emerald', 'purple', 'orange', 'rose', 'slate', 'indigo', 'cyan'];
         $courseColorMap = [];
-        
+
         foreach ($courseIds as $index => $courseId) {
             $courseColorMap[$courseId] = $availableColors[$index % count($availableColors)];
         }

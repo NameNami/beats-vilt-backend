@@ -1,6 +1,5 @@
 <script setup>
 import {Head, Link, useForm} from '@inertiajs/vue3'
-import Welcome from "@/Pages/Welcome.vue";
 
 defineProps({
     status: {

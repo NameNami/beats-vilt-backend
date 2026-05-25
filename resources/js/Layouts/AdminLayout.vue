@@ -5,18 +5,21 @@ import { usePage } from '@inertiajs/vue3';
 import {
     LayoutDashboard,
     Calendar,
-    Scroll,
-    UserCheck,
+    Users,
+    UserCircle,
+    BookOpen,
     BarChart3,
     Settings,
     LogOut,
     Bell,
     AlertTriangle,
     Clock,
-    Info
+    Info,
+    GraduationCap,
+    Briefcase
 } from 'lucide-vue-next';
 
-// Grab the user globally from Inertia (explained in Step 3)
+// Grab the user globally from Inertia
 const page = usePage();
 const user = computed(() => page.props.auth?.user || {});
 
@@ -48,9 +51,8 @@ defineProps({
 const showNotifications = ref(false);
 
 const markAsRead = (id, isRead) => {
-    if (isRead) return; // Don't ping the server if already read
+    if (isRead) return; 
 
-    // Inertia request that updates data without scrolling or reloading
     router.post(`/notifications/${id}/read`, {}, {
         preserveScroll: true,
         preserveState: true,
@@ -67,12 +69,9 @@ const markAllAsRead = () => {
 let polling = null;
 
 onMounted(() => {
-    // Check for new notifications every 30 seconds (30000 milliseconds)
     polling = setInterval(() => {
         router.reload({
-            // ONLY fetch the notification data from the server, ignore everything else
             only: ['notifications', 'unread_count'],
-            // Keep the user's current scroll position and typed data safe
             preserveState: true,
             preserveScroll: true,
         });
@@ -80,15 +79,14 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-    // Clean up the timer when the user leaves the application
     clearInterval(polling);
 });
 </script>
+
 <template>
-    <div class="flex h-screen  text-gray-800 font-sans">
+    <div class="flex h-screen text-gray-800 font-sans">
 
-
-        <aside class="w-64  border-r border-gray-200 flex flex-col">
+        <aside class="w-64 border-r border-gray-200 flex flex-col">
 
             <div class="h-15 flex items-center px-6 mt-4">
                 <div class="flex items-center gap-3">
@@ -97,64 +95,86 @@ onUnmounted(() => {
                     </div>
                     <div>
                         <h1 class="font-bold text-lg text-orange-500 leading-tight">BEATS</h1>
-                        <p class="text-xs text-gray-500 uppercase tracking-wide">Attendance Portal</p>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide">Admin Portal</p>
                     </div>
                 </div>
             </div>
 
             <nav class="flex-1 px-4 mt-8 space-y-1 overflow-y-auto">
                 <Link
-                    href="/lecturer/dashboard"
+                    href="/admin/dashboard"
                     class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
-                    :class="[ $page.url.startsWith('/lecturer/dashboard') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
+                    :class="[ $page.url === '/admin/dashboard' ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <LayoutDashboard class="w-5 h-5" />
                     Dashboard
                 </Link>
 
+                <div class="px-3 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-4">User Management</div>
+
                 <Link
-                    href="/lecturer/timetable"
+                    href="/admin/users"
                     class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
-                    :class="[ $page.url.startsWith('/lecturer/timetable') ? 'text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
+                    :class="[ $page.url.startsWith('/admin/users') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
+                >
+                    <UserCircle class="w-5 h-5" />
+                    User Accounts
+                </Link>
+
+                <Link
+                    href="/admin/students"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                    :class="[ $page.url.startsWith('/admin/students') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
+                >
+                    <GraduationCap class="w-5 h-5" />
+                    Students
+                </Link>
+
+                <Link
+                    href="/admin/lecturers"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                    :class="[ $page.url.startsWith('/admin/lecturers') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
+                >
+                    <Briefcase class="w-5 h-5" />
+                    Lecturers
+                </Link>
+
+                <div class="px-3 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-4">Academic Ops</div>
+
+                <Link
+                    href="/admin/courses"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                    :class="[ $page.url.startsWith('/admin/courses') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
+                >
+                    <BookOpen class="w-5 h-5" />
+                    Courses & Labs
+                </Link>
+
+                <Link
+                    href="/admin/sessions"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                    :class="[ $page.url.startsWith('/admin/sessions') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <Calendar class="w-5 h-5" />
-                    Timetable
+                    Class Sessions
                 </Link>
 
                 <Link
-                    href="/lecturer/leave"
+                    href="/admin/analytics"
                     class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
-                    :class="[ $page.url.startsWith('/lecturer/leave') ? 'text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
-                >
-                    <Scroll class="w-5 h-5" />
-                    Leave Applications
-                </Link>
-
-                <Link
-                    href="/lecturer/attendance"
-                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
-                    :class="[ $page.url.startsWith('/lecturer/attendance') ? 'text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100 border-transparent' ]"
-                >
-                    <UserCheck class="w-5 h-5" />
-                    Attendance
-                </Link>
-
-                <Link
-                    href="/lecturer/reports"
-                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
-                    :class="[ $page.url.startsWith('/lecturer/reports') ? 'text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
+                    :class="[ $page.url.startsWith('/admin/analytics') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <BarChart3 class="w-5 h-5" />
-                    Reports
+                    Global Analytics
                 </Link>
             </nav>
 
-            <div class="p-4 space-y-1 mb-4">
+            <div class="p-4 space-y-1 mb-4 border-t border-gray-100">
+                <div class="px-3 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">System</div>
                 <Link
-                    href="/lecturer/settings"
+                    href="/admin/settings"
                     class="flex items-center gap-3 px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100"
-                    :class="[ $page.url.startsWith('/lecturer/settings') ? 'text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100 border-transparent' ]"
-
+                    :class="[ $page.url.startsWith('/admin/settings') ? 'text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100 border-transparent' ]"
                 >
                     <Settings class="w-5 h-5" />
                     Settings
@@ -174,12 +194,9 @@ onUnmounted(() => {
 
         <div class="flex-1 flex flex-col overflow-hidden">
 
-            <header class="h-15  flex items-center justify-between px-8 border-b border-gray-200">
+            <header class="h-15 flex items-center justify-between px-8 border-b border-gray-200 bg-white">
 
                 <div class="w-96">
-                    <div class="relative">
-
-                    </div>
                 </div>
 
                 <div class="flex items-center gap-6">
@@ -250,5 +267,4 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-
 </style>
