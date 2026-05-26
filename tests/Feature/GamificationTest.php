@@ -24,17 +24,19 @@ class GamificationTest extends TestCase
         parent::setUp();
         
         // Setup Levels
-        Level::create(['level' => '1', 'xp_required' => 0]);
-        Level::create(['level' => '2', 'xp_required' => 100]);
+        Level::updateOrCreate(['level' => '1'], ['xp_required' => 0]);
+        Level::updateOrCreate(['level' => '2'], ['xp_required' => 100]);
         
         // Setup Badges
-        Badge::create([
-            'name' => 'First Steps',
-            'description' => 'Earn your first 100 XP',
-            'type' => 'xp',
-            'requirement_type' => 'total_xp',
-            'requirement_value' => 100,
-        ]);
+        Badge::updateOrCreate(
+            ['name' => 'First Steps'],
+            [
+                'description' => 'Earn your first 100 XP',
+                'type' => 'xp',
+                'requirement_type' => 'total_xp',
+                'requirement_value' => 100,
+            ]
+        );
     }
 
     protected function createTestSession($lecturer)

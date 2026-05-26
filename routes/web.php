@@ -88,7 +88,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     //TODO: add checkrole lecturer
 
 
-Route::middleware(['auth', CheckRoleWeb::class . ':lecturer'])->group(function () {
+Route::middleware(['auth', 'role:lecturer'])->group(function () {
     Route::get('lecturer/dashboard',[WebLecturerDashboardController::class,'lecturerDashboard'])->name('lecturer.dashboard');
     Route::post('lecturer/sessions/{session}/toggle-cancel', [WebLecturerDashboardController::class, 'toggleCancel'])->name('lecturer.sessions.toggle-cancel');
     Route::get('lecturer/timetable',[WebLecturerTimetableController::class,'lecturerTimetable'])->name('lecturer.timetable');

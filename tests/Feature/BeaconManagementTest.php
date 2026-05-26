@@ -10,8 +10,7 @@ use function Pest\Laravel\{post, seed};
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    // Note: The user requested to run seeders for every test
-    seed(); 
+    //
 });
 
 test('heartbeat creates unassigned beacon if it does not exist', function () {

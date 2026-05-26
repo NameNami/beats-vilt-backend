@@ -26,7 +26,10 @@ class LevelSeeder extends Seeder
         ];
 
         foreach ($levels as $level) {
-            Level::create($level);
+            Level::updateOrCreate(
+                ['level' => $level['level']],
+                ['xp_required' => $level['xp_required']]
+            );
         }
     }
 }

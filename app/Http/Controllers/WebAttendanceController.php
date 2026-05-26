@@ -221,7 +221,7 @@ class WebAttendanceController extends Controller
     public function toggleDisplay(Request $request, ClassSession $session)
     {
         $session->update([
-            'is_display' => $request->is_display
+            'is_display' => $request->boolean('is_display')
         ]);
 
         return response()->json(['success' => true]);
@@ -261,7 +261,7 @@ class WebAttendanceController extends Controller
         ]);
 
         $session->attendanceRecords()->updateOrCreate(
-            ['user_id' => $request->user_id],
+            ['user_id' => $request->user_id, 'session_id' => $session->id],
             [
                 'status' => $request->status,
                 'check_in_time' => now(),
@@ -274,11 +274,12 @@ class WebAttendanceController extends Controller
 
     public function markAllPresent(ClassSession $session)
     {
+        $session->load('course.students');
         $studentIds = $session->course->students->pluck('id');
 
         foreach ($studentIds as $userId) {
             $session->attendanceRecords()->updateOrCreate(
-                ['user_id' => $userId],
+                ['user_id' => $userId, 'session_id' => $session->id],
                 [
                     'status' => 'present',
                     'check_in_time' => now(),
@@ -292,11 +293,12 @@ class WebAttendanceController extends Controller
 
     public function resetAttendance(ClassSession $session)
     {
+        $session->load('course.students');
         $studentIds = $session->course->students->pluck('id');
 
         foreach ($studentIds as $userId) {
             $session->attendanceRecords()->updateOrCreate(
-                ['user_id' => $userId],
+                ['user_id' => $userId, 'session_id' => $session->id],
                 [
                     'status' => 'absent',
                     'check_in_time' => now(),

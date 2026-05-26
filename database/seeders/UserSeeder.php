@@ -12,14 +12,16 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // ─── Admin ────────────────────────────────────────────
-        User::create([
-            'name'       => 'System Admin',
-            'username'   => 'admin',
-            'email'      => 'admin@beats.test',
-            'password'   => Hash::make('password'),
-            'role'       => 'admin',
-            'is_active'  => true,
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@beats.test'],
+            [
+                'name'       => 'System Admin',
+                'username'   => 'admin',
+                'password'   => Hash::make('password'),
+                'role'       => 'admin',
+                'is_active'  => true,
+            ]
+        );
 
         // ─── Lecturers ────────────────────────────────────────
         $lecturers = [
@@ -29,14 +31,16 @@ class UserSeeder extends Seeder
         ];
 
         foreach ($lecturers as $lecturer) {
-            User::create([
-                'name'      => $lecturer['name'],
-                'username'  => $lecturer['username'],
-                'email'     => $lecturer['username'] . '@beats.test',
-                'password'  => Hash::make('password'),
-                'role'      => 'lecturer',
-                'is_active' => true,
-            ]);
+            User::updateOrCreate(
+                ['email' => $lecturer['username'] . '@beats.test'],
+                [
+                    'name'      => $lecturer['name'],
+                    'username'  => $lecturer['username'],
+                    'password'  => Hash::make('password'),
+                    'role'      => 'lecturer',
+                    'is_active' => true,
+                ]
+            );
         }
 
         // ─── Students ─────────────────────────────────────────
@@ -74,16 +78,18 @@ class UserSeeder extends Seeder
         ];
 
         foreach ($students as $student) {
-            User::create([
-                'name'           => $student['name'],
-                'username'       => $student['username'],
-                'email'          => $student['username'] . '@student.beats.test',
-                'password'       => Hash::make('password'),
-                'role'           => 'student',
-                'student_id'     => $student['student_id'],
-                'programme_id'   => $student['programme']->id,
-                'is_active'      => true,
-            ]);
+            User::updateOrCreate(
+                ['email' => $student['username'] . '@student.beats.test'],
+                [
+                    'name'           => $student['name'],
+                    'username'       => $student['username'],
+                    'password'       => Hash::make('password'),
+                    'role'           => 'student',
+                    'student_id'     => $student['student_id'],
+                    'programme_id'   => $student['programme']->id,
+                    'is_active'      => true,
+                ]
+            );
         }
     }
 }
