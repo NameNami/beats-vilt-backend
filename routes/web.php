@@ -84,9 +84,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/settings', [App\Http\Controllers\AdminSettingsController::class, 'update'])->name('settings.update');
 });
 
-    //TODO: select class -> class session -> qr dashboard
-    //TODO: add checkrole lecturer
 
+Route::middleware(['auth', 'role:lecturer,admin'])->group(function () {
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead']);
+});
 
 Route::middleware(['auth', 'role:lecturer'])->group(function () {
     Route::get('lecturer/dashboard',[WebLecturerDashboardController::class,'lecturerDashboard'])->name('lecturer.dashboard');
@@ -104,9 +106,6 @@ Route::middleware(['auth', 'role:lecturer'])->group(function () {
 
     Route::get('lecturer/reports', [WebLecturerReport::class, 'index'])->name('lecturer.reports');
     Route::get('lecturer/reports/export', [WebLecturerReport::class, 'exportCsv'])->name('lecturer.reports.export');
-
-    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
-    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead']);
 
     Route::get('lecturer/settings', [WebLecturerSettingsController::class, 'settings'])->name('lecturer.settings');
     Route::post('lecturer/settings/profile', [WebLecturerSettingsController::class, 'updateProfile'])->name('lecturer.settings.profile');
