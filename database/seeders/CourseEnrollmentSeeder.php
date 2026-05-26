@@ -23,23 +23,25 @@ class CourseEnrollmentSeeder extends Seeder
             if ($labs->isEmpty()) {
                 continue;
             }
-            $labA = $labs->where('name', 'Lab A')->first() ?? $labs->first();
-            $labB = $labs->where('name', 'Lab B')->first() ?? $labs->last();
 
-            // enroll lecturer
-            $lecturerId = optional($labs->first())->lecturer_id;
-            if ($lecturerId) {
-                CourseEnrollment::updateOrCreate(
-                    ['user_id' => $lecturerId, 'course_id' => $course->id],
-                    ['lab_id' => null, 'role' => 'lecturer']
-                );
+            // Enroll all lecturers who are assigned to any lab in this course
+            $lecturerIds = $labs->pluck('lecturer_id')->unique();
+            foreach ($lecturerIds as $lecturerId) {
+                if ($lecturerId) {
+                    CourseEnrollment::updateOrCreate(
+                        ['user_id' => $lecturerId, 'course_id' => $course->id],
+                        ['lab_id' => null, 'role' => 'lecturer']
+                    );
+                }
             }
 
-            // split students 50/50 between Lab A and Lab B
-            $students->each(function ($student, $index) use ($course, $labA, $labB) {
+            // distribute students among all labs
+            $labCount = $labs->count();
+            $students->each(function ($student, $index) use ($course, $labs, $labCount) {
+                $lab = $labs[$index % $labCount];
                 CourseEnrollment::updateOrCreate(
                     ['user_id' => $student->id, 'course_id' => $course->id],
-                    ['lab_id' => $index % 2 === 0 ? $labA->id : $labB->id, 'role' => 'student']
+                    ['lab_id' => $lab->id, 'role' => 'student']
                 );
             });
         }
