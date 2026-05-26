@@ -102,6 +102,9 @@ jobs:
 
             docker compose pull
             docker compose up -d
+
+            sleep 15
+
             docker exec -t beats_api php artisan migrate --force
             docker exec -t beats_api php artisan optimize:clear
             docker exec -t beats_api php artisan optimize
