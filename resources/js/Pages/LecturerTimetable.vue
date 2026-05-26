@@ -20,8 +20,19 @@ const DAYS_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Sat
 const HOURS = Array.from({ length: 16 }, (_, i) => i + 8); // 8:00 to 23:00 (15 hours)
 
 const today = new Date();
-const TODAY_DATE = today.toISOString().split('T')[0];
-const CURRENT_DAY = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(today);
+const klFormatter = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Kuala_Lumpur',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+});
+const parts = klFormatter.formatToParts(today);
+const klYear = parts.find(p => p.type === 'year').value;
+const klMonth = parts.find(p => p.type === 'month').value;
+const klDay = parts.find(p => p.type === 'day').value;
+
+const TODAY_DATE = `${klYear}-${klMonth}-${klDay}`;
+const CURRENT_DAY = new Intl.DateTimeFormat('en-US', { weekday: 'long', timeZone: 'Asia/Kuala_Lumpur' }).format(today);
 
 const weekDates = computed(() => {
     const start = new Date(props.weekStartDate);
