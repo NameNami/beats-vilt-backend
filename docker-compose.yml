@@ -1,0 +1,46 @@
+services:
+  app:
+    # IMPORTANT: Replace 'username/repo-name' with your actual GitHub username and repository name
+    image: ghcr.io/NameNami/beats-vilt-backend:main
+    container_name: beats_app
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    working_dir: /var/www/html
+    volumes:
+      - ./.env:/var/www/html/.env
+      # Optional: persists storage if you don't want to lose files on container updates
+      - ./storage/app/public:/var/www/html/storage/app/public
+    ports:
+      - "8000:8000"
+    networks:
+      - beats-network
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: beats_db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - beats-network
+
+networks:
+  beats-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local

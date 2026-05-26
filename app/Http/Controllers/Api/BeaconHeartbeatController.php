@@ -11,11 +11,24 @@ class BeaconHeartbeatController extends Controller
     public function heartbeat(Request $request)
     {
         $request->validate([
-            'mac_address' => 'required|string', // ni primary key
+            'mac_address' => 'required|string',
         ]);
 
-        $beacon = Beacon::findOrFail($request->mac_address); // cari beacon guna id
-        $beacon->update(['last_seen' => now()]); // update latest time jadi cron job tau dia still online
-        return response()->json(['uuid' => $beacon->uuid]); // return latest uuid
+        $beacon = Beacon::where('mac_address', $request->mac_address)->first();
+
+        if (!$beacon) {
+            $beacon = Beacon::create([
+                'mac_address' => $request->mac_address,
+                'uuid' => (string) \Illuminate\Support\Str::uuid(),
+                'status' => 'unassigned',
+                'last_seen' => now(),
+            ]);
+
+            return response()->json(['uuid' => 'pending_uuid']);
+        }
+
+        $beacon->update(['last_seen' => now()]);
+
+        return response()->json(['uuid' => $beacon->uuid]);
     }
 }

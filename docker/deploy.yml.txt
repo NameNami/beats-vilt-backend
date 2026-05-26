@@ -1,0 +1,113 @@
+# GITHUB ACTIONS DEPLOYMENT WORKFLOW (deploy.yml)
+# add to .github/workflows/deploy.yml in your repository.
+
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, bcmath, gd
+          coverage: none
+
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: Create .env
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+      - name: Generate key
+        run: php artisan key:generate
+
+      - name: Run Tests
+        run: php artisan test
+
+  build-and-push:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,format=short
+            latest
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ id.meta.outputs.tags }}
+          labels: ${{ id.meta.outputs.labels }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            # Navigate to project directory
+            cd /path/to/your/deployment/folder
+
+            # Authenticate with GHCR
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            # Pull the latest image
+            docker pull ghcr.io/${{ env.IMAGE_NAME }}:main
+
+            # Restart the container (assuming docker-compose is used)
+            # If using raw docker: docker stop app && docker rm app && docker run ...
+            docker-compose up -d
+
+            # Run post-deployment tasks
+            docker exec -t your_app_container_name php artisan migrate --force
+            docker exec -t your_app_container_name php artisan optimize
+
+# -----------------------------------------------------------------------------
+# REQUIRED GITHUB SECRETS:
+# 1. SERVER_HOST: The IP address or domain of your server.
+# 2. SERVER_USER: The SSH username (e.g., ubuntu, root).
+# 3. SSH_PRIVATE_KEY: Your private SSH key (must have access to the server).
+# -----------------------------------------------------------------------------
+# NOTE: Update "/path/to/your/deployment/folder" and "your_app_container_name"
+# in the script section above to match your actual server setup.
