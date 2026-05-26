@@ -280,10 +280,9 @@ onUnmounted(() => {
                             <p class="text-3xl font-bold text-slate-900">{{ totalStudentsCount }}</p>
                         </div>
 
-                        <div class="bg-rose-50 p-6 rounded-2xl border border-rose-200 relative overflow-hidden">
+                        <div class="p-6 rounded-2xl border border-rose-200 relative overflow-hidden">
                             <p class="text-sm font-semibold text-rose-600 uppercase tracking-wider mb-1">At-Risk Students</p>
                             <p class="text-3xl font-bold text-rose-700">{{ atRiskCount }}</p>
-                            <AlertTriangle class="absolute -right-2 -bottom-2 w-16 h-16 text-rose-100" />
                         </div>
                     </div>
 
