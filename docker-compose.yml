@@ -37,9 +37,21 @@ services:
     networks:
       - beats-network
 
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare_tunnel
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - app
+
 networks:
   beats-network:
     driver: bridge
+
+
 
 volumes:
   dbdata:
