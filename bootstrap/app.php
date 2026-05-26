@@ -14,8 +14,22 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
+            \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
+        ]);
+
+        $middleware->alias([
+            // 👇 Here is the fix! Changed CheckRole to CheckRoleWeb
+            'role' => \App\Http\Middleware\CheckRoleWeb::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->respond(function ($response, $exception, $request) {
+            if ($response->getStatusCode() === 419) {
+                return back()->with([
+                    'message' => 'The page expired, please try again.',
+                ]);
+            }
+
+            return $response;
+        });
     })->create();

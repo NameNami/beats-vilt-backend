@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('session_id')->constrained('class_sessions')->cascadeOnDelete();
             $table->foreignId('reviewed_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->string('type'); // Medical, Personal, Emergency, etc.
             $table->text('reason');
             $table->string('document_path')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');

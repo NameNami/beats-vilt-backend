@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('room_id')->nullable()->constrained()->nullOnDelete();
             $table->string('uuid')->unique();
+            $table->string('mac_address')->unique();
             $table->integer('rssi_threshold')->default(-55);
-            $table->boolean('is_active')->default(false);
+            $table->enum('status', ['active', 'inactive', 'maintenance', 'unassigned']);
             $table->timestamp('last_seen')->nullable();
             $table->timestamps();
         });

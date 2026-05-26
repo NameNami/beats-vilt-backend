@@ -14,16 +14,17 @@ return new class extends Migration
         Schema::create('class_sessions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('course_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('lab_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('lab_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('lecturer_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('room_id')->nullable()->constrained()->nullOnDelete();
             $table->dateTime('start_time');
             $table->dateTime('end_time');
             $table->enum('mode', ['online', 'physical']);
-            $table->enum('checkin_method', ['BLE', 'dynamic_qr', 'static_qr']);
+            $table->enum('checkin_method', ['ble', 'qr', 'manual']);
             $table->boolean('is_display')->default(false);
             $table->boolean('is_cancelled')->default(false);
             $table->boolean('announce_cancelled')->default(false);
+            $table->boolean('is_completed')->default(false);
             $table->softDeletes();
             $table->timestamps();
         });

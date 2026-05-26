@@ -1,60 +1,124 @@
 <template>
-    <div class="min-h-screen bg-gray-50 p-8">
-        <div class="max-w-7xl mx-auto space-y-8">
+    <AdminLayout>
+        <div class="space-y-8">
 
-            <header class="bg-white rounded-lg shadow p-6">
-                <h1 class="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-                <p class="text-gray-500">System Overview for BEATS</p>
-            </header>
+            <div class="flex justify-between items-end">
+                <div>
+                    <p class="text-xs font-bold tracking-widest text-amber-700 uppercase mb-2">Command Center</p>
+                    <h2 class="text-4xl font-black text-slate-900 tracking-tight leading-tight">
+                        System <span class="text-amber-600 italic">Overview</span>
+                    </h2>
+                    <p class="text-slate-600 mt-3">Monitor vital statistics and access core management modules.</p>
+                </div>
+            </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-
-                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500 flex items-center justify-between">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between group hover:shadow-md transition">
                     <div>
-                        <p class="text-sm text-gray-500 font-medium uppercase tracking-wider">Students</p>
-                        <p class="text-3xl font-bold text-gray-800">{{ stats.total_students }}</p>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Students</p>
+                        <p class="text-3xl font-black text-slate-900">{{ stats.total_students }}</p>
                     </div>
-                    <div class="p-3 bg-blue-100 text-blue-600 rounded-full">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path></svg>
+                    <div class="w-12 h-12 rounded-full bg-sky-50 flex items-center justify-center text-sky-600 group-hover:bg-sky-100 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500 flex items-center justify-between">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between group hover:shadow-md transition">
                     <div>
-                        <p class="text-sm text-gray-500 font-medium uppercase tracking-wider">Lecturers</p>
-                        <p class="text-3xl font-bold text-gray-800">{{ stats.total_lecturers }}</p>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Lecturers</p>
+                        <p class="text-3xl font-black text-slate-900">{{ stats.total_lecturers }}</p>
                     </div>
-                    <div class="p-3 bg-purple-100 text-purple-600 rounded-full">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0z"></path></svg>
+                    <div class="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-700 group-hover:bg-amber-100 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500 flex items-center justify-between">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between group hover:shadow-md transition">
                     <div>
-                        <p class="text-sm text-gray-500 font-medium uppercase tracking-wider">Courses</p>
-                        <p class="text-3xl font-bold text-gray-800">{{ stats.total_courses }}</p>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Courses</p>
+                        <p class="text-3xl font-black text-slate-900">{{ stats.total_courses }}</p>
                     </div>
-                    <div class="p-3 bg-green-100 text-green-600 rounded-full">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"></path></svg>
+                    <div class="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 group-hover:bg-teal-100 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-500 flex items-center justify-between">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between group hover:shadow-md transition">
                     <div>
-                        <p class="text-sm text-gray-500 font-medium uppercase tracking-wider">Active Rooms</p>
-                        <p class="text-3xl font-bold text-gray-800">{{ stats.total_active_rooms }}</p>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Active Rooms</p>
+                        <p class="text-3xl font-black text-slate-900">{{ stats.total_active_rooms }}</p>
                     </div>
-                    <div class="p-3 bg-yellow-100 text-yellow-600 rounded-full">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
+                    <div class="w-12 h-12 rounded-full bg-rose-50 flex items-center justify-center text-rose-700 group-hover:bg-rose-100 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                     </div>
                 </div>
-
             </div>
+
+            <div>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-2 h-6 bg-amber-600 rounded-full"></div>
+                    <h2 class="text-xl font-bold text-slate-800">Core Management Hub</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <Link href="/admin/users" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-amber-200 group transition duration-200">
+                        <div class="w-10 h-10 rounded-lg bg-slate-50 text-slate-700 flex items-center justify-center mb-4 group-hover:bg-amber-100 group-hover:text-amber-700 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 group-hover:text-amber-700 transition">User Accounts</h3>
+                        <p class="text-sm text-gray-500 mt-2 leading-relaxed">Manage system access, create administrator profiles, and handle password resets.</p>
+                    </Link>
+
+                    <Link href="/admin/students" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-amber-200 group transition duration-200">
+                        <div class="w-10 h-10 rounded-lg bg-slate-50 text-slate-700 flex items-center justify-center mb-4 group-hover:bg-amber-100 group-hover:text-amber-700 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 group-hover:text-amber-700 transition">Student Database</h3>
+                        <p class="text-sm text-gray-500 mt-2 leading-relaxed">View student profiles, track individual attendance, and manage enrollment records.</p>
+                    </Link>
+
+                    <Link href="/admin/lecturers" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-amber-200 group transition duration-200">
+                        <div class="w-10 h-10 rounded-lg bg-slate-50 text-slate-700 flex items-center justify-center mb-4 group-hover:bg-amber-100 group-hover:text-amber-700 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 group-hover:text-amber-700 transition">Faculty Directory</h3>
+                        <p class="text-sm text-gray-500 mt-2 leading-relaxed">Assign lecturers to courses, manage availability, and review teaching schedules.</p>
+                    </Link>
+
+                    <Link href="/admin/courses" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-amber-200 group transition duration-200">
+                        <div class="w-10 h-10 rounded-lg bg-slate-50 text-slate-700 flex items-center justify-center mb-4 group-hover:bg-amber-100 group-hover:text-amber-700 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 group-hover:text-amber-700 transition">Courses & Labs</h3>
+                        <p class="text-sm text-gray-500 mt-2 leading-relaxed">Define academic subjects, manage faculties, and configure specific lab capacities.</p>
+                    </Link>
+
+                    <Link href="/admin/sessions" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-amber-200 group transition duration-200">
+                        <div class="w-10 h-10 rounded-lg bg-slate-50 text-slate-700 flex items-center justify-center mb-4 group-hover:bg-amber-100 group-hover:text-amber-700 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 group-hover:text-amber-700 transition">Class Sessions</h3>
+                        <p class="text-sm text-gray-500 mt-2 leading-relaxed">Schedule lectures, assign physical rooms, and generate BLE/QR attendance links.</p>
+                    </Link>
+
+                    <Link href="/admin/analytics" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-amber-200 group transition duration-200">
+                        <div class="w-10 h-10 rounded-lg bg-slate-50 text-slate-700 flex items-center justify-center mb-4 group-hover:bg-amber-100 group-hover:text-amber-700 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 group-hover:text-amber-700 transition">System Analytics</h3>
+                        <p class="text-sm text-gray-500 mt-2 leading-relaxed">Review institution-wide attendance metrics and identify students requiring intervention.</p>
+                    </Link>
+                </div>
+            </div>
+
         </div>
-    </div>
+    </AdminLayout>
 </template>
 
 <script setup>
+import { Link } from '@inertiajs/vue3';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
+
 defineProps({
     stats: Object
 });

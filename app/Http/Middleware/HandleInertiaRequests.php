@@ -35,9 +35,17 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        return [
-            ...parent::share($request),
-            //
-        ];
+        return array_merge(parent::share($request), [
+            // This makes the logged-in user available to every single Vue page and layout automatically
+            'auth' => [
+                'user' => $request->user(),
+            ],
+            'notifications' => $request->user() ? $request->user()->appNotifications()->latest()->take(10)->get() : [],
+            'unread_count' => $request->user() ? $request->user()->appNotifications()->where('is_read', false)->count() : 0,
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
+            ],
+        ]);
     }
 }

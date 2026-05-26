@@ -12,6 +12,16 @@ class WebAuthController extends Controller
 {
     public function showLoginForm()
     {
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->role === 'admin') {
+                return redirect()->route('admin.dashboard');
+            }
+
+            if ($user->role === 'lecturer') {
+                return redirect()->route('lecturer.dashboard');
+            }
+        }
         return Inertia::render('login');
     }
 
@@ -20,8 +30,9 @@ class WebAuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/');
+        return redirect('/login');
     }
+
     public function login(Request $request)
     {
         $credentials = $request->validate(

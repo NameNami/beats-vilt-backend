@@ -14,10 +14,12 @@
         "laravel/framework": "^13.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^3.0",
+        "simplesoftwareio/simple-qrcode": "^4.2",
         "tightenco/ziggy": "*"
     },
     "require-dev": {
         "fakerphp/faker": "*",
+        "laravel/boost": "*",
         "laravel/pail": "^1.2.5",
         "laravel/pint": "^1.27",
         "mockery/mockery": "^1.6",

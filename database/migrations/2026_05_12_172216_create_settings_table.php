@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('fcm_tokens', function (Blueprint $table) {
+        Schema::create('settings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('device_token')->unique();
-            $table->string('device_name')->nullable();
+            $table->string('key')->unique(); // e.g., 'early_window_minutes'
+            $table->string('value');         // e.g., '15'
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('fcm_tokens');
+        Schema::dropIfExists('settings');
     }
 };
