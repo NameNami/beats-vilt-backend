@@ -30,7 +30,6 @@ jobs:
       - name: Generate key
         run: php artisan key:generate
 
-
   build-and-push:
     needs: test
     runs-on: ubuntu-latest
