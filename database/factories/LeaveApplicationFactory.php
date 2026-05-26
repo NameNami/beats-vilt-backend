@@ -13,16 +13,16 @@ class LeaveApplicationFactory extends Factory
 
     public function definition(): array
     {
-        $status = fake()->randomElement(['pending', 'approved', 'rejected']);
-        $reviewedAt = $status !== 'pending' ? fake()->dateTimeBetween('-1 month', 'now') : null;
+        $status = \fake()->randomElement(['pending', 'approved', 'rejected']);
+        $reviewedAt = $status !== 'pending' ? \fake()->dateTimeBetween('-1 month', 'now') : null;
         
         return [
             'user_id' => User::factory(),
             'session_id' => ClassSession::factory(),
             'reviewed_by' => $status !== 'pending' ? User::factory() : null,
-            'type' => fake()->randomElement(['Medical', 'Personal', 'Emergency', 'Official']),
-            'reason' => fake()->sentence(),
-            'document_path' => fake()->boolean(70) ? 'leaves/sample_document.pdf' : null,
+            'type' => \fake()->randomElement(['Medical', 'Personal', 'Emergency', 'Official']),
+            'reason' => \fake()->sentence(),
+            'document_path' => \fake()->boolean(70) ? 'leaves/sample_document.pdf' : null,
             'status' => $status,
             'reviewed_at' => $reviewedAt,
         ];
