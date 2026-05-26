@@ -1,6 +1,3 @@
-# GITHUB ACTIONS DEPLOYMENT WORKFLOW (deploy.yml)
-# add to .github/workflows/deploy.yml in your repository.
-
 name: Build and Deploy
 
 on:
@@ -78,36 +75,23 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: Deploy to Server via SSH
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+
+      - name: Execute Remote SSH Commands
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SERVER_PORT || 22 }}
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
           script: |
-            # Navigate to project directory
-            cd /path/to/your/deployment/folder
-
-            # Authenticate with GHCR
+            cd ${{ secrets.VPS_PROJECT_PATH }}
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-            # Pull the latest image
-            docker pull ghcr.io/${{ env.IMAGE_NAME }}:main
-
-            # Restart the container (assuming docker-compose is used)
-            # If using raw docker: docker stop app && docker rm app && docker run ...
-            docker-compose up -d
-
-            # Run post-deployment tasks
-            docker exec -t your_app_container_name php artisan migrate --force
-            docker exec -t your_app_container_name php artisan optimize
-
-# -----------------------------------------------------------------------------
-# REQUIRED GITHUB SECRETS:
-# 1. SERVER_HOST: The IP address or domain of your server.
-# 2. SERVER_USER: The SSH username (e.g., ubuntu, root).
-# 3. SSH_PRIVATE_KEY: Your private SSH key (must have access to the server).
-# -----------------------------------------------------------------------------
-# NOTE: Update "/path/to/your/deployment/folder" and "your_app_container_name"
-# in the script section above to match your actual server setup.
+            docker compose pull
+            docker compose up -d
+            docker exec -t beats_api php artisan migrate --force
+            docker exec -t beats_api php artisan optimize:clear
+            docker exec -t beats_api php artisan optimize
