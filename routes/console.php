@@ -15,3 +15,9 @@ Schedule::command('attendance:process-absences')
 
 Schedule::command('attendance:prune-expired-qr-token')
     ->everyFiveMinutes();
+
+Schedule::command('app:change-beacon-status')
+    ->everyFiveMinutes();
+
+Schedule::command('app:renew-beacon-uuid')
+    ->everyFiveMinutes();
