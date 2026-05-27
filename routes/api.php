@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\BeaconHeartbeatController;
 use App\Http\Controllers\Api\AttendanceController;
+use App\Http\Controllers\Api\StudentDataController;
 use function Pest\Laravel\post;
 use App\Http\Middleware\CheckRoleWeb;
 use App\Http\Middleware\CheckRoleApi;
@@ -42,4 +43,22 @@ Route::post('/student/check-in-qr', [AttendanceController::class, 'checkInQr'])
         'auth:sanctum', // Are they logged in?
         CheckRoleApi::class.':student' // Are they a student?
     ]);
+
+// Student Data
+Route::middleware(['auth:sanctum', CheckRoleApi::class.':student'])->group(function () {
+    Route::get('/student/profile', [StudentDataController::class, 'getProfile'])->name('api.student.profile');
+    Route::get('/student/courses', [StudentDataController::class, 'getCourses'])->name('api.student.courses');
+    Route::get('/student/schedule', [StudentDataController::class, 'getSchedule'])->name('api.student.schedule');
+    Route::get('/student/attendance', [StudentDataController::class, 'getAttendanceHistory'])->name('api.student.attendance');
+    Route::get('/student/notifications', [StudentDataController::class, 'getNotifications'])->name('api.student.notifications');
+    Route::get('/student/leaderboard', [StudentDataController::class, 'getLeaderboard'])->name('api.student.leaderboard');
+    Route::get('/student/rewards', [StudentDataController::class, 'getRewards'])->name('api.student.rewards');
+    Route::post('/student/rewards/redeem', [StudentDataController::class, 'redeemReward'])->name('api.student.rewards.redeem');
+    Route::get('/student/leaves', [StudentDataController::class, 'getLeaveApplications'])->name('api.student.leaves');
+
+
+    Route::post('/student/leaves', [StudentDataController::class, 'submitLeave'])->name('api.student.leaves.submit');
+});
+
+
 
