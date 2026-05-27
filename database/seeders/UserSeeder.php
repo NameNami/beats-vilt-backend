@@ -13,7 +13,7 @@ class UserSeeder extends Seeder
     {
         // ─── Admin ────────────────────────────────────────────
         User::updateOrCreate(
-            ['email' => 'admin@beats.test'],
+            ['email' => 'admin@beats.namix.my'],
             [
                 'name'       => 'System Admin',
                 'username'   => 'admin',
@@ -32,7 +32,7 @@ class UserSeeder extends Seeder
 
         foreach ($lecturers as $lecturer) {
             User::updateOrCreate(
-                ['email' => $lecturer['username'] . '@beats.test'],
+                ['email' => $lecturer['username'] . '@beats.namix.my'],
                 [
                     'name'      => $lecturer['name'],
                     'username'  => $lecturer['username'],
@@ -79,7 +79,7 @@ class UserSeeder extends Seeder
 
         foreach ($students as $student) {
             User::updateOrCreate(
-                ['email' => $student['username'] . '@student.beats.test'],
+                ['email' => $student['username'] . '@student.beats.namix.my'],
                 [
                     'name'           => $student['name'],
                     'username'       => $student['username'],
