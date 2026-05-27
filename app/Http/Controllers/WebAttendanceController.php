@@ -137,15 +137,21 @@ class WebAttendanceController extends Controller
 
     public function show(ClassSession $session)
     {
-        $session->load(['course.students', 'lab', 'room', 'attendanceRecords.user']);
+        $session->load(['course', 'lab', 'room', 'attendanceRecords.user']);
 
         $thresholdValue = (float) SystemSetting::get('min_attendance_threshold', 80);
         $threshold = $thresholdValue / 100;
 
         $lecturerId = Auth::id();
 
-        // Get all students enrolled in the course
-        $students = $session->course->students->map(function ($student) use ($session, $threshold, $lecturerId) {
+        // Get students enrolled in the course, filtered by lab if applicable
+        $students = User::whereHas('courseEnrollments', function ($query) use ($session) {
+            $query->where('course_id', $session->course_id)
+                  ->where('role', 'student')
+                  ->when($session->lab_id, function ($q) use ($session) {
+                      return $q->where('lab_id', $session->lab_id);
+                  });
+        })->get()->map(function ($student) use ($session, $threshold, $lecturerId) {
             $record = $session->attendanceRecords->firstWhere('user_id', $student->id);
             $rawStatus = $record ? $record->status : 'absent';
 
@@ -153,7 +159,6 @@ class WebAttendanceController extends Controller
             $uiStatus = in_array($rawStatus, ['early', 'on-time', 'late', 'present']) ? 'present' : $rawStatus;
 
             // At-risk calculation for this student
-            // We must find their specific enrollment to know their lab_id
             $studentEnrollment = CourseEnrollment::where('user_id', $student->id)
                 ->where('course_id', $session->course_id)
                 ->first();
@@ -274,8 +279,13 @@ class WebAttendanceController extends Controller
 
     public function markAllPresent(ClassSession $session)
     {
-        $session->load('course.students');
-        $studentIds = $session->course->students->pluck('id');
+        $studentIds = User::whereHas('courseEnrollments', function ($query) use ($session) {
+            $query->where('course_id', $session->course_id)
+                  ->where('role', 'student')
+                  ->when($session->lab_id, function ($q) use ($session) {
+                      return $q->where('lab_id', $session->lab_id);
+                  });
+        })->pluck('id');
 
         foreach ($studentIds as $userId) {
             $session->attendanceRecords()->updateOrCreate(
@@ -293,8 +303,13 @@ class WebAttendanceController extends Controller
 
     public function resetAttendance(ClassSession $session)
     {
-        $session->load('course.students');
-        $studentIds = $session->course->students->pluck('id');
+        $studentIds = User::whereHas('courseEnrollments', function ($query) use ($session) {
+            $query->where('course_id', $session->course_id)
+                  ->where('role', 'student')
+                  ->when($session->lab_id, function ($q) use ($session) {
+                      return $q->where('lab_id', $session->lab_id);
+                  });
+        })->pluck('id');
 
         foreach ($studentIds as $userId) {
             $session->attendanceRecords()->updateOrCreate(

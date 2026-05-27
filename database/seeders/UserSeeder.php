@@ -75,6 +75,16 @@ class UserSeeder extends Seeder
             ['name' => 'Balqis Sofia',       'username' => 'balqis',    'student_id' => '52101324206', 'programme' => $dim],
             ['name' => 'Haris Irfan',        'username' => 'haris',     'student_id' => '52101324207', 'programme' => $dim],
             ['name' => 'Anis Farhana',       'username' => 'anis',      'student_id' => '52101324208', 'programme' => $dim],
+            ['name' => 'Muhamad Akmal',      'username' => 'akmal',     'student_id' => '52101324301', 'programme' => $dit],
+            ['name' => 'Nur Syahirah',       'username' => 'syahirah',  'student_id' => '52101324302', 'programme' => $dit],
+            ['name' => 'Adam Harith',        'username' => 'adam',      'student_id' => '52101324303', 'programme' => $dit],
+            ['name' => 'Siti Aminah',        'username' => 'aminah',    'student_id' => '52101324304', 'programme' => $dit],
+            ['name' => 'Wan Muhammad',       'username' => 'wan',       'student_id' => '52101324305', 'programme' => $dit],
+            ['name' => 'Nurul Atikah',       'username' => 'atikah',    'student_id' => '52101324306', 'programme' => $dim],
+            ['name' => 'Muhammad Danish',    'username' => 'danish',    'student_id' => '52101324307', 'programme' => $dim],
+            ['name' => 'Puteri Sarah',       'username' => 'sarah',     'student_id' => '52101324308', 'programme' => $dim],
+            ['name' => 'Megat Aris',         'username' => 'megat',     'student_id' => '52101324309', 'programme' => $dim],
+            ['name' => 'Nur Fatimah',        'username' => 'fatimah',   'student_id' => '52101324310', 'programme' => $dim],
         ];
 
         foreach ($students as $student) {
