@@ -15,17 +15,21 @@ uses(RefreshDatabase::class);
 test('lecturer can see sessions for current week', function () {
     $lecturer = User::factory()->create(['role' => 'lecturer']);
     
-    SystemSetting::create([
-        'key' => 'semester_start_date',
-        'value' => '2026-03-02', // Monday
-        'description' => 'Semester start date'
-    ]);
+    SystemSetting::updateOrCreate(
+        ['key' => 'semester_start_date'],
+        [
+            'value' => '2026-03-02', // Monday
+            'description' => 'Semester start date'
+        ]
+    );
     
-    SystemSetting::create([
-        'key' => 'semester_total_weeks',
-        'value' => '14',
-        'description' => 'Semester total weeks'
-    ]);
+    SystemSetting::updateOrCreate(
+        ['key' => 'semester_total_weeks'],
+        [
+            'value' => '14',
+            'description' => 'Semester total weeks'
+        ]
+    );
 
     $course = Course::create([
         'code' => 'CS101', 
@@ -81,17 +85,21 @@ test('lecturer can see sessions for current week', function () {
 test('lecturer can see sessions for a specific week', function () {
     $lecturer = User::factory()->create(['role' => 'lecturer']);
 
-    SystemSetting::create([
-        'key' => 'semester_start_date',
-        'value' => '2026-03-02', // Monday
-        'description' => 'Semester start date'
-    ]);
+    SystemSetting::updateOrCreate(
+        ['key' => 'semester_start_date'],
+        [
+            'value' => '2026-03-02', // Monday
+            'description' => 'Semester start date'
+        ]
+    );
     
-    SystemSetting::create([
-        'key' => 'semester_total_weeks',
-        'value' => '14',
-        'description' => 'Semester total weeks'
-    ]);
+    SystemSetting::updateOrCreate(
+        ['key' => 'semester_total_weeks'],
+        [
+            'value' => '14',
+            'description' => 'Semester total weeks'
+        ]
+    );
 
     $course = Course::create([
         'code' => 'CS101', 

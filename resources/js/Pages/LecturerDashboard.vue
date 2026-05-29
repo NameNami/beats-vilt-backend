@@ -307,10 +307,10 @@ onUnmounted(() => {
 
                         <div class="mt-4 md:mt-0 flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                             <button
-                                :disabled="!item.is_in_class_time"
+                                :disabled="!item.can_cancel"
                                 @click="toggleCancel(item.id)"
                                 class="w-full sm:w-auto font-medium py-2.5 px-6 rounded-lg border transition-colors capitalize"
-                                :class="!item.is_in_class_time
+                                :class="!item.can_cancel
                                     ? 'bg-slate-50 text-slate-500 border-slate-200 cursor-not-allowed'
                                     : (item.is_cancelled
                                         ? 'bg-green-50 text-green-600 border-green-200 cursor-pointer hover:bg-green-100 focus:ring-4 focus:ring-green-100'

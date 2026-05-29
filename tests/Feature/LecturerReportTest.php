@@ -10,8 +10,6 @@ use Inertia\Testing\AssertableInertia as Assert;
 uses(RefreshDatabase::class);
 
 test('lecturer can view report page', function () {
-    $this->seed();
-
     $lecturer = User::where('role', 'lecturer')->first();
     
     $response = $this->actingAs($lecturer)->get(route('lecturer.reports'));

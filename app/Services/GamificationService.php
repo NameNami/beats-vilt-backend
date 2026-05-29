@@ -73,10 +73,11 @@ class GamificationService
         }
 
         $lastDate = Carbon::parse($lastAttendance->check_in_time)->startOfDay();
-        $diffDays = $today->diffInDays($lastDate);
 
-        if ($diffDays == 1) {
+        if ($lastDate->isYesterday()) {
             $profile->current_streak += 1;
+        } elseif ($lastDate->isToday()) {
+            // Already attended today, do nothing
         } else {
             $profile->current_streak = 1;
         }

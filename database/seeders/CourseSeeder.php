@@ -23,7 +23,10 @@ class CourseSeeder extends Seeder
         ];
 
         foreach ($courses as $course) {
-            Course::create($course);
+            Course::updateOrCreate(
+                ['code' => $course['code']],
+                ['name' => $course['name'], 'faculty' => $course['faculty']]
+            );
         }
     }
 }

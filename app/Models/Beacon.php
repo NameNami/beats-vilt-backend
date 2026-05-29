@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 #[Fillable(['name', 'room_id', 'uuid', 'mac_address', 'rssi_threshold', 'status', 'last_seen'])]
 class Beacon extends Model
 {
+    use HasFactory;
     protected function casts(): array
     {
         return [

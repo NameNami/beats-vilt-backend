@@ -24,9 +24,9 @@ class CourseEnrollmentSeeder extends Seeder
                 continue;
             }
 
-            // enroll lecturer
-            $lecturerId = optional($labs->first())->lecturer_id;
-            if ($lecturerId) {
+            // Enroll all lecturers who are assigned to any lab in this course
+            $lecturerIds = $labs->pluck('lecturer_id')->unique();
+            foreach ($lecturerIds as $lecturerId) {
                 CourseEnrollment::updateOrCreate(
                     ['user_id' => $lecturerId, 'course_id' => $course->id],
                     ['lab_id' => null, 'role' => 'lecturer']

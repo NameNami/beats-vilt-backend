@@ -154,7 +154,7 @@ class WebLecturerDashboardController extends Controller
                         ->count(),
                     'status' => $status,
                     'is_cancelled' => (bool)$session->is_cancelled,
-                    'is_in_class_time' => $now->between($session->start_time, $session->end_time),
+                    'can_cancel' => $now->lt($session->end_time) && !$session->is_completed,
                 ];
             });
 

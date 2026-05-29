@@ -21,7 +21,10 @@ class ProgrammeSeeder extends Seeder
         ];
 
         foreach ($programmes as $programme) {
-            Programme::create($programme);
+            Programme::updateOrCreate(
+                ['code' => $programme['code']],
+                ['name' => $programme['name']]
+            );
         }
     }
 }
