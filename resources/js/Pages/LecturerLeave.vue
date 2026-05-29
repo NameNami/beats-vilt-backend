@@ -1,8 +1,8 @@
 <script setup>
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { Head, router } from "@inertiajs/vue3";
-import { ref, computed, watch } from 'vue';
-import { Calendar, Clock, FileText, Check, X, FileQuestion, CheckCircle, Inbox, Filter, Undo } from 'lucide-vue-next';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { Calendar, Clock, FileText, Check, X, FileQuestion, CheckCircle, Inbox, Filter, Undo, ChevronDown } from 'lucide-vue-next';
 
 const props = defineProps({
     initialApplications: Array
@@ -10,12 +10,36 @@ const props = defineProps({
 
 const applicationsData = ref(props.initialApplications);
 
+// --- Dropdown State ---
+const isSubjectDropdownOpen = ref(false);
+const subjectDropdownRef = ref(null);
+
+const selectedSubjectLabel = computed(() => {
+    if (subjectFilter.value === 'all') return 'All Subjects';
+    const subject = uniqueSubjects.value.find(s => s.code === subjectFilter.value);
+    return subject ? `${subject.code} - ${subject.name}` : subjectFilter.value;
+});
+
+const handleClickOutside = (event) => {
+    if (subjectDropdownRef.value && !subjectDropdownRef.value.contains(event.target)) {
+        isSubjectDropdownOpen.value = false;
+    }
+};
+
+onMounted(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+});
+
+onUnmounted(() => {
+    document.removeEventListener('mousedown', handleClickOutside);
+});
+
 // Sync with props when they change (Inertia reloads)
 watch(() => props.initialApplications, (newVal) => {
     applicationsData.value = newVal;
 }, { deep: true });
 
-const statusFilter = ref('all'); // 'all', 'pending', 'approved', 'rejected'
+const statusFilter = ref('pending'); // 'all', 'pending', 'approved', 'rejected'
 const subjectFilter = ref('all');
 
 // --- Computed Values ---
@@ -98,7 +122,7 @@ const getLeaveTypeStyle = (type) => {
                         <p class="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-1">Approved</p>
                         <p class="text-2xl font-bold text-emerald-700">{{ stats.approved }}</p>
                     </div>
-                    <div class="bg-white border border-rose-200 rounded-xl p-4 flex flex-col justify-between relative overflow-hidden">
+                    <div class="bg-white border border-rose-300 rounded-xl p-4 flex flex-col justify-between relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-16 h-16 bg-rose-50 rounded-bl-full -z-10"></div>
                         <p class="text-xs font-semibold text-rose-600 uppercase tracking-wider mb-1">Rejected</p>
                         <p class="text-2xl font-bold text-rose-700">{{ stats.rejected }}</p>
@@ -111,13 +135,13 @@ const getLeaveTypeStyle = (type) => {
                     <!-- Status Tabs -->
                     <div class="flex gap-1 overflow-x-auto w-full sm:w-auto">
                         <button
-                            v-for="statusOption in ['all', 'pending', 'approved', 'rejected']"
+                            v-for="statusOption in ['pending', 'all', 'approved', 'rejected']"
                             :key="statusOption"
                             @click="statusFilter = statusOption"
                             :class="[
               'px-4 py-2 text-sm font-semibold rounded-lg capitalize transition-colors whitespace-nowrap cursor-pointer',
               statusFilter === statusOption
-                ? 'bg-slate-800 text-white'
+                ? 'bg-orange-500 text-white'
                 : 'text-slate-600 hover:bg-slate-100'
             ]"
                         >
@@ -126,17 +150,45 @@ const getLeaveTypeStyle = (type) => {
                     </div>
 
                     <!-- Subject Dropdown -->
-                    <div class="relative w-full sm:w-auto flex items-center border border-slate-200 rounded-lg px-3 py-2 bg-slate-50">
-                        <Filter class="w-4 h-4 text-slate-400 mr-2 shrink-0" />
-                        <select
-                            v-model="subjectFilter"
-                            class="bg-transparent text-sm font-semibold text-slate-700 outline-none w-full sm:w-48 appearance-none cursor-pointer"
+                    <div class="relative w-full sm:w-auto" ref="subjectDropdownRef">
+                        <button
+                            @click="isSubjectDropdownOpen = !isSubjectDropdownOpen"
+                            class="w-full sm:w-auto inline-flex items-center justify-between text-white bg-orange-500 hover:bg-orange-600 focus:ring-4 focus:ring-orange-500/20 font-medium rounded-xl text-sm px-5 py-2 transition-all outline-none cursor-pointer"
+                            type="button"
                         >
-                            <option value="all">All Subjects</option>
-                            <option v-for="subject in uniqueSubjects" :key="subject.code" :value="subject.code">
-                                {{ subject.code }} - {{ subject.name }}
-                            </option>
-                        </select>
+                            <div class="flex items-center gap-2">
+                                <Filter class="w-4 h-4" />
+                                <span class="truncate max-w-[150px]">{{ selectedSubjectLabel }}</span>
+                            </div>
+                            <ChevronDown class="w-4 h-4 ms-2 -me-1 transition-transform duration-200" :class="{'rotate-180': isSubjectDropdownOpen}" />
+                        </button>
+
+                        <!-- Dropdown menu -->
+                        <div
+                            v-if="isSubjectDropdownOpen"
+                            class="absolute right-0 top-full mt-2 z-30 bg-white border border-slate-200 rounded-xl shadow-xl w-64 overflow-hidden animate-in fade-in zoom-in-95 duration-100"
+                        >
+                            <ul class="p-1.5 text-sm text-slate-700 font-medium max-h-60 overflow-y-auto space-y-1">
+                                <li>
+                                    <button
+                                        @click="subjectFilter = 'all'; isSubjectDropdownOpen = false"
+                                        class="flex items-center w-full p-2.5 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors text-left cursor-pointer"
+                                        :class="{'text-orange-400 bg-orange-50/50': subjectFilter === 'all'}"
+                                    >
+                                        All Subjects
+                                    </button>
+                                </li>
+                                <li v-for="subject in uniqueSubjects" :key="subject.code">
+                                    <button
+                                        @click="subjectFilter = subject.code; isSubjectDropdownOpen = false"
+                                        class="flex items-center w-full p-2.5 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors text-left cursor-pointer"
+                                        :class="{'text-orange-400 bg-orange-50/50': subjectFilter === subject.code}"
+                                    >
+                                        {{ subject.code }} - {{ subject.name }}
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
@@ -262,7 +314,7 @@ const getLeaveTypeStyle = (type) => {
                                     </button>
                                     <button
                                         @click="updateStatus(app.id, 'approved')"
-                                        class="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-500 text-white hover:bg-emerald-600 hover:border-emerald-600 text-sm font-bold transition-all shadow-sm shadow-emerald-500/20 cursor-pointer"
+                                        class="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-500 text-white hover:bg-emerald-600 hover:border-emerald-600 text-sm font-bold transition-all shadow-emerald-500/20 cursor-pointer"
                                     >
                                         <Check class="w-4 h-4" />
                                         Approve
@@ -277,7 +329,7 @@ const getLeaveTypeStyle = (type) => {
                                     </div>
                                     <button
                                         @click="updateStatus(app.id, 'pending')"
-                                        class="flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-orange-600 transition-colors bg-white px-2.5 py-1.5 rounded-md border border-slate-200 shadow-sm cursor-pointer"
+                                        class="flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-orange-600 transition-colors bg-white px-2.5 py-1.5 rounded-md border border-slate-200 cursor-pointer"
                                     >
                                         <Undo class="w-3 h-3" />
                                         Undo

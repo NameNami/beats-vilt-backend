@@ -26,8 +26,9 @@ class WebAttendanceController extends Controller
             $query->where('user_id', $lecturerId)->where('role', 'lecturer');
         })
         ->withCount(['students'])
-        ->get()
-        ->map(function ($course) {
+        ->get();
+
+        $courseData = $courses->map(function ($course) {
             return [
                 'id' => $course->id,
                 'code' => $course->code,
@@ -36,6 +37,11 @@ class WebAttendanceController extends Controller
             ];
         });
 
+        $courseIds = $courses->pluck('id');
+        $uniqueStudentsCount = User::whereHas('courseEnrollments', function ($query) use ($courseIds) {
+            $query->whereIn('course_id', $courseIds)->where('role', 'student');
+        })->count();
+
         // 2. Get All Sessions for this lecturer
         $semesterStartDate = Carbon::parse(SystemSetting::get('semester_start_date', '2026-03-02'));
 
@@ -43,7 +49,6 @@ class WebAttendanceController extends Controller
             ->where('lecturer_id', $lecturerId)
             ->get()
             ->map(function ($session) use ($semesterStartDate) {
-                // Determine Status
                 $now = now();
                 $status = 'upcoming';
                 if ($session->is_cancelled) {
@@ -56,7 +61,6 @@ class WebAttendanceController extends Controller
                     $status = 'completed';
                 }
 
-                // Calculate Week
                 $sessionStartOfWeek = $session->start_time->copy()->startOfWeek(Carbon::MONDAY);
                 $week = (int) $semesterStartDate->diffInWeeks($sessionStartOfWeek) + 1;
 
@@ -73,32 +77,29 @@ class WebAttendanceController extends Controller
                 ];
             });
 
-        // 3. At-Risk Students Calculation
+        // 3. Detailed At-Risk Students Calculation
         $thresholdValue = (float) SystemSetting::get('min_attendance_threshold', 80);
         $threshold = $thresholdValue / 100;
 
-        $atRiskStudents = [];
+        $studentStatsMap = [];
+        $subjectRiskCounts = []; // [course_code => count]
 
-        foreach ($courses as $courseData) {
-            $courseId = $courseData['id'];
-
-            // Get all students enrolled in this course
-            $enrolledStudents = User::whereHas('courseEnrollments', function($q) use ($courseId) {
-                $q->where('course_id', $courseId)->where('role', 'student');
-            })->with(['courseEnrollments' => function($q) use ($courseId) {
-                $q->where('course_id', $courseId);
+        foreach ($courses as $course) {
+            $enrolledStudents = User::whereHas('courseEnrollments', function($q) use ($course) {
+                $q->where('course_id', $course->id)->where('role', 'student');
+            })->with(['courseEnrollments' => function($q) use ($course) {
+                $q->where('course_id', $course->id);
             }])->get();
 
             foreach ($enrolledStudents as $student) {
                 $studentEnrollment = $student->courseEnrollments->first();
 
-                // Find sessions this student was expected to attend for this lecturer
-                $studentPastSessionIds = ClassSession::where('course_id', $courseId)
+                $studentPastSessionIds = ClassSession::where('course_id', $course->id)
                     ->where('lecturer_id', $lecturerId)
                     ->where('is_completed', true)
                     ->where(function($q) use ($studentEnrollment) {
-                        $q->whereNull('lab_id') // Lecture (all students)
-                          ->orWhere('lab_id', $studentEnrollment->lab_id); // Their specific lab
+                        $q->whereNull('lab_id')
+                          ->orWhere('lab_id', $studentEnrollment->lab_id);
                     })
                     ->pluck('id');
 
@@ -110,28 +111,52 @@ class WebAttendanceController extends Controller
                     ->whereIn('status', ['early', 'on-time', 'late', 'present'])
                     ->count();
 
-                $rate = $presentCount / $totalPast;
-                if ($rate < $threshold) {
-                    $atRiskStudents[] = [
+                $rate = round(($presentCount / $totalPast) * 100, 1);
+                
+                if (!isset($studentStatsMap[$student->id])) {
+                    $studentStatsMap[$student->id] = [
                         'id' => $student->id,
-                        'student_id' => $student->student_id,
                         'name' => $student->name,
-                        'course_name' => $courseData['name'],
-                        'course_code' => $courseData['code'],
-                        'attendance_rate' => round($rate * 100, 1),
-                        'present_count' => $presentCount,
-                        'total_count' => $totalPast
+                        'student_id' => $student->student_id,
+                        'courses' => [],
+                        'min_rate' => 100,
                     ];
+                }
+
+                $studentStatsMap[$student->id]['courses'][$course->code] = $rate;
+                if ($rate < $studentStatsMap[$student->id]['min_rate']) {
+                    $studentStatsMap[$student->id]['min_rate'] = $rate;
+                }
+
+                if ($rate < $thresholdValue) {
+                    $subjectRiskCounts[$course->code] = ($subjectRiskCounts[$course->code] ?? 0) + 1;
                 }
             }
         }
 
+        // Filter map to only include students who are at risk in at least one subject
+        $atRiskStudentList = collect($studentStatsMap)
+            ->filter(fn($s) => $s['min_rate'] < $thresholdValue)
+            ->sortBy('min_rate')
+            ->values();
+
+        // 4. Subject Stats for Dropdown
+        $uniqueSubjects = $courses->map(fn($c) => [
+            'code' => $c->code,
+            'name' => $c->name,
+            'risk_count' => $subjectRiskCounts[$c->code] ?? 0
+        ]);
+
         return Inertia::render('LecturerAttendance', [
-            'courses' => $courses,
+            'courses' => $courseData,
             'sessions' => $sessions,
-            'atRiskCount' => count($atRiskStudents),
-            'atRiskStudents' => $atRiskStudents,
-            'threshold' => $thresholdValue
+            'atRiskCount' => $atRiskStudentList->count(),
+            'criticalCount' => $atRiskStudentList->where('min_rate', '<', 50)->count(),
+            'warningCount' => $atRiskStudentList->where('min_rate', '>=', 50)->count(),
+            'atRiskStudents' => $atRiskStudentList,
+            'uniqueSubjects' => $uniqueSubjects,
+            'threshold' => $thresholdValue,
+            'totalUniqueStudents' => $uniqueStudentsCount
         ]);
     }
 

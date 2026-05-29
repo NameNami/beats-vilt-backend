@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import {
     ChevronDown,
     ChevronUp,
@@ -13,7 +13,9 @@ import {
     CheckCircle2,
     RefreshCw,
     Search,
-    AlertTriangle
+    AlertTriangle,
+    Filter,
+    Inbox
 } from 'lucide-vue-next';
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { Head} from '@inertiajs/vue3';
@@ -23,13 +25,21 @@ const props = defineProps({
     courses: Array,
     sessions: Array,
     atRiskCount: Number,
+    criticalCount: Number,
+    warningCount: Number,
     atRiskStudents: Array,
-    threshold: Number
+    uniqueSubjects: Array,
+    threshold: Number,
+    totalUniqueStudents: Number
 });
 
 // --- State ---
 const expandedClassId = ref(props.courses.length > 0 ? props.courses[0].id : null);
-const expandedAtRiskCourses = ref([]);
+const subjectFilter = ref('all');
+const atRiskSearchQuery = ref('');
+const isSubjectDropdownOpen = ref(false);
+const subjectDropdownRef = ref(null);
+
 const showModal = ref(false);
 const selectedSessionData = ref(null);
 const studentsList = ref([]);
@@ -44,28 +54,58 @@ const pollingInterval = ref(null);
 const isProcessing = ref(false);
 const isQrGenerated = ref(false);
 
+const handleClickOutside = (event) => {
+    if (subjectDropdownRef.value && !subjectDropdownRef.value.contains(event.target)) {
+        isSubjectDropdownOpen.value = false;
+    }
+};
+
+onMounted(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+});
+
+onUnmounted(() => {
+    document.removeEventListener('mousedown', handleClickOutside);
+});
+
 // --- Computed ---
-const groupedAtRiskStudents = computed(() => {
-    const groups = {};
-    props.atRiskStudents.forEach(student => {
-        if (!groups[student.course_code]) {
-            groups[student.course_code] = {
-                code: student.course_code,
-                name: student.course_name,
-                students: []
-            };
-        }
-        groups[student.course_code].students.push(student);
-    });
-    return Object.values(groups);
+const selectedSubjectLabel = computed(() => {
+    if (subjectFilter.value === 'all') return 'All Subjects';
+    const subject = props.uniqueSubjects.find(s => s.code === subjectFilter.value);
+    return subject ? `${subject.name} | ${subject.risk_count}` : subjectFilter.value;
+});
+
+const filteredAtRiskStudents = computed(() => {
+    let result = [...props.atRiskStudents];
+
+    // 1. Filter by subject (Only show if at risk in THIS subject)
+    if (subjectFilter.value !== 'all') {
+        result = result.filter(s => 
+            s.courses.hasOwnProperty(subjectFilter.value) && 
+            s.courses[subjectFilter.value] < props.threshold
+        );
+        
+        // When filtered by subject, sort by that specific subject's rate (lowest first)
+        result.sort((a, b) => a.courses[subjectFilter.value] - b.courses[subjectFilter.value]);
+    } else {
+        // When "all" is selected, sort by overall min_rate (lowest first)
+        result.sort((a, b) => a.min_rate - b.min_rate);
+    }
+
+    // 2. Filter by search query
+    if (atRiskSearchQuery.value) {
+        const q = atRiskSearchQuery.value.toLowerCase();
+        result = result.filter(s =>
+            s.name.toLowerCase().includes(q) ||
+            s.student_id.toLowerCase().includes(q)
+        );
+    }
+
+    return result;
 });
 
 const activeSessionsCount = computed(() => {
     return props.sessions.filter(s => s.status === 'active').length;
-});
-
-const totalStudentsCount = computed(() => {
-    return props.courses.reduce((sum, c) => sum + c.enrolled, 0);
 });
 
 const filteredStudents = computed(() => {
@@ -78,15 +118,6 @@ const filteredStudents = computed(() => {
 });
 
 // --- Handlers ---
-const toggleAtRiskCourse = (courseCode) => {
-    const index = expandedAtRiskCourses.value.indexOf(courseCode);
-    if (index === -1) {
-        expandedAtRiskCourses.value.push(courseCode);
-    } else {
-        expandedAtRiskCourses.value.splice(index, 1);
-    }
-};
-
 const toggleClass = (classId) => {
     expandedClassId.value = expandedClassId.value === classId ? null : classId;
 };
@@ -121,21 +152,27 @@ const getSessionsByLab = (courseId) => {
     }));
 };
 
-const fetchSessionDetails = async (sessionId) => {
+const fetchSessionDetails = async (sessionId, excludeFromPendingId = null) => {
     try {
         const response = await axios.get(route('lecturer.sessions.show', sessionId));
         selectedSessionData.value = response.data.session;
 
-        // Preserve pending states during refresh
-        const pendingMap = new Map();
-        studentsList.value.forEach(s => {
-            if (s.isPending) pendingMap.set(s.id, true);
-        });
+        // Map server data and handle pending state synchronization
+        studentsList.value = response.data.students.map(serverStudent => {
+            const localStudent = studentsList.value.find(s => s.id === serverStudent.id);
 
-        studentsList.value = response.data.students.map(s => ({
-            ...s,
-            isPending: pendingMap.has(s.id)
-        }));
+            // If the student was pending locally
+            if (localStudent && localStudent.isPending && serverStudent.id !== excludeFromPendingId) {
+                // If server now matches our optimistic status, we can stop being "pending"
+                if (serverStudent.status === localStudent.status) {
+                    return { ...serverStudent, isPending: false };
+                }
+                // Otherwise, keep the optimistic status and gray color
+                return { ...serverStudent, isPending: true, status: localStudent.status };
+            }
+
+            return { ...serverStudent, isPending: false };
+        });
 
         sessionStats.value = response.data.stats;
     } catch (error) {
@@ -199,8 +236,9 @@ const handleMarkAttendance = async (userId, status) => {
             user_id: userId,
             status: status
         });
-        // Refresh to get confirmed state and updated stats
-        await fetchSessionDetails(selectedSessionData.value.id);
+        // Refresh to get confirmed state and updated stats, excluding this student from the "pending map"
+        // so that the server's truth and the clearing of the gray state happen in the same cycle.
+        await fetchSessionDetails(selectedSessionData.value.id, userId);
     } catch (error) {
         // Revert on error
         const targetStudent = studentsList.value.find(s => s.id === userId) || student;
@@ -208,7 +246,7 @@ const handleMarkAttendance = async (userId, status) => {
         console.error('Error marking attendance:', error);
     } finally {
         const targetStudent = studentsList.value.find(s => s.id === userId) || student;
-        targetStudent.isPending = false;
+        if (targetStudent) targetStudent.isPending = false;
     }
 };
 
@@ -264,89 +302,132 @@ onUnmounted(() => {
                 <div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
 
                     <!-- Stats Row -->
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200">
-                            <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">My Classes</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">My Classes</p>
                             <p class="text-3xl font-bold text-slate-900">{{ courses.length }}</p>
                         </div>
 
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200 relative overflow-hidden">
-                            <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Active Sessions</p>
-                            <p class="text-3xl font-bold text-orange-600">{{ activeSessionsCount }}</p>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Students</p>
+                            <p class="text-3xl font-bold text-slate-900">{{ totalUniqueStudents }}</p>
                         </div>
 
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200">
-                            <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Students</p>
-                            <p class="text-3xl font-bold text-slate-900">{{ totalStudentsCount }}</p>
-                        </div>
-
-                        <div class="p-6 rounded-2xl border border-rose-200 relative overflow-hidden">
-                            <p class="text-sm font-semibold text-rose-600 uppercase tracking-wider mb-1">At-Risk Students</p>
-                            <p class="text-3xl font-bold text-rose-700">{{ atRiskCount }}</p>
+                        <div class="bg-white p-6 rounded-2xl border border-orange-200 relative overflow-hidden shadow-sm">
+                            <div class="absolute top-0 right-0 w-24 h-24 bg-orange-50 rounded-bl-full -z-10"></div>
+                            <p class="text-xs font-semibold text-orange-600 uppercase tracking-wider mb-1">Total At-Risk</p>
+                            <p class="text-3xl font-bold text-orange-700">{{ atRiskCount }}</p>
                         </div>
                     </div>
 
-                    <!-- At-Risk Students Section -->
-                    <div v-if="atRiskStudents.length > 0">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                                <AlertTriangle class="w-5 h-5 text-rose-600" />
-                                Students at Risk (Below {{ threshold }}%)
-                            </h2>
-                        </div>
-
-                        <div class="space-y-3">
-                            <div v-for="group in groupedAtRiskStudents" :key="group.code"
-                                class="bg-white border border-rose-100 rounded-xl overflow-hidden transition-all">
-
-                                <!-- Course Header -->
-                                <div @click="toggleAtRiskCourse(group.code)"
-                                    class="p-4 flex items-center justify-between cursor-pointer hover:bg-rose-50/30 transition-colors select-none">
-                                    <div class="flex items-center gap-4">
-                                        <div>
-                                            <div class="flex items-center gap-2 mb-0.5">
-                                                <span class="px-2 py-0.5 bg-rose-100 text-rose-700 text-[10px] font-bold rounded">
-                                                    {{ group.code }}
-                                                </span>
-                                                <span class="text-[10px] font-bold text-rose-600 uppercase">
-                                                    {{ group.students.length }} Students at risk
-                                                </span>
-                                            </div>
-                                            <h3 class="text-sm font-bold text-slate-900">{{ group.name }}</h3>
-                                        </div>
+                    <!-- At-Risk Matrix Section -->
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                        <!-- Merged Header & Filters -->
+                        <div class="p-5 border-b border-slate-100 bg-white">
+                            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center shrink-0">
+                                        <AlertTriangle class="w-5 h-5 text-rose-600" />
                                     </div>
-                                    <div class="text-rose-400 p-2">
-                                        <ChevronUp v-if="expandedAtRiskCourses.includes(group.code)" class="w-4 h-4" />
-                                        <ChevronDown v-else class="w-4 h-4" />
+                                    <div>
+                                        <h2 class="text-sm font-bold text-slate-800 leading-tight">Students at Risk (Below {{ threshold }}%)</h2>
+                                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Total unique: {{ atRiskCount }}</p>
                                     </div>
                                 </div>
 
-                                <!-- Students List (Dropdown Body) -->
-                                <div v-if="expandedAtRiskCourses.includes(group.code)" class="border-t border-rose-50 bg-rose-50/10">
-                                    <div class="divide-y divide-rose-50">
-                                        <div v-for="student in group.students" :key="student.id"
-                                            class="p-4 flex items-center justify-between hover:bg-rose-50/20 transition-colors">
-                                            <div class="flex items-center gap-4">
-                                                <div>
-                                                    <p class="text-sm font-bold text-slate-900 leading-tight">{{ student.name }}</p>
-                                                    <p class="text-[11px] font-medium text-slate-500 mt-1">{{ student.student_id }}</p>
-                                                </div>
+                                <div class="flex flex-col sm:flex-row items-center gap-2">
+                                    <!-- Search Box -->
+                                    <div class="relative w-full sm:w-64">
+                                        <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                                        <input
+                                            v-model="atRiskSearchQuery"
+                                            type="text"
+                                            placeholder="Search student..."
+                                            class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                                        >
+                                    </div>
+
+                                    <!-- Subject Dropdown (Beside Search) -->
+                                    <div class="relative w-full sm:w-auto" ref="subjectDropdownRef">
+                                        <button
+                                            @click="isSubjectDropdownOpen = !isSubjectDropdownOpen"
+                                            class="w-full sm:w-48 inline-flex items-center justify-between text-white bg-orange-500 hover:bg-orange-600 focus:ring-4 focus:ring-orange-500/20 shadow-sm font-bold rounded-xl text-[11px] px-4 py-2 transition-all outline-none cursor-pointer"
+                                            type="button"
+                                        >
+                                            <div class="flex items-center gap-2">
+                                                <Filter class="w-3.5 h-3.5" />
+                                                <span class="truncate">{{ selectedSubjectLabel }}</span>
                                             </div>
-                                            <div class="text-right">
-                                                <div class="flex items-center gap-2 justify-end">
-                                                    <span class="text-xs font-bold text-rose-700">{{ student.attendance_rate }}%</span>
-                                                    <span class="text-[10px] text-slate-400 font-medium italic">
-                                                        ({{ student.present_count }}/{{ student.total_count }} sessions)
-                                                    </span>
-                                                </div>
-                                                <div class="w-32 h-1.5 bg-rose-100 rounded-full mt-1.5 overflow-hidden">
-                                                    <div class="h-full bg-rose-500 rounded-full" :style="{ width: student.attendance_rate + '%' }"></div>
-                                                </div>
-                                            </div>
+                                            <ChevronDown class="w-3.5 h-3.5 ms-2 transition-transform duration-200" :class="{'rotate-180': isSubjectDropdownOpen}" />
+                                        </button>
+
+                                        <div v-if="isSubjectDropdownOpen" class="absolute right-0 top-full mt-2 z-30 bg-white border border-slate-200 rounded-xl shadow-xl w-64 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                                            <ul class="p-1.5 text-xs text-slate-700 font-medium max-h-60 overflow-y-auto space-y-1">
+                                                <li>
+                                                    <button @click="subjectFilter = 'all'; isSubjectDropdownOpen = false"
+                                                        class="flex items-center justify-between w-full p-2 hover:bg-orange-50 hover:text-orange-700 rounded-lg transition-colors text-left cursor-pointer"
+                                                        :class="{'text-orange-600 bg-orange-50/50': subjectFilter === 'all'}">
+                                                        <span>All Subjects</span>
+                                                        <span class="text-[10px] font-bold bg-slate-100 px-1.5 py-0.5 rounded">{{ atRiskCount }}</span>
+                                                    </button>
+                                                </li>
+                                                <li v-for="subject in uniqueSubjects" :key="subject.code">
+                                                    <button @click="subjectFilter = subject.code; isSubjectDropdownOpen = false"
+                                                        class="flex items-center justify-between w-full p-2 hover:bg-orange-50 hover:text-orange-700 rounded-lg transition-colors text-left cursor-pointer"
+                                                        :class="{'text-orange-600 bg-orange-50/50': subjectFilter === subject.code}">
+                                                        <span class="truncate pr-4 font-bold">{{ subject.name }}</span>
+                                                        <span class="text-[10px] font-bold bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded">{{ subject.risk_count }}</span>
+                                                    </button>
+                                                </li>
+                                            </ul>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- At-Risk Table -->
+                        <div class="overflow-x-auto scrollbar-thin">
+                            <table class="w-full text-left border-collapse min-w-[800px]">
+                                <thead>
+                                    <tr class="bg-slate-50/50">
+                                        <th class="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest sticky left-0 bg-slate-50/50 z-10 border-b border-slate-100">Student Info</th>
+                                        <th v-for="subject in uniqueSubjects" :key="'head-'+subject.code" 
+                                            class="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center border-b border-slate-100 whitespace-nowrap">
+                                            {{ subject.name }}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    <tr v-if="filteredAtRiskStudents.length === 0">
+                                        <td :colspan="uniqueSubjects.length + 1" class="px-6 py-12 text-center text-slate-400">
+                                            <Inbox class="w-12 h-12 opacity-10 mx-auto mb-4" />
+                                            <p class="text-xs font-bold uppercase tracking-widest">No students match your filters</p>
+                                        </td>
+                                    </tr>
+                                    <tr v-else v-for="student in filteredAtRiskStudents" :key="student.id" class="hover:bg-slate-50 transition-colors group">
+                                        <td class="px-6 py-3 sticky left-0 bg-white group-hover:bg-slate-50 z-10 border-r border-slate-50 shadow-[4px_0_10px_-4px_rgba(0,0,0,0.05)]">
+                                            <div class="flex items-center gap-3">
+                                                <div :class="['w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold', student.min_rate < 50 ? 'bg-rose-100 text-rose-700' : 'bg-orange-100 text-orange-700']">
+                                                    {{ student.name.charAt(0) }}
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs font-bold text-slate-800 leading-tight">{{ student.name }}</p>
+                                                    <p class="text-[10px] text-slate-500 font-medium">{{ student.student_id }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td v-for="subject in uniqueSubjects" :key="'cell-'+student.id+'-'+subject.code" class="px-6 py-3 text-center">
+                                            <!-- Fix falsy 0 bug by checking property existence -->
+                                            <span v-if="student.courses.hasOwnProperty(subject.code) && student.courses[subject.code] < threshold" 
+                                                class="text-xs font-bold text-rose-600">
+                                                {{ student.courses[subject.code] }}%
+                                            </span>
+                                            <span v-else class="text-slate-300 text-[10px] font-bold opacity-40">●</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
@@ -510,7 +591,7 @@ onUnmounted(() => {
 
                                                 <button
                                                     @click="generateQr"
-                                                    class="mt-4 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-lg shadow-orange-600/20 active:scale-95 cursor-pointer"
+                                                    class="mt-4 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-lg shadow-orange-500/20 active:scale-95 cursor-pointer"
                                                 >
                                                     <QrCode class="w-4 h-4" />
                                                     Generate QR
@@ -548,7 +629,7 @@ onUnmounted(() => {
                                         <button
                                             @click="handleMarkAllPresent"
                                             :disabled="isProcessing"
-                                            class="flex items-center gap-2 px-4 py-2 bg-orange-400 hover:bg-orange-600 text-white rounded-lg text-[10px] font-bold uppercase transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
+                                            class="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-[10px] font-bold uppercase transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
                                         >
                                             <CheckCircle2 class="w-4 h-4" />
                                             Mark All Present
@@ -656,5 +737,20 @@ onUnmounted(() => {
 }
 .hide-scrollbar::-webkit-scrollbar {
     display: none;
+}
+
+/* Custom scrollbar for the Matrix table */
+.scrollbar-thin::-webkit-scrollbar {
+    height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: #f8fafc;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
 }
 </style>

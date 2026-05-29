@@ -2,7 +2,7 @@
 import AppLayout from '../Layouts/AppLayout.vue';
 import {Head} from '@inertiajs/vue3';
 import {computed, ref} from 'vue';
-import { Calendar, List, MapPin, User, Users, Globe, Building2, ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { Calendar, MapPin, User, Users, Globe, Building2, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import { router } from '@inertiajs/vue3';
 
 const props = defineProps({
@@ -67,23 +67,8 @@ const groupedSessions = computed(() => {
     cyan: 'bg-cyan-50 border-cyan-200 text-cyan-800',
 };
 
-    // --- State ---
-const view = ref('week');
-const selectedDay = ref(CURRENT_DAY);
-
     // --- Computed Properties ---
 const displayHours = computed(() => HOURS.slice(0, -1));
-
-const selectedDayData = computed(() => weekDates.value.find(d => d.name === selectedDay.value));
-
-const isCurrentDay = computed(() => selectedDayData.value?.date === TODAY_DATE);
-
-const dayEvents = computed(() => {
-    const date = selectedDayData.value?.date;
-    return SCHEDULE_DATA.value
-    .filter((e) => e.date === date)
-    .sort((a, b) => a.start.localeCompare(b.start));
-});
 
 const weekRangeDisplay = computed(() => {
     const start = new Date(weekDates.value[0].date);
@@ -152,15 +137,15 @@ const navigateWeek = (direction) => {
 
                     <div class="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
                         <!-- Week Navigation -->
-                        <div class="flex items-center bg-slate-100/80 p-1 rounded-lg border border-slate-200/60">
+                        <div class="flex items-center gap-1">
                             <button
                                 @click="navigateWeek('prev')"
                                 :disabled="!canNavigatePrev"
                                 :class="[
-                                    'p-1.5 rounded-md transition-all',
+                                    'p-1.5 rounded-lg transition-all',
                                     canNavigatePrev
-                                        ? 'text-slate-500 hover:text-slate-900 hover:bg-white'
-                                        : 'text-slate-300 cursor-not-allowed'
+                                        ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-sm shadow-orange-500/20 cursor-pointer'
+                                        : 'bg-slate-50 text-slate-300 cursor-not-allowed border border-slate-100'
                                 ]"
                                 title="Previous Week"
                             >
@@ -169,7 +154,7 @@ const navigateWeek = (direction) => {
 
                             <button
                                 @click="navigateWeek('today')"
-                                class="px-3 py-1.5 text-xs font-bold text-slate-600 hover:text-orange-600 transition-colors uppercase tracking-wider"
+                                class="px-4 py-1.5 text-xs font-bold text-shadow-slate-800 hover:bg-orange-50 rounded-lg transition-all uppercase tracking-widest cursor-pointer"
                             >
                                 Week {{ currentWeek }}
                             </button>
@@ -178,10 +163,10 @@ const navigateWeek = (direction) => {
                                 @click="navigateWeek('next')"
                                 :disabled="!canNavigateNext"
                                 :class="[
-                                    'p-1.5 rounded-md transition-all',
+                                    'p-1.5 rounded-lg transition-all',
                                     canNavigateNext
-                                        ? 'text-slate-500 hover:text-slate-900 hover:bg-white hover:'
-                                        : 'text-slate-300 cursor-not-allowed'
+                                        ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-sm shadow-orange-500/20 cursor-pointer'
+                                        : 'bg-slate-50 text-slate-300 cursor-not-allowed border border-slate-100'
                                 ]"
                                 title="Next Week"
                             >
@@ -189,36 +174,8 @@ const navigateWeek = (direction) => {
                             </button>
                         </div>
 
-                        <div class="text-sm font-bold text-slate-700 bg-slate-50 px-4 py-2 rounded-lg border border-slate-200">
+                        <div class="text-sm font-bold text-slate-700 bg-slate-50 px-4 py-2.5 rounded-lg border border-slate-200">
                             {{ weekRangeDisplay }}
-                        </div>
-
-                        <!-- View Toggles -->
-                        <div class="flex bg-slate-100/80 p-1 rounded-lg border border-slate-200/60">
-                            <button
-                                @click="view = 'week'"
-                                :class="[
-                  'flex items-center gap-2 px-5 py-2 rounded-md text-sm font-semibold transition-all',
-                  view === 'week'
-                    ? 'bg-white text-orange-600  border border-slate-200/50'
-                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50 border border-transparent'
-                ]"
-                            >
-                                <Calendar class="w-4 h-4" />
-                                Week
-                            </button>
-                            <button
-                                @click="view = 'day'"
-                                :class="[
-                  'flex items-center gap-2 px-5 py-2 rounded-md text-sm font-semibold transition-all',
-                  view === 'day'
-                    ? 'bg-white text-orange-600  border border-slate-200/50'
-                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50 border border-transparent'
-                ]"
-                            >
-                                <List class="w-4 h-4" />
-                                Day
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -226,7 +183,7 @@ const navigateWeek = (direction) => {
                 <!-- Content Area -->
 
                 <!-- Week View -->
-                <div v-if="view === 'week'" class="mt-4 border border-slate-200 rounded-xl bg-white overflow-hidden ">
+                <div class="mt-4 border border-slate-200 rounded-xl bg-white overflow-hidden ">
                     <div class="overflow-x-auto">
                         <div class="min-w-[1200px]">
                             <!-- Header Row (Time Slots) -->
@@ -303,100 +260,6 @@ const navigateWeek = (direction) => {
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Day View -->
-                <div v-else class="mt-4">
-                    <!-- Day Selector Tabs -->
-                    <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                        <button
-                            v-for="day in weekDates"
-                            :key="day.date"
-                            @click="selectedDay = day.name"
-                            :class="[
-              'relative px-5 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap flex flex-col items-center min-w-[100px]',
-              selectedDay === day.name
-                ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
-                : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-            ]"
-                        >
-                            <span class="text-[10px] uppercase tracking-wider opacity-80">{{ day.name }}</span>
-                            <span class="text-base font-bold">{{ day.displayDate }}</span>
-                            <span v-if="day.date === TODAY_DATE && selectedDay !== day.name" class="absolute top-2 right-2 w-2 h-2 rounded-full bg-orange-500"></span>
-                        </button>
-                    </div>
-
-                    <!-- Event List -->
-                    <div class="space-y-3 mt-4">
-                        <h2 v-if="isCurrentDay && dayEvents.length > 0" class="text-2xl font-extrabold text-slate-900 tracking-tight mb-4 mt-1">
-                            Today's Schedule
-                        </h2>
-
-                        <div v-if="dayEvents.length === 0" class="text-center py-16 bg-slate-50 rounded-xl border border-slate-200 border-dashed">
-                            <p class="text-slate-500 font-medium">No classes scheduled for {{ selectedDay }}.</p>
-                        </div>
-
-                        <div
-                            v-else
-                            v-for="event in dayEvents"
-                            :key="event.id"
-                            :class="[
-              'flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 p-4 sm:p-5 bg-white rounded-2xl border transition-all hover:shadow-md',
-              event.isOngoing ? 'border-orange-500 ring-1 ring-orange-500 shadow-lg shadow-orange-100' : 'border-slate-200'
-            ]"
-                        >
-                            <!-- Time Box -->
-                            <div :class="[
-              'w-full sm:w-24 sm:h-24 py-3 sm:py-0 rounded-2xl border flex flex-row sm:flex-col justify-center items-center shrink-0',
-              event.isOngoing ? 'border-orange-200/70 bg-orange-50/50 text-orange-700' : 'border-slate-200 bg-slate-50 text-slate-600'
-            ]">
-                                <span class="text-[14px] font-bold">{{ event.start }}</span>
-                                <div :class="['hidden sm:block w-6 border-b-2 my-1.5', event.isOngoing ? 'border-orange-200' : 'border-slate-200']"></div>
-                                <span class="text-[14px] font-bold sm:hidden mx-2">-</span>
-                                <span class="text-[14px] font-bold">{{ event.end }}</span>
-                            </div>
-
-                            <!-- Details Column -->
-                            <div class="flex-1 w-full">
-                                <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-3 sm:mb-2">
-                <span class="w-fit px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-md tracking-wide">
-                  {{ event.courseCode }}
-                </span>
-                                    <h3 :class="['text-xl font-bold text-slate-900', event.isCancelled ? 'line-through opacity-50' : '']">{{ event.title }}</h3>
-                                    <div class="flex items-center gap-2">
-                                        <span :class="[
-                                            'px-2.5 py-0.5 text-[10px] font-bold rounded-full uppercase flex items-center gap-1',
-                                            event.mode === 'online' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'
-                                        ]">
-                                            <Globe v-if="event.mode === 'online'" class="w-3 h-3" />
-                                            <Building2 v-else class="w-3 h-3" />
-                                            {{ event.mode }}
-                                        </span>
-                                        <span v-if="event.isCancelled" class="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-bold rounded-full">CANCELLED</span>
-                                    </div>
-                                </div>
-
-                                <div class="flex flex-wrap items-center gap-5 text-sm text-slate-500 mt-1">
-                                    <div class="flex items-center gap-2">
-                                        <Users class="w-4 h-4 text-slate-400" />
-                                        {{ event.lab }}
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <MapPin class="w-4 h-4 text-slate-400" />
-                                        {{ event.location }}
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <Users class="w-4 h-4 text-slate-400" />
-                                        {{ event.students }} Students
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <User class="w-4 h-4 text-slate-400" />
-                                        {{ event.instructor }}
                                     </div>
                                 </div>
                             </div>

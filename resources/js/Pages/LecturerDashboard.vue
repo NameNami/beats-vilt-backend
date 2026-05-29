@@ -75,21 +75,27 @@ const toggleCancel = (id) => {
 };
 
 // --- Attendance Handlers ---
-const fetchSessionDetails = async (sessionId) => {
+const fetchSessionDetails = async (sessionId, excludeFromPendingId = null) => {
     try {
         const response = await axios.get(route('lecturer.sessions.show', sessionId));
         selectedSessionData.value = response.data.session;
 
-        // Preserve pending states during refresh
-        const pendingMap = new Map();
-        studentsList.value.forEach(s => {
-            if (s.isPending) pendingMap.set(s.id, true);
+        // Map server data and handle pending state synchronization
+        studentsList.value = response.data.students.map(serverStudent => {
+            const localStudent = studentsList.value.find(s => s.id === serverStudent.id);
+            
+            // If the student was pending locally
+            if (localStudent && localStudent.isPending && serverStudent.id !== excludeFromPendingId) {
+                // If server now matches our optimistic status, we can stop being "pending"
+                if (serverStudent.status === localStudent.status) {
+                    return { ...serverStudent, isPending: false };
+                }
+                // Otherwise, keep the optimistic status and gray color
+                return { ...serverStudent, isPending: true, status: localStudent.status };
+            }
+            
+            return { ...serverStudent, isPending: false };
         });
-
-        studentsList.value = response.data.students.map(s => ({
-            ...s,
-            isPending: pendingMap.has(s.id)
-        }));
 
         sessionStats.value = response.data.stats;
     } catch (error) {
@@ -154,7 +160,7 @@ const handleMarkAttendance = async (userId, status) => {
             status: status
         });
         // Refresh to get confirmed state and updated stats
-        await fetchSessionDetails(selectedSessionData.value.id);
+        await fetchSessionDetails(selectedSessionData.value.id, userId);
     } catch (error) {
         // Revert on error
         const targetStudent = studentsList.value.find(s => s.id === userId) || student;
@@ -162,7 +168,7 @@ const handleMarkAttendance = async (userId, status) => {
         console.error('Error marking attendance:', error);
     } finally {
         const targetStudent = studentsList.value.find(s => s.id === userId) || student;
-        targetStudent.isPending = false;
+        if (targetStudent) targetStudent.isPending = false;
     }
 };
 
@@ -416,7 +422,7 @@ onUnmounted(() => {
 
                                         <button
                                             @click="generateQr"
-                                            class="mt-4 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-lg shadow-orange-600/20 active:scale-95 cursor-pointer"
+                                            class="mt-4 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-lg shadow-orange-500/20 active:scale-95 cursor-pointer"
                                         >
                                             <QrCode class="w-4 h-4" />
                                             Generate QR
@@ -455,7 +461,7 @@ onUnmounted(() => {
                                 <button
                                     @click="handleMarkAllPresent"
                                     :disabled="isProcessing"
-                                    class="flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-[10px] font-bold uppercase transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
+                                    class="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-[10px] font-bold uppercase transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
                                 >
                                     <CheckCircle2 class="w-4 h-4" />
                                     Mark All Present
