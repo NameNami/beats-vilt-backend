@@ -4,27 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
-#[Fillable([
-    'course_id',
-    'lab_id',
-    'lecturer_id',
-    'room_id',
-    'start_time',
-    'end_time',
-    'mode',
-    'checkin_method',
-    'is_display',
-    'is_cancelled',
-    'is_completed',
-    'announce_cancelled',
-])]
 
 class ClassSession extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected $guarded = [];
+
     protected function casts(): array
     {
         return [

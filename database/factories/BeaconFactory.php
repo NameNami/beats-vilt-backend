@@ -14,7 +14,7 @@ class BeaconFactory extends Factory
     {
         return [
             'uuid' => (string) Str::uuid(),
-            'mac_address' => fake()->unique()->macAddress(),
+            'mac_address' => $this->faker->unique()->macAddress(),
             'rssi_threshold' => -70,
             'status' => 'active',
             'last_seen' => now(),

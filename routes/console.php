@@ -9,9 +9,15 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('attendance:process-absences')
-    ->everyFiveMinutes()
+    ->everyMinute()
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/attendance-cron.log'));
 
 Schedule::command('attendance:prune-expired-qr-token')
+    ->everyMinute();
+
+Schedule::command('app:change-beacon-status')
+    ->everyMinute();
+
+Schedule::command('app:renew-beacon-uuid')
     ->everyFiveMinutes();
