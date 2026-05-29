@@ -1,0 +1,21 @@
+{
+	"id": "e3e3e3e3-e3e3-e3e3-e3e3-e3e3e3e3e3e3",
+	"name": "Local Dev",
+	"values": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "token",
+			"value": "PASTE_YOUR_TOKEN_HERE",
+			"type": "secret",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2024-05-27T10:00:00.000Z",
+	"_postman_exported_using": "Postman/11.1.0"
+}
