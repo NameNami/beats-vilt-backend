@@ -82,6 +82,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     Route::get('/settings', [App\Http\Controllers\AdminSettingsController::class, 'index'])->name('settings');
     Route::post('/settings', [App\Http\Controllers\AdminSettingsController::class, 'update'])->name('settings.update');
+
+    // BLE Device Management
+    Route::get('/ble-devices', [App\Http\Controllers\AdminBleDeviceController::class, 'index'])->name('ble-devices.index');
+    Route::put('/ble-devices/{beacon}', [App\Http\Controllers\AdminBleDeviceController::class, 'update'])->name('ble-devices.update');
+    Route::put('/ble-devices/{beacon}/unassign', [App\Http\Controllers\AdminBleDeviceController::class, 'unassign'])->name('ble-devices.unassign');
+    Route::post('/ble-devices/scan', [App\Http\Controllers\AdminBleDeviceController::class, 'scan'])->name('ble-devices.scan');
 });
 
     //TODO: select class -> class session -> qr dashboard
