@@ -12,15 +12,7 @@ use App\Http\Middleware\CheckRoleApi;
 
 // Student Auth (Login & Forgot Password)
 Route::post('/student/login', [StudentAuthController::class, 'login'])->name('api.student.login');
-Route::post('/student/forgot-password', [StudentAuthController::class, 'sendResetLinkEmail']);
-
-// TODO: nanti sekali kan yg permission sama | CheckRoleWeb yg sama
-Route::post('/logout', [StudentAuthController::class, 'logout'])
-    ->name('api.logout')
-    ->middleware([
-        'auth:sanctum', // 1. Front door: Are they logged in?
-        CheckRoleApi::class.':student' // 2. VIP door: Are they a teacher?
-    ]);
+Route::post('/student/forgot-password', [StudentAuthController::class, 'sendResetLinkEmail'])->name('api.student.forgot-password');
 
 // Beacon
 Route::post('/beacon/heartbeat', [BeaconHeartbeatController::class, 'heartbeat']);
@@ -29,31 +21,27 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-// Check-in
-Route::post('/student/check-in-ble', [AttendanceController::class, 'checkInBle'])
-    ->name('api.student.check-in-ble')
-    ->middleware([
-        'auth:sanctum', // Are they logged in?
-        CheckRoleApi::class.':student' // Are they a student?
-    ]);
-
-Route::post('/student/check-in-qr', [AttendanceController::class, 'checkInQr'])
-    ->name('api.student.check-in-qr')
-    ->middleware([
-        'auth:sanctum', // Are they logged in?
-        CheckRoleApi::class.':student' // Are they a student?
-    ]);
-
-// Student Data
+// Student Data & Actions
 Route::middleware(['auth:sanctum', CheckRoleApi::class.':student'])->group(function () {
+    // Attendance Actions
+    Route::post('/student/check-in-ble', [AttendanceController::class, 'checkInBle'])->name('api.student.check-in-ble');
+    Route::post('/student/check-in-qr', [AttendanceController::class, 'checkInQr'])->name('api.student.check-in-qr');
+
+    // Profile & Records
     Route::get('/student/profile', [StudentDataController::class, 'getProfile'])->name('api.student.profile');
     Route::get('/student/courses', [StudentDataController::class, 'getCourses'])->name('api.student.courses');
     Route::get('/student/schedule', [StudentDataController::class, 'getSchedule'])->name('api.student.schedule');
     Route::get('/student/attendance', [StudentDataController::class, 'getAttendanceHistory'])->name('api.student.attendance');
     Route::get('/student/notifications', [StudentDataController::class, 'getNotifications'])->name('api.student.notifications');
+    Route::post('/student/notifications/{notification}/read', [StudentDataController::class, 'markNotificationAsRead'])->name('api.student.notifications.read');
+    Route::post('/student/notifications/mark-all-read', [StudentDataController::class, 'markAllNotificationsAsRead'])->name('api.student.notifications.mark-all-read');
+    
     Route::get('/student/leaderboard', [StudentDataController::class, 'getLeaderboard'])->name('api.student.leaderboard');
+    
     Route::get('/student/rewards', [StudentDataController::class, 'getRewards'])->name('api.student.rewards');
     Route::post('/student/rewards/redeem', [StudentDataController::class, 'redeemReward'])->name('api.student.rewards.redeem');
+    Route::get('/student/redemptions', [StudentDataController::class, 'getRedemptions'])->name('api.student.redemptions');
+    
     Route::get('/student/leaves', [StudentDataController::class, 'getLeaveApplications'])->name('api.student.leaves');
 
 

@@ -1,0 +1,166 @@
+# BEATS Student App API Contract (Detailed)
+# Base URL: /api
+# Last Updated: May 29, 2026
+
+## 1. Authentication
+
+### POST /student/login
+- **Purpose**: Authenticates student and creates a Sanctum session.
+- **Request Parameters**:
+  - `student_id` (string, required): Unique student identifier.
+  - `password` (string, required): Student password.
+  - `device.name` (string, optional): Name of the mobile device for token identification.
+- **Success Response (200 OK)**:
+  ```json
+  {
+    "token": "1|abcdef...",
+    "user": {
+      "id": 1,
+      "name": "Muhammad Najmi",
+      "username": "najmi",
+      "email": "najmi@student.beats.namix.my",
+      "student_id": "52101324169",
+      "role": "student",
+      "programme_id": 1,
+      "profile_photo_path": null,
+      "is_active": 1,
+      "created_at": "2026-05-27T17:01:02.000000Z",
+      "updated_at": "2026-05-27T17:01:02.000000Z"
+    }
+  }
+  ```
+- **Error Response (401 Unauthorized)**: `{"message": "Invalid credentials"}`
+
+### POST /student/logout
+- **Purpose**: Revokes the current access token.
+- **Headers**: `Authorization: Bearer {token}`
+- **Auth Requirement**: `auth:sanctum`, `role:student`
+- **Response (200 OK)**: `{"message": "Logged out"}`
+
+### POST /student/forgot-password
+- **Purpose**: Sends a password reset link to the student's email.
+- **Request Parameters**:
+  - `email` (string, required): The student's email address.
+- **Response (200 OK)**: `{"message": "We have emailed your password reset link."}`
+- **Response (422 Unprocessable Content)**: `{"message": "We can't find a user with that email address."}`
+
+---
+
+## 2. Attendance & Check-In
+All attendance endpoints require `Authorization: Bearer {token}` and `role:student`.
+
+### POST /student/check-in-ble
+- **Validation**:
+  - `timestamp` (string, required): Current Unix timestamp.
+  - `class_session_id` (integer, required): ID of the session.
+  - `uuid` (string, required): Scanned Beacon UUID.
+  - `rssi` (integer, required): Received Signal Strength Indicator.
+- **Success Response (200 OK)**:
+  ```json
+  {
+    "status": "success",
+    "message": "Successfully checked in.",
+    "data": {
+      "attendance_status": "early|on-time|late",
+      "xp_earned": 50,
+      "total_xp": 1500,
+      "level": 3,
+      "check_in_time": "2026-05-29 08:30:00"
+    }
+  }
+  ```
+- **Error Responses**:
+  - **403 Forbidden**: `Invalid beacon scanned for this classroom` (Beacon not assigned to room).
+  - **400 Bad Request**: `Signal too weak` (RSSI below threshold).
+  - **409 Conflict**: `You have already checked in.`
+  - **400 Bad Request**: `Invalid timestamp` (Attempting check-in after class end).
+
+### POST /student/check-in-qr
+- **Validation**:
+  - `timestamp` (string, required): Current Unix timestamp.
+  - `class_session_id` (integer, required): ID of the session.
+  - `token` (string, required): The dynamic QR token.
+- **Success Response (200 OK)**: Returns the same structure as BLE check-in.
+- **Note**: Arrival status defaults to `present` for QR check-ins currently.
+
+---
+
+## 3. Student Data & Records
+All endpoints require `Authorization: Bearer {token}` and `role:student`.
+
+### GET /student/profile
+- **Data Returned**: Complete User object with `gamificationProfile`, `badges`, and `programme`.
+- **Response Example**:
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "id": 1,
+      "name": "...",
+      "gamification_profile": {
+        "total_xp": 1000,
+        "total_points": 200,
+        "current_streak": 5,
+        "level": { "level": 2, "xp_required": 500 }
+      },
+      "badges": [
+        { "id": 1, "name": "Early Bird", "icon_path": "badges/early.png" }
+      ],
+      "programme": { "id": 1, "code": "DIT", "name": "Diploma in IT" }
+    }
+  }
+  ```
+
+### GET /student/schedule
+- **Data Returned**: List of upcoming and past class sessions filtered by student's lab assignments.
+- **Logic**: Returns sessions where (`lab_id` is NULL [Lecture]) OR (`lab_id` matches student's enrollment).
+- **Response Fields per Item**: `course`, `lab`, `lecturer`, `room`.
+
+### GET /student/attendance
+- **Data Returned**: Personal attendance history ordered by date.
+- **Includes**: `session.course`, `session.lecturer`, `session.room`.
+
+### GET /student/notifications
+- **Data Returned**: List of notifications for the student.
+
+### POST /student/notifications/{id}/read
+- **Purpose**: Mark a specific notification as read.
+- **Response (200 OK)**: `{"status": "success", "message": "Notification marked as read"}`
+
+### POST /student/notifications/mark-all-read
+- **Purpose**: Mark all unread notifications as read.
+- **Response (200 OK)**: `{"status": "success", "message": "All notifications marked as read"}`
+
+### GET /student/leaderboard
+- **Data Returned**: Top 10 students by XP.
+- **Includes**: `user.programme`, `level`.
+
+### GET /student/rewards
+- **Data Returned**: List of active rewards.
+- **Fields**: `id`, `name`, `cost_points`, `stock`.
+
+### POST /student/rewards/redeem
+- **Validation**: `reward_id` must exist.
+- **Logic**: Checks `total_points` and `stock`. Atomically decrements points/stock and creates a `Redemption` (status: pending).
+
+### GET /student/redemptions
+- **Purpose**: Get history and status of reward redemptions.
+- **Response (200 OK)**: List of redemption objects including reward details.
+
+### GET /student/leaves
+- **Data Returned**: History and status of submitted leave applications.
+- **Includes**: `class_session.course`, `reviewer` (Lecturer).
+
+### POST /student/leaves
+- **Purpose**: Submit a new leave application.
+- **Parameters**: `session_id`, `type`, `reason`, `document` (File).
+- **Response (201 Created)**: Returns the created LeaveApplication object.
+
+---
+
+## 4. Hardware Heartbeat
+
+### POST /beacon/heartbeat
+- **Validation**: `mac_address` (string, required).
+- **Function**: Updates `last_seen` timestamp for the beacon in the database and returns the current rotating UUID.
+- **Response (200 OK)**: `{"uuid": "550e8400-e29b-41d4-a716-446655440000"}`

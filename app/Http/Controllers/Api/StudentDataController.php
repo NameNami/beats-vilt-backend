@@ -169,6 +169,46 @@ class StudentDataController extends Controller
     }
 
     /**
+     * Return the student's redemption history.
+     */
+    public function getRedemptions(Request $request)
+    {
+        $redemptions = $request->user()->redemptions()
+            ->with('reward')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $redemptions
+        ], 200);
+    }
+
+    /**
+     * Mark a specific notification as read.
+     */
+    public function markNotificationAsRead(Request $request, Notification $notification)
+    {
+        if ($notification->user_id !== $request->user()->id) {
+            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
+        }
+
+        $notification->update(['is_read' => true]);
+
+        return response()->json(['status' => 'success', 'message' => 'Notification marked as read']);
+    }
+
+    /**
+     * Mark all notifications as read.
+     */
+    public function markAllNotificationsAsRead(Request $request)
+    {
+        $request->user()->appNotifications()->where('is_read', false)->update(['is_read' => true]);
+
+        return response()->json(['status' => 'success', 'message' => 'All notifications marked as read']);
+    }
+
+    /**
      * Return the student's notifications.
      */
     public function getNotifications(Request $request)
