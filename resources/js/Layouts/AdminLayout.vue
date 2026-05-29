@@ -16,7 +16,8 @@ import {
     Clock,
     Info,
     GraduationCap,
-    Briefcase
+    Briefcase,
+    Radio
 } from 'lucide-vue-next';
 
 // Grab the user globally from Inertia
@@ -157,6 +158,15 @@ onUnmounted(() => {
                 >
                     <Calendar class="w-5 h-5" />
                     Class Sessions
+                </Link>
+
+                <Link
+                    href="/admin/ble-devices"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                    :class="[ $page.url.startsWith('/admin/ble-devices') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
+                >
+                    <Radio class="w-5 h-5" />
+                    BLE Ecosystem
                 </Link>
 
                 <Link

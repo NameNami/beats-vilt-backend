@@ -34,10 +34,10 @@ class ClassSessionSeeder extends Seeder
             // 1. Generate LECTURES for each course
             foreach ($courses as $course) {
                 $lecturerId = $course->labs->first()?->lecturer_id ?? 1;
-                
+
                 // Try to find a slot on Monday (Day 0)
                 $slot = $this->findFreeSlot($lecturerSchedules, $lecturerId, $weekStart, 0);
-                
+
                 if ($slot) {
                     // Lectures: ~70% chance of being online
                     $mode = (rand(1, 100) <= 70) ? 'online' : 'physical';
@@ -83,7 +83,7 @@ class ClassSessionSeeder extends Seeder
         foreach ($possibleTimes as $time) {
             $start = $baseDate->copy()->setTimeFromTimeString($time['start']);
             $end = $baseDate->copy()->setTimeFromTimeString($time['end']);
-            
+
             if (!$this->isOccupied($schedules, $lecturerId, $start, $end)) {
                 return ['start' => $start, 'end' => $end];
             }
@@ -95,7 +95,7 @@ class ClassSessionSeeder extends Seeder
     private function isOccupied($schedules, $lecturerId, $start, $end)
     {
         if (!isset($schedules[$lecturerId])) return false;
-        
+
         $dateKey = $start->toDateString();
         if (!isset($schedules[$lecturerId][$dateKey])) return false;
 
