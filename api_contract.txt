@@ -1,15 +1,27 @@
 # BEATS Student App API Contract (Detailed)
 # Base URL: /api
-# Last Updated: May 29, 2026
+# Last Updated: May 31, 2026
+# General Headers: 
+#   Accept: application/json
+#   Content-Type: application/json (for POST/PUT requests)
+
+---
 
 ## 1. Authentication
 
 ### POST /student/login
-- **Purpose**: Authenticates student and creates a Sanctum session.
-- **Request Parameters**:
-  - `student_id` (string, required): Unique student identifier.
-  - `password` (string, required): Student password.
-  - `device.name` (string, optional): Name of the mobile device for token identification.
+- **Purpose**: Authenticates student and creates a Sanctum session token.
+- **Headers**: None required.
+- **Payload**:
+  ```json
+  {
+    "student_id": "52101324169",
+    "password": "secretpassword",
+    "device": {
+        "name": "iPhone 15 Pro"
+    }
+  }
+  ```
 - **Success Response (200 OK)**:
   ```json
   {
@@ -29,20 +41,52 @@
     }
   }
   ```
-- **Error Response (401 Unauthorized)**: `{"message": "Invalid credentials"}`
+- **Error Response (401 Unauthorized)**: 
+  ```json
+  {"message": "Invalid credentials"}
+  ```
+- **Error Response (422 Unprocessable Entity)**: Validation failed (e.g. missing fields).
 
 ### POST /student/logout
 - **Purpose**: Revokes the current access token.
 - **Headers**: `Authorization: Bearer {token}`
-- **Auth Requirement**: `auth:sanctum`, `role:student`
-- **Response (200 OK)**: `{"message": "Logged out"}`
+- **Payload**: None
+- **Success Response (200 OK)**: 
+  ```json
+  {"message": "Logged out"}
+  ```
 
 ### POST /student/forgot-password
 - **Purpose**: Sends a password reset link to the student's email.
-- **Request Parameters**:
-  - `email` (string, required): The student's email address.
-- **Response (200 OK)**: `{"message": "We have emailed your password reset link."}`
-- **Response (422 Unprocessable Content)**: `{"message": "We can't find a user with that email address."}`
+- **Headers**: None required.
+- **Payload**:
+  ```json
+  {
+    "email": "najmi@student.beats.namix.my"
+  }
+  ```
+- **Success Response (200 OK)**: 
+  ```json
+  {"message": "We have emailed your password reset link."}
+  ```
+- **Error Response (422 Unprocessable Entity)**: 
+  ```json
+  {"message": "We can't find a user with that email address."}
+  ```
+
+### GET /user
+- **Purpose**: Get current authenticated user basic details.
+- **Headers**: `Authorization: Bearer {token}`
+- **Success Response (200 OK)**:
+  ```json
+  {
+    "id": 1,
+    "name": "Muhammad Najmi",
+    "email": "najmi@student.beats.namix.my",
+    ...
+  }
+  ```
+- **Error Response (401 Unauthorized)**: Token is missing or invalid.
 
 ---
 
@@ -50,18 +94,24 @@
 All attendance endpoints require `Authorization: Bearer {token}` and `role:student`.
 
 ### POST /student/check-in-ble
-- **Validation**:
-  - `timestamp` (string, required): Current Unix timestamp.
-  - `class_session_id` (integer, required): ID of the session.
-  - `uuid` (string, required): Scanned Beacon UUID.
-  - `rssi` (integer, required): Received Signal Strength Indicator.
+- **Purpose**: Mark attendance using a BLE Beacon scan.
+- **Headers**: `Authorization: Bearer {token}`
+- **Payload**:
+  ```json
+  {
+    "timestamp": "1717140000",
+    "class_session_id": 12,
+    "uuid": "550e8400-e29b-41d4-a716-446655440000",
+    "rssi": -65
+  }
+  ```
 - **Success Response (200 OK)**:
   ```json
   {
     "status": "success",
     "message": "Successfully checked in.",
     "data": {
-      "attendance_status": "early|on-time|late",
+      "attendance_status": "on-time",
       "xp_earned": 50,
       "total_xp": 1500,
       "level": 3,
@@ -70,18 +120,26 @@ All attendance endpoints require `Authorization: Bearer {token}` and `role:stude
   }
   ```
 - **Error Responses**:
-  - **403 Forbidden**: `Invalid beacon scanned for this classroom` (Beacon not assigned to room).
-  - **400 Bad Request**: `Signal too weak` (RSSI below threshold).
-  - **409 Conflict**: `You have already checked in.`
-  - **400 Bad Request**: `Invalid timestamp` (Attempting check-in after class end).
+  - **403 Forbidden**: `{"status": "error", "message": "Invalid beacon scanned for this classroom"}`
+  - **400 Bad Request (Weak Signal)**: `{"status": "error", "message": "Signal too weak"}`
+  - **409 Conflict**: `{"status": "error", "message": "You have already checked in."}`
+  - **409 Conflict**: `{"status": "error", "message": "Class is cancelled"}`
+  - **400 Bad Request (Time)**: `{"status": "error", "message": "Invalid timestamp"}`
 
 ### POST /student/check-in-qr
-- **Validation**:
-  - `timestamp` (string, required): Current Unix timestamp.
-  - `class_session_id` (integer, required): ID of the session.
-  - `token` (string, required): The dynamic QR token.
+- **Purpose**: Mark attendance using a scanned dynamic QR token.
+- **Headers**: `Authorization: Bearer {token}`
+- **Payload**:
+  ```json
+  {
+    "timestamp": "1717140000",
+    "class_session_id": 12,
+    "token": "qr_token_abc123"
+  }
+  ```
 - **Success Response (200 OK)**: Returns the same structure as BLE check-in.
 - **Note**: Arrival status defaults to `present` for QR check-ins currently.
+- **Error Response (400 Bad Request)**: `{"status": "error", "message": "Invalid or expired QR token"}`
 
 ---
 
@@ -89,14 +147,15 @@ All attendance endpoints require `Authorization: Bearer {token}` and `role:stude
 All endpoints require `Authorization: Bearer {token}` and `role:student`.
 
 ### GET /student/profile
-- **Data Returned**: Complete User object with `gamificationProfile`, `badges`, and `programme`.
-- **Response Example**:
+- **Purpose**: Fetch complete user details including gamification stats.
+- **Headers**: `Authorization: Bearer {token}`
+- **Success Response (200 OK)**:
   ```json
   {
     "status": "success",
     "data": {
       "id": 1,
-      "name": "...",
+      "name": "Muhammad Najmi",
       "gamification_profile": {
         "total_xp": 1000,
         "total_points": 200,
@@ -104,63 +163,266 @@ All endpoints require `Authorization: Bearer {token}` and `role:student`.
         "level": { "level": 2, "xp_required": 500 }
       },
       "badges": [
-        { "id": 1, "name": "Early Bird", "icon_path": "badges/early.png" }
+        { "id": 1, "name": "Perfect Attendance", "icon_path": "badges/perfect.png" }
       ],
       "programme": { "id": 1, "code": "DIT", "name": "Diploma in IT" }
     }
   }
   ```
 
+### GET /student/courses
+- **Purpose**: Retrieve a list of courses the student is enrolled in.
+- **Headers**: `Authorization: Bearer {token}`
+- **Success Response (200 OK)**:
+  ```json
+  {
+    "status": "success",
+    "data": [
+      {
+        "id": 1,
+        "code": "SWE3012",
+        "name": "Software Engineering"
+      }
+    ]
+  }
+  ```
+
 ### GET /student/schedule
-- **Data Returned**: List of upcoming and past class sessions filtered by student's lab assignments.
-- **Logic**: Returns sessions where (`lab_id` is NULL [Lecture]) OR (`lab_id` matches student's enrollment).
-- **Response Fields per Item**: `course`, `lab`, `lecturer`, `room`.
+- **Purpose**: Fetch upcoming and past class sessions for the student.
+- **Headers**: `Authorization: Bearer {token}`
+- **Success Response (200 OK)**:
+  ```json
+  {
+    "status": "success",
+    "data": [
+      {
+        "id": 12,
+        "start_time": "2026-06-01 08:00:00",
+        "end_time": "2026-06-01 10:00:00",
+        "type": "lecture",
+        "course": { "code": "SWE3012", "name": "Software Engineering" },
+        "room": { "id": 3, "name": "DK 1" },
+        "lecturer": { "name": "Dr. Ali" }
+      }
+    ]
+  }
+  ```
 
 ### GET /student/attendance
-- **Data Returned**: Personal attendance history ordered by date.
-- **Includes**: `session.course`, `session.lecturer`, `session.room`.
+- **Purpose**: Fetch personal attendance history.
+- **Headers**: `Authorization: Bearer {token}`
+- **Success Response (200 OK)**:
+  ```json
+  {
+    "status": "success",
+    "data": [
+      {
+        "id": 145,
+        "session_id": 12,
+        "status": "on-time",
+        "check_in_time": "2026-05-25 07:55:00",
+        "session": {
+            "course": { "code": "SWE3012" }
+        }
+      }
+    ]
+  }
+  ```
 
 ### GET /student/notifications
-- **Data Returned**: List of notifications for the student.
+- **Purpose**: Retrieve student notifications.
+- **Headers**: `Authorization: Bearer {token}`
+- **Success Response (200 OK)**:
+  ```json
+  {
+    "status": "success",
+    "data": [
+      {
+        "id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+        "type": "App\\Notifications\\WarningNotification",
+        "data": { "message": "Your attendance is below 80%" },
+        "read_at": null,
+        "created_at": "2026-05-30T10:00:00.000000Z"
+      }
+    ]
+  }
+  ```
 
-### POST /student/notifications/{id}/read
+### POST /student/notifications/{notification}/read
 - **Purpose**: Mark a specific notification as read.
-- **Response (200 OK)**: `{"status": "success", "message": "Notification marked as read"}`
+- **Headers**: `Authorization: Bearer {token}`
+- **Payload**: None
+- **Success Response (200 OK)**: 
+  ```json
+  {"status": "success", "message": "Notification marked as read"}
+  ```
 
 ### POST /student/notifications/mark-all-read
 - **Purpose**: Mark all unread notifications as read.
-- **Response (200 OK)**: `{"status": "success", "message": "All notifications marked as read"}`
+- **Headers**: `Authorization: Bearer {token}`
+- **Payload**: None
+- **Success Response (200 OK)**: 
+  ```json
+  {"status": "success", "message": "All notifications marked as read"}
+  ```
 
 ### GET /student/leaderboard
-- **Data Returned**: Top 10 students by XP.
-- **Includes**: `user.programme`, `level`.
+- **Purpose**: Fetch top students by XP.
+- **Headers**: `Authorization: Bearer {token}`
+- **Success Response (200 OK)**:
+  ```json
+  {
+    "status": "success",
+    "data": [
+      {
+        "rank": 1,
+        "user": { "name": "Ahmad", "programme": { "code": "DIT" } },
+        "total_xp": 5000,
+        "level": { "level": 10 }
+      }
+    ]
+  }
+  ```
 
 ### GET /student/rewards
-- **Data Returned**: List of active rewards.
-- **Fields**: `id`, `name`, `cost_points`, `stock`.
+- **Purpose**: Fetch list of active rewards available for redemption.
+- **Headers**: `Authorization: Bearer {token}`
+- **Success Response (200 OK)**:
+  ```json
+  {
+    "status": "success",
+    "data": [
+      {
+        "id": 1,
+        "name": "Cafeteria Voucher RM5",
+        "cost_points": 500,
+        "stock": 20
+      }
+    ]
+  }
+  ```
 
 ### POST /student/rewards/redeem
-- **Validation**: `reward_id` must exist.
-- **Logic**: Checks `total_points` and `stock`. Atomically decrements points/stock and creates a `Redemption` (status: pending).
+- **Purpose**: Redeem a reward using points.
+- **Headers**: `Authorization: Bearer {token}`
+- **Payload**:
+  ```json
+  {
+    "reward_id": 1
+  }
+  ```
+- **Success Response (200 OK)**:
+  ```json
+  {
+    "status": "success",
+    "message": "Reward successfully redeemed."
+  }
+  ```
+- **Error Response (400 Bad Request)**: Insufficient points or Out of Stock.
 
 ### GET /student/redemptions
-- **Purpose**: Get history and status of reward redemptions.
-- **Response (200 OK)**: List of redemption objects including reward details.
+- **Purpose**: View history of redeemed rewards.
+- **Headers**: `Authorization: Bearer {token}`
+- **Success Response (200 OK)**:
+  ```json
+  {
+    "status": "success",
+    "data": [
+      {
+        "id": 1,
+        "reward": { "name": "Cafeteria Voucher RM5" },
+        "status": "pending",
+        "created_at": "2026-05-28T14:00:00.000000Z"
+      }
+    ]
+  }
+  ```
 
 ### GET /student/leaves
-- **Data Returned**: History and status of submitted leave applications.
-- **Includes**: `class_session.course`, `reviewer` (Lecturer).
+- **Purpose**: Get history of submitted leave applications.
+- **Headers**: `Authorization: Bearer {token}`
+- **Success Response (200 OK)**:
+  ```json
+  {
+    "status": "success",
+    "data": [
+      {
+        "id": 5,
+        "class_session": { "course": { "name": "Software Engineering" } },
+        "type": "medical",
+        "status": "approved",
+        "created_at": "2026-05-20T09:00:00.000000Z"
+      }
+    ]
+  }
+  ```
 
 ### POST /student/leaves
 - **Purpose**: Submit a new leave application.
-- **Parameters**: `session_id`, `type`, `reason`, `document` (File).
-- **Response (201 Created)**: Returns the created LeaveApplication object.
+- **Headers**: 
+  - `Authorization: Bearer {token}`
+  - `Content-Type: multipart/form-data`
+- **Payload**:
+  - `session_id` (integer, required)
+  - `type` (string, required): e.g., 'medical', 'emergency', 'other'
+  - `reason` (string, required)
+  - `document` (file, required): Image or PDF file
+- **Success Response (201 Created)**:
+  ```json
+  {
+    "status": "success",
+    "message": "Leave application submitted."
+  }
+  ```
 
 ---
 
-## 4. Hardware Heartbeat
+## 4. Hardware Heartbeat & Beacons
 
 ### POST /beacon/heartbeat
-- **Validation**: `mac_address` (string, required).
-- **Function**: Updates `last_seen` timestamp for the beacon in the database and returns the current rotating UUID.
-- **Response (200 OK)**: `{"uuid": "550e8400-e29b-41d4-a716-446655440000"}`
+- **Purpose**: Hardware endpoint for physical beacons to ping the server.
+- **Headers**: None required.
+- **Payload**:
+  ```json
+  {
+    "mac_address": "00:1B:44:11:3A:B7"
+  }
+  ```
+- **Success Response (200 OK)**:
+  ```json
+  {
+    "uuid": "550e8400-e29b-41d4-a716-446655440000"
+  }
+  ```
+
+### GET /student/rooms/{roomId}/beacons
+- **Purpose**: Retrieves a list of active beacons configured for a specific classroom. This confirms the app can retrieve multiple UUIDs for a room with overlapping beacon coverage.
+- **Headers**: `Authorization: Bearer {token}`
+- **URL Parameters**: `roomId` (integer, required)
+- **Success Response (200 OK)**:
+  ```json
+  {
+    "status": "success",
+    "data": [
+      {
+        "id": 1,
+        "uuid": "550e8400-e29b-41d4-a716-446655440001",
+        "mac_address": "00:1B:44:11:3A:B7",
+        "rssi_threshold": -70
+      },
+      {
+        "id": 2,
+        "uuid": "550e8400-e29b-41d4-a716-446655440002",
+        "mac_address": "00:1B:44:11:3A:B8",
+        "rssi_threshold": -65
+      }
+    ]
+  }
+  ```
+- **Error Response (404 Not Found)**:
+  ```json
+  {
+    "status": "error",
+    "message": "No active beacons found for this room"
+  }
+  ```
