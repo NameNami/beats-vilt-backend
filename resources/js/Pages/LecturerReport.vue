@@ -524,10 +524,10 @@ const updateLeaveStatus = (id, status) => {
                                     </td>
                                     <td class="px-6 py-4">
                                         <div class="w-32 h-2 flex rounded-full overflow-hidden bg-slate-100">
-                                            <div :style="{ width: (student.on_time / student.total * 100) + '%' }" class="bg-emerald-500 h-full"></div>
-                                            <div :style="{ width: (student.late / student.total * 100) + '%' }" class="bg-amber-500 h-full"></div>
-                                            <div :style="{ width: (student.absent / student.total * 100) + '%' }" class="bg-rose-500 h-full"></div>
-                                            <div :style="{ width: (student.leave / student.total * 100) + '%' }" class="bg-slate-400 h-full"></div>
+                                            <div :style="{ width: ((student.on_time / student.total) * 100) + '%' }" class="bg-emerald-500 h-full"></div>
+                                            <div :style="{ width: ((student.late / student.total) * 100) + '%' }" class="bg-amber-500 h-full"></div>
+                                            <div :style="{ width: ((student.absent / student.total) * 100) + '%' }" class="bg-rose-500 h-full"></div>
+                                            <div :style="{ width: ((student.leave / student.total) * 100) + '%' }" class="bg-slate-400 h-full"></div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 text-right">
