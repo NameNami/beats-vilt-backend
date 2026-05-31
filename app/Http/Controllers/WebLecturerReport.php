@@ -146,7 +146,7 @@ class WebLecturerReport extends Controller
                 $totalExpected += $expected;
 
                 $presentCount += AttendanceRecord::where('session_id', $session->id)
-                    ->whereIn('status', ["on-time", "late", "present"])
+                    ->whereIn('status', ["on-time", "late", "present", "leave"])
                     ->count();
             }
 
@@ -347,7 +347,7 @@ class WebLecturerReport extends Controller
                     ->where('user_id', $student->id)
                     ->get();
 
-                $present = $records->whereIn('status', ['on-time', 'late', 'present'])->count();
+                $present = $records->whereIn('status', ['on-time', 'late', 'present', 'leave'])->count();
                 $leave = $records->where('status', 'leave')->count();
                 $absent = $total - ($present + $leave);
                 
