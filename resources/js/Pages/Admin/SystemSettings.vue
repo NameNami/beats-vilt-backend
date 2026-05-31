@@ -22,11 +22,6 @@
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-bold text-slate-700">Early Check-In Window (Mins)</label>
-                            <p class="text-[11px] text-gray-500 mb-2 mt-1">Minutes before class a student can scan in.</p>
-                            <input type="number" v-model="form.early_window_minutes" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg shadow-sm focus:ring-amber-600 focus:border-amber-600">
-                        </div>
-                        <div>
                             <label class="block text-sm font-bold text-slate-700">Late Cutoff (Mins)</label>
                             <p class="text-[11px] text-gray-500 mb-2 mt-1">Minutes after start time to be marked Late.</p>
                             <input type="number" v-model="form.late_cutoff_minutes" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg shadow-sm focus:ring-amber-600 focus:border-amber-600">
@@ -72,7 +67,23 @@ const props = defineProps({
 });
 
 const form = useForm({
-    early_window_minutes: props.settings.early_window_minutes,
+    late_cutoff_minutes: props.settings.late_cutoff_minutes,
+    min_attendance_threshold: props.settings.min_attendance_threshold,
+    qr_refresh_seconds: props.settings.qr_refresh_seconds,
+});
+
+const submitSettings = () => {
+    form.post(route('admin.settings.update'), { preserveScroll: true });
+};
+</script>
+
+import { useForm } from '@inertiajs/vue3';
+
+const props = defineProps({
+    settings: Object
+});
+
+const form = useForm({
     late_cutoff_minutes: props.settings.late_cutoff_minutes,
     min_attendance_threshold: props.settings.min_attendance_threshold,
     qr_refresh_seconds: props.settings.qr_refresh_seconds,

@@ -53,7 +53,7 @@ class WebLecturerDashboardController extends Controller
             $totalExpected += $expectedCount;
 
             $presentStudentIds = AttendanceRecord::where('session_id', $session->id)
-                ->whereIn('status', ['early', 'on-time', 'late', 'present'])
+                ->whereIn('status', ['on-time', 'late', 'present'])
                 ->pluck('user_id')
                 ->toArray();
 
@@ -75,7 +75,7 @@ class WebLecturerDashboardController extends Controller
         $threshold = (float) SystemSetting::get('min_attendance_threshold', 80) / 100;
 
         // Sync at-risk calculation with WebAttendanceController logic
-        $atRiskStudentCount = 0;
+        $atRiskStudentIds = [];
 
         // Get courses for this lecturer
         $courses = Course::whereHas('enrollments', function ($query) use ($lecturerId) {
@@ -106,15 +106,17 @@ class WebLecturerDashboardController extends Controller
 
                 $presentPastCount = AttendanceRecord::whereIn('session_id', $studentPastSessionIds)
                     ->where('user_id', $student->id)
-                    ->whereIn('status', ['early', 'on-time', 'late', 'present'])
+                    ->whereIn('status', ['on-time', 'late', 'present'])
                     ->count();
 
                 $rate = $presentPastCount / $totalPastCount;
                 if ($rate < $threshold) {
-                    $atRiskStudentCount++;
+                    $atRiskStudentIds[] = $student->id;
                 }
             }
         }
+
+        $atRiskStudentCount = count(array_unique($atRiskStudentIds));
 
         // Fetch Today's Schedule
         $scheduleItems = ClassSession::with(['course', 'lab', 'room'])
