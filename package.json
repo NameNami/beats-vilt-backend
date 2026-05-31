@@ -24,7 +24,7 @@
         "@vitejs/plugin-vue": "^6.0.5",
         "@vueuse/core": "^14.3.0",
         "@vueuse/integrations": "^14.3.0",
-        "apexcharts": "^3.46.0",
+        "apexcharts": "^5.13.0",
         "dayjs": "^1.11.20",
         "flowbite": "^4.0.2",
         "flowbite-datepicker": "^2.0.0",
