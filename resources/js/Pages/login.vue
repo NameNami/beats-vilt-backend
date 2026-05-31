@@ -33,7 +33,7 @@ const submitLogin = () => {
 
                 <form @submit.prevent="submitLogin" class="space-y-6">
                     <div>
-                        <input class="block w-full border-1 border-gray-200 rounded-lg px-4 py-3 placeholder-gray-400" id="email" type="email" v-model="form.email" placeholder="email" required autofocus />
+                        <input class="block w-full border-1 border-gray-200 rounded-lg px-4 py-3 placeholder-gray-400 focus:ring-orange-500 focus:border-orange-500" id="email" type="email" v-model="form.email" placeholder="email" required autofocus />
                         <p v-if="form.errors.email" class="text-sm text-red-600 mt-1">{{form.errors.email}}</p>
                     </div>
 

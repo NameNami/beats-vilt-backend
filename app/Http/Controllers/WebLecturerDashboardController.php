@@ -53,7 +53,7 @@ class WebLecturerDashboardController extends Controller
             $totalExpected += $expectedCount;
 
             $presentStudentIds = AttendanceRecord::where('session_id', $session->id)
-                ->whereIn('status', ['on-time', 'late', 'present'])
+                ->whereIn('status', ['on-time', 'late', 'present', 'leave'])
                 ->pluck('user_id')
                 ->toArray();
 
@@ -106,7 +106,7 @@ class WebLecturerDashboardController extends Controller
 
                 $presentPastCount = AttendanceRecord::whereIn('session_id', $studentPastSessionIds)
                     ->where('user_id', $student->id)
-                    ->whereIn('status', ['on-time', 'late', 'present'])
+                    ->whereIn('status', ['on-time', 'late', 'present', 'leave'])
                     ->count();
 
                 $rate = $presentPastCount / $totalPastCount;
