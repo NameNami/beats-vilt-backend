@@ -349,7 +349,7 @@ class WebLecturerReport extends Controller
 
                 $present = $records->whereIn('status', ['on-time', 'late', 'present', 'leave'])->count();
                 $leave = $records->where('status', 'leave')->count();
-                $absent = $total - ($present + $leave);
+                $absent = $total - $present;
                 
                 // For breakdowns
                 $onTime = $records->whereIn('status', ['on-time', 'present'])->count();
@@ -387,7 +387,7 @@ class WebLecturerReport extends Controller
             }
         }
 
-        $grandTotal = $totalPresent + $totalAbsent + $totalLeave;
+        $grandTotal = $totalPresent + $totalAbsent;
         $avgAttendance = $grandTotal > 0 ? round(($totalPresent / $grandTotal) * 100, 1) : 0;
 
         return [
