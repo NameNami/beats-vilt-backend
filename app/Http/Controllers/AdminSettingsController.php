@@ -15,7 +15,6 @@ class AdminSettingsController extends Controller
 
         // Set defaults if the database is empty
         $defaultSettings = [
-            'early_window_minutes' => $settings['early_window_minutes'] ?? '15',
             'late_cutoff_minutes' => $settings['late_cutoff_minutes'] ?? '30',
             'min_attendance_threshold' => $settings['min_attendance_threshold'] ?? '80',
             'qr_refresh_seconds' => $settings['qr_refresh_seconds'] ?? '15',
@@ -27,7 +26,6 @@ class AdminSettingsController extends Controller
     public function update(Request $request)
     {
         $data = $request->validate([
-            'early_window_minutes' => 'required|numeric',
             'late_cutoff_minutes' => 'required|numeric',
             'min_attendance_threshold' => 'required|numeric',
             'qr_refresh_seconds' => 'required|numeric',

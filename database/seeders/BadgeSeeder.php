@@ -15,28 +15,12 @@ class BadgeSeeder extends Seeder
     {
         $badges = [
             [
-                'name'              => 'Early Bird',
-                'description'       => 'Check in early 5 times',
-                'icon_path'         => null,
-                'type'              => 'attendance',
-                'requirement_type'  => 'early_checkins',
-                'requirement_value' => 5,
-            ],
-            [
                 'name'              => 'Punctual Pro',
                 'description'       => 'Check in on time 10 times',
                 'icon_path'         => null,
                 'type'              => 'attendance',
                 'requirement_type'  => 'on_time_checkins',
                 'requirement_value' => 10,
-            ],
-            [
-                'name'              => 'Perfect Month',
-                'description'       => 'Attend all sessions in a month',
-                'icon_path'         => null,
-                'type'              => 'attendance',
-                'requirement_type'  => 'early_checkins',
-                'requirement_value' => 20,
             ],
 
             // Streak based

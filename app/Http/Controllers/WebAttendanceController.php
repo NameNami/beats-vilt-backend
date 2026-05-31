@@ -108,7 +108,7 @@ class WebAttendanceController extends Controller
 
                 $presentCount = AttendanceRecord::whereIn('session_id', $studentPastSessionIds)
                     ->where('user_id', $student->id)
-                    ->whereIn('status', ['early', 'on-time', 'late', 'present'])
+                    ->whereIn('status', ['on-time', 'late', 'present'])
                     ->count();
 
                 $rate = round(($presentCount / $totalPast) * 100, 1);
@@ -181,7 +181,7 @@ class WebAttendanceController extends Controller
             $rawStatus = $record ? $record->status : 'absent';
 
             // Normalize status for UI toggle
-            $uiStatus = in_array($rawStatus, ['early', 'on-time', 'late', 'present']) ? 'present' : $rawStatus;
+            $uiStatus = in_array($rawStatus, ['on-time', 'late', 'present']) ? 'present' : $rawStatus;
 
             // At-risk calculation for this student
             $studentEnrollment = CourseEnrollment::where('user_id', $student->id)
@@ -200,7 +200,7 @@ class WebAttendanceController extends Controller
             $totalPast = $studentPastSessionIds->count();
             $presentPast = AttendanceRecord::whereIn('session_id', $studentPastSessionIds)
                 ->where('user_id', $student->id)
-                ->whereIn('status', ['early', 'on-time', 'late', 'present'])
+                ->whereIn('status', ['on-time', 'late', 'present'])
                 ->count();
 
             $rate = $totalPast > 0 ? ($presentPast / $totalPast) : 1;

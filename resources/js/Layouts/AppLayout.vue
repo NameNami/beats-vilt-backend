@@ -24,6 +24,9 @@ const user = computed(() => page.props.auth?.user || {});
 const notifications = computed(() => page.props.notifications || []);
 const unreadCount = computed(() => page.props.unread_count || 0);
 
+// Semester Info calculation
+const semesterInfo = computed(() => page.props.semester_info || {});
+const currentWeek = computed(() => semesterInfo.value.current_week);
 const profilePhoto = computed(() => {
     if (user.value?.profile_photo_path) {
         return user.value.profile_photo_path.startsWith('http')
@@ -176,9 +179,12 @@ onUnmounted(() => {
 
             <header class="h-15  flex items-center justify-between px-8 border-b border-gray-200">
 
-                <div class="w-96">
-                    <div class="relative">
-
+                <div class="flex items-center gap-4">
+                    <div v-if="semesterInfo.name" class="flex items-center gap-2 py-1.5 rounded-lg">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tight leading-none mb-0.5"></span>
+                            <span class="text-xs font-bold text-slate-700 leading-none">{{ semesterInfo.name }} - Week {{ currentWeek }} <span class="text-slate-400 font-medium">/ {{ semesterInfo.total_weeks }}</span></span>
+                        </div>
                     </div>
                 </div>
 

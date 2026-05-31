@@ -101,23 +101,22 @@ const getLeaveTypeStyle = (type) => {
             <div>
 
                 <!-- Header Area -->
-                <div class="mb-8">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <h1 class="text-2xl font-semibold mb-2 text-gray-900">Leave Applications</h1>
-                    <p class="text-slate-500 text-sm font-medium mt-1">Review and manage student absence requests.</p>
                 </div>
 
                 <!-- Stats Section -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    <div class="bg-white border border-slate-200 rounded-xl p-4">
+                    <div class="bg-white border border-slate-300 rounded-xl p-4">
                         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Total</p>
                         <p class="text-2xl font-bold text-slate-900">{{ stats.total }}</p>
                     </div>
-                    <div class="bg-white border border-orange-200 rounded-xl p-4 flex flex-col justify-between relative overflow-hidden">
+                    <div class="bg-white border border-orange-300 rounded-xl p-4 flex flex-col justify-between relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-16 h-16 bg-orange-50 rounded-bl-full -z-10"></div>
                         <p class="text-xs font-semibold text-orange-600 uppercase tracking-wider mb-1">Pending</p>
                         <p class="text-2xl font-bold text-orange-700">{{ stats.pending }}</p>
                     </div>
-                    <div class="bg-white border border-emerald-200 rounded-xl p-4 flex flex-col justify-between relative overflow-hidden">
+                    <div class="bg-white border border-emerald-300 rounded-xl p-4 flex flex-col justify-between relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-16 h-16 bg-emerald-50 rounded-bl-full -z-10"></div>
                         <p class="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-1">Approved</p>
                         <p class="text-2xl font-bold text-emerald-700">{{ stats.approved }}</p>
@@ -130,7 +129,7 @@ const getLeaveTypeStyle = (type) => {
                 </div>
 
                 <!-- Filters Section -->
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 bg-white p-2 border border-slate-200 rounded-xl">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 bg-white p-2 border border-slate-300 rounded-xl">
 
                     <!-- Status Tabs -->
                     <div class="flex gap-1 overflow-x-auto w-full sm:w-auto">
@@ -196,7 +195,7 @@ const getLeaveTypeStyle = (type) => {
                 <div class="space-y-4">
 
                     <!-- Empty State -->
-                    <div v-if="filteredApplications.length === 0" class="text-center py-16 bg-white rounded-xl border border-slate-200 border-dashed">
+                    <div v-if="filteredApplications.length === 0" class="text-center py-16 bg-white rounded-xl border border-slate-300 border-dashed">
                         <div class="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3">
                             <Inbox class="w-6 h-6 text-slate-400" />
                         </div>

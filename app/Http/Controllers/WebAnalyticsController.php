@@ -30,11 +30,10 @@ class WebAnalyticsController extends Controller
         $sessionIds = ClassSession::whereIn('course_id', $courseIds)->pluck('id');
         $totalSessions = $sessionIds->count();
 
-        // 3. Arrival Breakdown (Early vs On-Time vs Late vs Absent)
+        // 3. Arrival Breakdown (On-Time vs Late vs Absent)
         $records = AttendanceRecord::whereIn('session_id', $sessionIds)->get();
 
         $arrivalStats = [
-            'Early' => $records->where('status', 'Early')->count(),
             'On-Time' => $records->where('status', 'On-Time')->count(),
             'Late' => $records->where('status', 'Late')->count(),
         ];

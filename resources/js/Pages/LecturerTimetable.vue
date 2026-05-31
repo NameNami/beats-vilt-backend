@@ -132,7 +132,6 @@ const navigateWeek = (direction) => {
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <h1 class="text-2xl font-semibold mb-2 text-gray-900">Timetable</h1>
-                        <p class="text-slate-500 text-sm font-medium mt-0.5">Manage your weekly schedule and classes.</p>
                     </div>
 
                     <div class="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">

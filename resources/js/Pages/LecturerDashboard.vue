@@ -83,7 +83,7 @@ const fetchSessionDetails = async (sessionId, excludeFromPendingId = null) => {
         // Map server data and handle pending state synchronization
         studentsList.value = response.data.students.map(serverStudent => {
             const localStudent = studentsList.value.find(s => s.id === serverStudent.id);
-            
+
             // If the student was pending locally
             if (localStudent && localStudent.isPending && serverStudent.id !== excludeFromPendingId) {
                 // If server now matches our optimistic status, we can stop being "pending"
@@ -93,7 +93,7 @@ const fetchSessionDetails = async (sessionId, excludeFromPendingId = null) => {
                 // Otherwise, keep the optimistic status and gray color
                 return { ...serverStudent, isPending: true, status: localStudent.status };
             }
-            
+
             return { ...serverStudent, isPending: false };
         });
 
@@ -212,11 +212,13 @@ onUnmounted(() => {
     </Head>
     <AppLayout>
         <div class="mb-6">
-            <h2 class="text-2xl font-semibold mb-2 text-gray-900">Overview</h2>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <h1 class="text-2xl font-semibold mb-2 text-gray-900">Overview</h1>
+            </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
 
-                <div class="bg-white rounded-xl border border-gray-200 p-4 flex flex-col justify-between">
+                <div class="bg-white rounded-xl border border-gray-300 p-4 flex flex-col justify-between">
                     <div>
                         <h3 class="text-slate-600 font-medium text-sm leading-snug mb-2">Overall<br>Attendance</h3>
                         <div class="flex items-baseline gap-2 mt-1">
@@ -227,7 +229,7 @@ onUnmounted(() => {
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl border border-gray-200 p-4 flex flex-col justify-between">
+                <div class="bg-white rounded-xl border border-gray-300 p-4 flex flex-col justify-between">
                     <div>
                         <h3 class="text-slate-600 font-medium text-sm leading-snug mb-2">Classes<br>Today</h3>
                         <span class="text-3xl leading-none font-bold text-slate-900">{{ classTodayCount }}</span>
@@ -237,7 +239,7 @@ onUnmounted(() => {
                     </p>
                 </div>
 
-                <div class="bg-white rounded-xl border border-gray-200 p-4 flex flex-col justify-between">
+                <div class="bg-white rounded-xl border border-gray-300 p-4 flex flex-col justify-between">
                     <div>
                         <h3 class="text-slate-600 font-medium text-sm leading-snug mb-2">Pending<br>Leaves</h3>
                         <span class="text-3xl leading-none font-bold text-slate-900">{{ pendingLeaveCount }}</span>
@@ -247,7 +249,7 @@ onUnmounted(() => {
                     </Link>
                 </div>
 
-                <div class="bg-white rounded-xl border border-rose-200 p-4 flex flex-col justify-between">
+                <div class="bg-white rounded-xl border border-rose-400 p-4 flex flex-col justify-between">
                     <div>
                         <h3 class="text-rose-800 font-medium text-sm leading-snug mb-2">At-Risk<br>Students</h3>
                         <span class="text-3xl leading-none font-bold text-rose-800">{{ atRiskStudentCount }}</span>
@@ -269,7 +271,7 @@ onUnmounted(() => {
                         v-for="item in scheduleItems"
                         :key="item.id"
                         class="flex flex-col md:flex-row md:items-center justify-between p-5 rounded-xl border transition-all"
-                        :class="item.status === 'ongoing' ? 'border-orange-500 bg-white shadow-sm' : (item.status === 'cancelled' ? 'border-gray-200 bg-gray-50 opacity-75' : 'border-gray-200 bg-white')"
+                        :class="item.status === 'ongoing' ? 'border-orange-500 bg-white shadow-sm' : (item.status === 'cancelled' ? 'border-gray-300 bg-gray-50 opacity-75' : 'border-gray-300 bg-white')"
                     >
                         <div class="flex items-center gap-5">
                             <div

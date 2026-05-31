@@ -146,7 +146,7 @@ class WebLecturerReport extends Controller
                 $totalExpected += $expected;
 
                 $presentCount += AttendanceRecord::where('session_id', $session->id)
-                    ->whereIn('status', ["early", "on-time", "late", "present"])
+                    ->whereIn('status', ["on-time", "late", "present"])
                     ->count();
             }
 
@@ -217,7 +217,7 @@ class WebLecturerReport extends Controller
 
         $callback = function() use ($students) {
             $file = fopen('php://output', 'w');
-            fputcsv($file, ['Student ID', 'Name', 'Programme', 'Course', 'Early', 'On-Time', 'Late', 'Absent', 'Leave', 'Total Sessions', 'Rate (%)', 'Status']);
+            fputcsv($file, ['Student ID', 'Name', 'Programme', 'Course', 'On-Time', 'Late', 'Absent', 'Leave', 'Total Sessions', 'Rate (%)', 'Status']);
 
             foreach ($students as $student) {
                 fputcsv($file, [
@@ -225,7 +225,6 @@ class WebLecturerReport extends Controller
                     $student['name'],
                     $student['programme'],
                     $student['course_code'],
-                    $student['early'],
                     $student['on_time'],
                     $student['late'],
                     $student['absent'],
@@ -316,7 +315,6 @@ class WebLecturerReport extends Controller
         $totalPresent = 0;
         $totalAbsent = 0;
         $totalLeave = 0;
-        $totalEarly = 0;
         $totalOnTime = 0;
         $totalLate = 0;
 
@@ -349,19 +347,17 @@ class WebLecturerReport extends Controller
                     ->where('user_id', $student->id)
                     ->get();
 
-                $present = $records->whereIn('status', ['early', 'on-time', 'late', 'present'])->count();
+                $present = $records->whereIn('status', ['on-time', 'late', 'present'])->count();
                 $leave = $records->where('status', 'leave')->count();
                 $absent = $total - ($present + $leave);
                 
                 // For breakdowns
-                $early = $records->where('status', 'early')->count();
                 $onTime = $records->whereIn('status', ['on-time', 'present'])->count();
                 $late = $records->where('status', 'late')->count();
 
                 $totalPresent += $present;
                 $totalAbsent += $absent;
                 $totalLeave += $leave;
-                $totalEarly += $early;
                 $totalOnTime += $onTime;
                 $totalLate += $late;
 
@@ -377,7 +373,6 @@ class WebLecturerReport extends Controller
                     'present' => $present,
                     'absent' => $absent,
                     'leave' => $leave,
-                    'early' => $early,
                     'on_time' => $onTime,
                     'late' => $late,
                     'total' => $total,
@@ -401,7 +396,6 @@ class WebLecturerReport extends Controller
                 'totalStudents' => $students->count(),
                 'atRiskCount' => count($atRiskStudents),
                 'breakdown' => [
-                    'early' => $totalEarly,
                     'onTime' => $totalOnTime,
                     'late' => $totalLate,
                     'absent' => $totalAbsent,

@@ -2,6 +2,8 @@ import { createApp, h } from 'vue'
 import { createInertiaApp } from '@inertiajs/vue3'
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
 import { ZiggyVue, route } from 'ziggy-js';
+import 'flowbite';
+import VueApexCharts from "vue3-apexcharts";
 
 window.route = route;
 
@@ -22,6 +24,7 @@ createInertiaApp({
         createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)
+            .use(VueApexCharts)
             // .component('font-awesome-icon', FontAwesomeIcon)
             .mount(el)
     },

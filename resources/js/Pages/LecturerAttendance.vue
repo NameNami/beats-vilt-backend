@@ -34,7 +34,8 @@ const props = defineProps({
 });
 
 // --- State ---
-const expandedClassId = ref(props.courses.length > 0 ? props.courses[0].id : null);
+const activeTab = ref('at-risk');
+const expandedClassId = ref(null);
 const subjectFilter = ref('all');
 const atRiskSearchQuery = ref('');
 const isSubjectDropdownOpen = ref(false);
@@ -80,11 +81,11 @@ const filteredAtRiskStudents = computed(() => {
 
     // 1. Filter by subject (Only show if at risk in THIS subject)
     if (subjectFilter.value !== 'all') {
-        result = result.filter(s => 
-            s.courses.hasOwnProperty(subjectFilter.value) && 
+        result = result.filter(s =>
+            s.courses.hasOwnProperty(subjectFilter.value) &&
             s.courses[subjectFilter.value] < props.threshold
         );
-        
+
         // When filtered by subject, sort by that specific subject's rate (lowest first)
         result.sort((a, b) => a.courses[subjectFilter.value] - b.courses[subjectFilter.value]);
     } else {
@@ -292,10 +293,8 @@ onUnmounted(() => {
             <div class="w-full">
 
                 <!-- Global Header -->
-                <div class="flex items-center gap-4 mb-8">
-                    <div>
-                        <h1 class="text-2xl font-semibold mb-2 text-gray-900">Attendance Portal</h1>
-                    </div>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <h1 class="text-2xl font-semibold mb-2 text-gray-900">Attendance</h1>
                 </div>
 
                 <!-- Main Dashboard -->
@@ -303,35 +302,51 @@ onUnmounted(() => {
 
                     <!-- Stats Row -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="bg-white p-6 rounded-2xl border border-slate-300">
                             <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">My Classes</p>
                             <p class="text-3xl font-bold text-slate-900">{{ courses.length }}</p>
                         </div>
 
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="bg-white p-6 rounded-2xl border border-slate-300">
                             <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Students</p>
                             <p class="text-3xl font-bold text-slate-900">{{ totalUniqueStudents }}</p>
                         </div>
 
-                        <div class="bg-white p-6 rounded-2xl border border-orange-200 relative overflow-hidden shadow-sm">
+                        <div class="bg-white p-6 rounded-2xl border border-rose-400 relative overflow-hidden">
                             <div class="absolute top-0 right-0 w-24 h-24 bg-orange-50 rounded-bl-full -z-10"></div>
                             <p class="text-xs font-semibold text-orange-600 uppercase tracking-wider mb-1">Total At-Risk</p>
                             <p class="text-3xl font-bold text-orange-700">{{ atRiskCount }}</p>
                         </div>
                     </div>
 
+                    <!-- Tab Switcher -->
+                    <div class="inline-flex p-1 bg-white border border-orange-500 rounded-full overflow-hidden">
+                        <button
+                            @click="activeTab = 'schedules'"
+                            class="px-6 py-2 rounded-full text-xs font-bold transition-all cursor-pointer"
+                            :class="activeTab === 'schedules' ? 'bg-orange-500 text-white' : 'text-orange-500 hover:bg-orange-50'"
+                        >
+                            Course Schedules
+                        </button>
+                        <button
+                            @click="activeTab = 'at-risk'"
+                            class="px-6 py-2 rounded-full text-xs font-bold transition-all cursor-pointer"
+                            :class="activeTab === 'at-risk' ? 'bg-orange-500 text-white' : 'text-orange-500 hover:bg-orange-50'"
+                        >
+                            At-Risk Students
+                        </button>
+                    </div>
+
+
+
                     <!-- At-Risk Matrix Section -->
-                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                    <div v-show="activeTab === 'at-risk'" class="bg-white rounded-2xl border border-slate-300 overflow-hidden  animate-in fade-in duration-500">
                         <!-- Merged Header & Filters -->
                         <div class="p-5 border-b border-slate-100 bg-white">
                             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center shrink-0">
-                                        <AlertTriangle class="w-5 h-5 text-rose-600" />
-                                    </div>
                                     <div>
-                                        <h2 class="text-sm font-bold text-slate-800 leading-tight">Students at Risk (Below {{ threshold }}%)</h2>
-                                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Total unique: {{ atRiskCount }}</p>
+                                        <h2 class="text-sm font-bold text-slate-800 leading-tight">Below {{ threshold }}%</h2>
                                     </div>
                                 </div>
 
@@ -351,7 +366,7 @@ onUnmounted(() => {
                                     <div class="relative w-full sm:w-auto" ref="subjectDropdownRef">
                                         <button
                                             @click="isSubjectDropdownOpen = !isSubjectDropdownOpen"
-                                            class="w-full sm:w-48 inline-flex items-center justify-between text-white bg-orange-500 hover:bg-orange-600 focus:ring-4 focus:ring-orange-500/20 shadow-sm font-bold rounded-xl text-[11px] px-4 py-2 transition-all outline-none cursor-pointer"
+                                            class="w-full sm:w-auto inline-flex items-center justify-between text-white bg-orange-500 hover:bg-orange-600 focus:ring-4 focus:ring-orange-500/20 font-medium rounded-xl text-sm px-5 py-2 transition-all outline-none cursor-pointer"
                                             type="button"
                                         >
                                             <div class="flex items-center gap-2">
@@ -362,21 +377,21 @@ onUnmounted(() => {
                                         </button>
 
                                         <div v-if="isSubjectDropdownOpen" class="absolute right-0 top-full mt-2 z-30 bg-white border border-slate-200 rounded-xl shadow-xl w-64 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
-                                            <ul class="p-1.5 text-xs text-slate-700 font-medium max-h-60 overflow-y-auto space-y-1">
+                                            <ul class="p-1.5 text-sm text-slate-700 font-medium max-h-60 overflow-y-auto space-y-1">
                                                 <li>
                                                     <button @click="subjectFilter = 'all'; isSubjectDropdownOpen = false"
-                                                        class="flex items-center justify-between w-full p-2 hover:bg-orange-50 hover:text-orange-700 rounded-lg transition-colors text-left cursor-pointer"
+                                                        class="flex items-center w-full p-2.5 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors text-left cursor-pointer"
                                                         :class="{'text-orange-600 bg-orange-50/50': subjectFilter === 'all'}">
                                                         <span>All Subjects</span>
-                                                        <span class="text-[10px] font-bold bg-slate-100 px-1.5 py-0.5 rounded">{{ atRiskCount }}</span>
+                                                        <span class="text-[10px] font-medium bg-slate-100 px-1.5 py-0.5 rounded">{{ atRiskCount }}</span>
                                                     </button>
                                                 </li>
                                                 <li v-for="subject in uniqueSubjects" :key="subject.code">
                                                     <button @click="subjectFilter = subject.code; isSubjectDropdownOpen = false"
-                                                        class="flex items-center justify-between w-full p-2 hover:bg-orange-50 hover:text-orange-700 rounded-lg transition-colors text-left cursor-pointer"
+                                                        class="flex items-center w-full p-2.5 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors text-left cursor-pointer"
                                                         :class="{'text-orange-600 bg-orange-50/50': subjectFilter === subject.code}">
-                                                        <span class="truncate pr-4 font-bold">{{ subject.name }}</span>
-                                                        <span class="text-[10px] font-bold bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded">{{ subject.risk_count }}</span>
+                                                        <span class="truncate pr-4 font-medium">{{ subject.name }}</span>
+                                                        <span class="text-[10px] font-medium bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded">{{ subject.risk_count }}</span>
                                                     </button>
                                                 </li>
                                             </ul>
@@ -391,26 +406,24 @@ onUnmounted(() => {
                             <table class="w-full text-left border-collapse min-w-[800px]">
                                 <thead>
                                     <tr class="bg-slate-50/50">
-                                        <th class="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest sticky left-0 bg-slate-50/50 z-10 border-b border-slate-100">Student Info</th>
-                                        <th v-for="subject in uniqueSubjects" :key="'head-'+subject.code" 
-                                            class="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center border-b border-slate-100 whitespace-nowrap">
+                                        <th class="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest sticky left-0 bg-slate-50 z-10 border-b border-slate-100">Student Info</th>
+                                        <th v-for="subject in uniqueSubjects" :key="'head-'+subject.code"
+                                            class="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center border-b border-slate-100 whitespace-nowrap">
                                             {{ subject.name }}
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
                                     <tr v-if="filteredAtRiskStudents.length === 0">
-                                        <td :colspan="uniqueSubjects.length + 1" class="px-6 py-12 text-center text-slate-400">
+                                        <td :colspan="uniqueSubjects.length + 1" class="px-3 py-9 text-center text-slate-400">
                                             <Inbox class="w-12 h-12 opacity-10 mx-auto mb-4" />
                                             <p class="text-xs font-bold uppercase tracking-widest">No students match your filters</p>
                                         </td>
                                     </tr>
                                     <tr v-else v-for="student in filteredAtRiskStudents" :key="student.id" class="hover:bg-slate-50 transition-colors group">
-                                        <td class="px-6 py-3 sticky left-0 bg-white group-hover:bg-slate-50 z-10 border-r border-slate-50 shadow-[4px_0_10px_-4px_rgba(0,0,0,0.05)]">
+                                        <td class="px-6 py-3 sticky left-0 bg-white group-hover:bg-slate-50 z-10 border-r border-slate-50 shadow-[4px_0_10px_-4px_rgba(0,0,0,0.05)] w-64">
                                             <div class="flex items-center gap-3">
-                                                <div :class="['w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold', student.min_rate < 50 ? 'bg-rose-100 text-rose-700' : 'bg-orange-100 text-orange-700']">
-                                                    {{ student.name.charAt(0) }}
-                                                </div>
+
                                                 <div>
                                                     <p class="text-xs font-bold text-slate-800 leading-tight">{{ student.name }}</p>
                                                     <p class="text-[10px] text-slate-500 font-medium">{{ student.student_id }}</p>
@@ -418,8 +431,7 @@ onUnmounted(() => {
                                             </div>
                                         </td>
                                         <td v-for="subject in uniqueSubjects" :key="'cell-'+student.id+'-'+subject.code" class="px-6 py-3 text-center">
-                                            <!-- Fix falsy 0 bug by checking property existence -->
-                                            <span v-if="student.courses.hasOwnProperty(subject.code) && student.courses[subject.code] < threshold" 
+                                            <span v-if="student.courses.hasOwnProperty(subject.code) && student.courses[subject.code] < threshold"
                                                 class="text-xs font-bold text-rose-600">
                                                 {{ student.courses[subject.code] }}%
                                             </span>
@@ -432,20 +444,37 @@ onUnmounted(() => {
                     </div>
 
                     <!-- Classes Accordion List -->
-                    <div>
-                        <h2 class="text-lg font-bold text-slate-900 mb-4">Course Schedules</h2>
-                        <div class="space-y-4">
+                    <div v-show="activeTab === 'schedules'" class="animate-in fade-in duration-500">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+
+                            <!-- Status Legend -->
+                            <div class="flex items-center gap-4 px-1">
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.4)]"></div>
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">On Going</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Upcoming</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Passed</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
                             <div
                                 v-for="course in courses"
                                 :key="course.id"
-                                class="bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all"
+                                class="bg-white border border-slate-300 rounded-xl overflow-hidden transition-all"
                             >
                                 <!-- Accordion Header -->
                                 <div
                                     @click="toggleClass(course.id)"
-                                    class="p-5 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors select-none"
+                                    class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors select-none"
                                 >
-                                    <div class="flex items-center gap-4">
+                                    <div class="flex items-center gap-3.5">
                                         <div>
                                             <div class="flex items-center gap-2 mb-0.5">
                                                 <span class="px-2 py-0.5 bg-slate-100 text-slate-700 text-xs font-bold rounded">
@@ -468,7 +497,7 @@ onUnmounted(() => {
                                 </div>
 
                                 <!-- Accordion Body (Sessions) -->
-                                <div v-if="expandedClassId === course.id" class="border-t border-slate-100 bg-slate-50/50 p-6 space-y-8">
+                                <div v-if="expandedClassId === course.id" class="border-t border-slate-100 bg-slate-50/50 p-5 space-y-5">
                                     <p v-if="getSessionsByLab(course.id).length === 0" class="text-sm text-slate-500 text-center py-4 font-medium">
                                         No sessions scheduled.
                                     </p>
@@ -477,44 +506,48 @@ onUnmounted(() => {
                                             <div class="h-4 w-1 bg-orange-500 rounded-full"></div>
                                             <h4 class="text-xs font-bold text-slate-800 uppercase tracking-widest">{{ labGroup.name }}</h4>
                                         </div>
-                                        <div class="flex overflow-x-auto gap-4 pb-2 snap-x snap-mandatory hide-scrollbar">
+                                        <div class="flex overflow-x-auto gap-3 pb-4 snap-x snap-mandatory hide-scrollbar">
                                             <div
                                                 v-for="session in labGroup.sessions"
                                                 :key="session.id"
                                                 @click="openAttendanceWindow(session)"
-                                                class="w-44 h-33 shrink-0 snap-start flex flex-col p-4 bg-white border rounded-2xl transition-all duration-200 hover:shadow-md cursor-pointer select-none group"
+                                                class="w-40 p-3.5 bg-white border rounded-2xl  hover:shadow-md transition-all cursor-pointer select-none flex flex-col gap-2.5 shrink-0 snap-start group"
                                                 :class="[
-                                                    session.status === 'completed'
-                                                        ? 'border-rose-100 bg-rose-50/5 hover:border-rose-300'
-                                                        : session.status === 'active'
-                                                        ? 'border-orange-400 bg-orange-50/5 hover:border-orange-400 ring-1 ring-orange-100 shadow-sm shadow-orange-500/10'
-                                                        : session.status === 'upcoming'
-                                                        ? 'border-blue-100 hover:border-blue-400'
-                                                        : 'border-slate-100 opacity-60 grayscale hover:opacity-100 hover:grayscale-0'
+                                                    session.status === 'completed' ? 'border-red-500 opacity-75 hover:opacity-100' :
+                                                    session.status === 'active' ? 'border-orange-500 ring-1 ring-orange-100  shadow-orange-500/10' :
+                                                    session.status === 'upcoming' ? 'border-blue-500' :
+                                                    'border-slate-100 opacity-60 grayscale hover:opacity-100 hover:grayscale-0'
                                                 ]"
                                             >
-                                                <!-- Top Status -->
-                                                <div class="flex justify-between items-start mb-auto">
-                                                    <span :class="[
-                                                        'text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded',
-                                                        session.status === 'completed' ? 'bg-rose-100 text-rose-600' :
-                                                        session.status === 'active' ? 'bg-orange-400 text-white' :
-                                                        session.status === 'upcoming' ? 'bg-blue-100 text-blue-600' :
-                                                        'bg-slate-200 text-slate-600'
-                                                    ]">
-                                                        {{ session.status === 'active' ? 'On Going' : (session.status === 'completed' ? 'Passed' : session.status) }}
-                                                    </span>
-                                                    <span class="text-[10px] font-bold text-slate-800 uppercase tracking-tighter">
+                                                <!-- Header: Week Only -->
+                                                <div class="flex justify-end items-start">
+                                                    <span class="text-[10px] font-bold text-gray-500">
                                                         W{{ session.week }}
                                                     </span>
                                                 </div>
 
-                                                <!-- Middle: Date -->
-                                                <div class="flex-1 flex flex-col items-center justify-center text-center">
-                                                    <p class="text-sm font-bold text-slate-800 leading-tight">{{ session.date }}</p>
-                                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5xzc">{{ session.day }}</p>
-                                                    <p class="text-[10px] font-bold text-slate-800 uppercase tracking-widest mt-0.5xzc">{{ session.time }}</p>
-                                                    <p class="text-[10px] font-bold text-slate-800 uppercase tracking-widest mt-0.5xzc">{{ session.location }}</p>
+                                                <!-- Main Content: Date & Day -->
+                                                <div class="flex flex-col mt-0.5">
+                                                    <h3 class="text-base font-extrabold text-gray-900 tracking-tight leading-tight">
+                                                        {{ session.date }}
+                                                    </h3>
+                                                    <span class="text-[9px] font-semibold text-gray-400 uppercase tracking-widest mt-0.5">
+                                                        {{ session.day }}
+                                                    </span>
+                                                </div>
+
+                                                <!-- Footer: Time & Location -->
+                                                <div class="flex flex-col gap-2 pt-2.5 border-t border-gray-100 mt-auto">
+                                                    <!-- Time -->
+                                                    <div class="flex items-center text-[10px] font-medium text-gray-600 gap-2">
+                                                        <Clock class="h-3 w-3 text-gray-400" />
+                                                        {{ session.time }}
+                                                    </div>
+                                                    <!-- Location -->
+                                                    <div class="flex items-center text-[10px] font-medium text-gray-600 gap-2">
+                                                        <MapPin class="h-3 w-3 text-gray-400" />
+                                                        <span class="truncate">{{ session.location || 'N/A' }}</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -615,12 +648,12 @@ onUnmounted(() => {
                                 <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-20 gap-4">
                                     <!-- Search Box -->
                                     <div class="relative flex-1">
-                                        <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                        <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                                         <input
                                             v-model="searchQuery"
                                             type="text"
                                             placeholder="Search student name or ID..."
-                                            class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                                            class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
                                         >
                                     </div>
 
@@ -629,7 +662,7 @@ onUnmounted(() => {
                                         <button
                                             @click="handleMarkAllPresent"
                                             :disabled="isProcessing"
-                                            class="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-[10px] font-bold uppercase transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
+                                            class="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-[10px] font-bold uppercase transition-all  active:scale-95 disabled:opacity-50 cursor-pointer"
                                         >
                                             <CheckCircle2 class="w-4 h-4" />
                                             Mark All Present
@@ -672,7 +705,7 @@ onUnmounted(() => {
                                         <div class="relative bg-slate-100 p-1 rounded-lg flex items-center w-[240px] h-11 overflow-hidden">
                                             <!-- Sliding Indicator -->
                                             <div
-                                                class="absolute h-9 rounded-md transition-all duration-300 ease-in-out shadow-sm"
+                                                class="absolute h-9 rounded-md transition-all duration-300 ease-in-out "
                                                 :class="[
                                                     student.isPending ? 'bg-slate-400' : (
                                                         student.status === 'present' ? 'bg-emerald-500' :

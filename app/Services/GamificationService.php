@@ -114,10 +114,6 @@ class GamificationService
             $shouldAward = false;
 
             switch ($badge->requirement_type) {
-                case 'early_checkins':
-                    $count = AttendanceRecord::where('user_id', $user->id)->where('status', 'early')->count();
-                    if ($count >= $badge->requirement_value) $shouldAward = true;
-                    break;
                 case 'on_time_checkins':
                     $count = AttendanceRecord::where('user_id', $user->id)->where('status', 'on-time')->count();
                     if ($count >= $badge->requirement_value) $shouldAward = true;

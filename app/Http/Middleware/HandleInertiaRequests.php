@@ -40,6 +40,24 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'semester_info' => [
+                'name' => \App\Models\SystemSetting::get('semester'),
+                'start_date' => $startDate = \App\Models\SystemSetting::get('semester_start_date'),
+                'total_weeks' => (int) ($totalWeeks = \App\Models\SystemSetting::get('semester_total_weeks', 14)),
+                'current_week' => (function() use ($startDate, $totalWeeks) {
+                    if (!$startDate) return null;
+                    $start = \Carbon\Carbon::parse($startDate)->startOfDay();
+                    $now = \Carbon\Carbon::now()->startOfDay();
+                    
+                    if ($now->lt($start)) return 1;
+                    
+                    // Use start of week for consistency with timetable
+                    $startOfCurrentWeek = $now->copy()->startOfWeek(\Carbon\Carbon::MONDAY);
+                    $week = (int) $start->diffInWeeks($startOfCurrentWeek) + 1;
+                    
+                    return min($week, (int) $totalWeeks);
+                })(),
+            ],
             'notifications' => $request->user() ? $request->user()->appNotifications()->latest()->take(10)->get() : [],
             'unread_count' => $request->user() ? $request->user()->appNotifications()->where('is_read', false)->count() : 0,
             'flash' => [
