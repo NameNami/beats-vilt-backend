@@ -76,20 +76,3 @@ const submitSettings = () => {
     form.post(route('admin.settings.update'), { preserveScroll: true });
 };
 </script>
-
-import { useForm } from '@inertiajs/vue3';
-
-const props = defineProps({
-    settings: Object
-});
-
-const form = useForm({
-    late_cutoff_minutes: props.settings.late_cutoff_minutes,
-    min_attendance_threshold: props.settings.min_attendance_threshold,
-    qr_refresh_seconds: props.settings.qr_refresh_seconds,
-});
-
-const submitSettings = () => {
-    form.post(route('admin.settings.update'), { preserveScroll: true });
-};
-</script>
