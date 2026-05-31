@@ -274,4 +274,27 @@ class StudentDataController extends Controller
             'data' => $schedule
         ], 200);
     }
+
+    /**
+     * Retrieve the active beacons for a specific room.
+     */
+    public function getRoomBeacons($roomId)
+    {
+        $beacons = \App\Models\Beacon::where('room_id', $roomId)
+            ->where('status', 'online')
+            ->select('id', 'uuid', 'mac_address', 'rssi_threshold')
+            ->get();
+
+        if ($beacons->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No active beacons found for this room'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $beacons
+        ], 200);
+    }
 }

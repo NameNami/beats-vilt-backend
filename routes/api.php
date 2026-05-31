@@ -46,6 +46,9 @@ Route::middleware(['auth:sanctum', CheckRoleApi::class.':student'])->group(funct
 
 
     Route::post('/student/leaves', [StudentDataController::class, 'submitLeave'])->name('api.student.leaves.submit');
+    
+    // Beacons
+    Route::get('/student/rooms/{roomId}/beacons', [StudentDataController::class, 'getRoomBeacons'])->name('api.student.room.beacons');
 });
 
 
