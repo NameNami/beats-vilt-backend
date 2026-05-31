@@ -280,7 +280,7 @@ class StudentDataController extends Controller
      */
     public function getRoomBeacons($roomId)
     {
-        $beacons = \App\Models\Beacon::where('room_id', $roomId)
+        $beacons = Beacon::where('room_id', $roomId)
             ->where('status', 'online')
             ->select('id', 'uuid', 'mac_address', 'rssi_threshold')
             ->get();
