@@ -542,12 +542,396 @@ All endpoints require `Authorization: Bearer {token}` and `role:student`.
   {
     "status": "success",
     "data": [
-      {
-        "rank": 1,
-        "user": { "name": "Ahmad", "programme": { "code": "DIT" } },
-        "total_xp": 5000,
-        "level": { "level": 10 }
-      }
+        {
+            "id": 31,
+            "user_id": 31,
+            "level_id": 9,
+            "total_xp": 4325,
+            "total_points": 4325,
+            "current_streak": 3,
+            "created_at": "2026-05-31T06:05:33.000000Z",
+            "updated_at": "2026-05-31T06:05:33.000000Z",
+            "user": {
+                "id": 31,
+                "programme_id": 2,
+                "name": "Anis Farhana",
+                "username": "anis",
+                "email": "anis@student.beats.namix.my",
+                "student_id": "52101324208",
+                "role": "student",
+                "profile_photo_path": null,
+                "is_active": true,
+                "email_verified_at": null,
+                "created_at": "2026-05-31T06:02:44.000000Z",
+                "updated_at": "2026-05-31T06:02:44.000000Z",
+                "deleted_at": null,
+                "programme": {
+                    "id": 2,
+                    "code": "DIM",
+                    "name": "Diploma in Multimedia",
+                    "created_at": "2026-05-31T06:02:24.000000Z",
+                    "updated_at": "2026-05-31T06:02:24.000000Z"
+                }
+            },
+            "level": {
+                "id": 9,
+                "level": 9,
+                "xp_required": 310,
+                "created_at": "2026-05-31T06:02:25.000000Z",
+                "updated_at": "2026-05-31T06:02:25.000000Z"
+            }
+        },
+        {
+            "id": 37,
+            "user_id": 37,
+            "level_id": 9,
+            "total_xp": 4260,
+            "total_points": 4260,
+            "current_streak": 1,
+            "created_at": "2026-05-31T06:05:33.000000Z",
+            "updated_at": "2026-05-31T06:05:33.000000Z",
+            "user": {
+                "id": 37,
+                "programme_id": 2,
+                "name": "Nurul Atikah",
+                "username": "atikah",
+                "email": "atikah@student.beats.namix.my",
+                "student_id": "52101324306",
+                "role": "student",
+                "profile_photo_path": null,
+                "is_active": true,
+                "email_verified_at": null,
+                "created_at": "2026-05-31T06:02:47.000000Z",
+                "updated_at": "2026-05-31T06:02:47.000000Z",
+                "deleted_at": null,
+                "programme": {
+                    "id": 2,
+                    "code": "DIM",
+                    "name": "Diploma in Multimedia",
+                    "created_at": "2026-05-31T06:02:24.000000Z",
+                    "updated_at": "2026-05-31T06:02:24.000000Z"
+                }
+            },
+            "level": {
+                "id": 9,
+                "level": 9,
+                "xp_required": 310,
+                "created_at": "2026-05-31T06:02:25.000000Z",
+                "updated_at": "2026-05-31T06:02:25.000000Z"
+            }
+        },
+        {
+            "id": 8,
+            "user_id": 8,
+            "level_id": 9,
+            "total_xp": 4215,
+            "total_points": 4215,
+            "current_streak": 3,
+            "created_at": "2026-05-31T06:05:32.000000Z",
+            "updated_at": "2026-05-31T06:05:32.000000Z",
+            "user": {
+                "id": 8,
+                "programme_id": 1,
+                "name": "Amirul Haziq",
+                "username": "amirul",
+                "email": "amirul@student.beats.namix.my",
+                "student_id": "52101324101",
+                "role": "student",
+                "profile_photo_path": null,
+                "is_active": true,
+                "email_verified_at": null,
+                "created_at": "2026-05-31T06:02:31.000000Z",
+                "updated_at": "2026-05-31T06:02:31.000000Z",
+                "deleted_at": null,
+                "programme": {
+                    "id": 1,
+                    "code": "DIT",
+                    "name": "Diploma in Information Technology",
+                    "created_at": "2026-05-31T06:02:24.000000Z",
+                    "updated_at": "2026-05-31T06:02:24.000000Z"
+                }
+            },
+            "level": {
+                "id": 9,
+                "level": 9,
+                "xp_required": 310,
+                "created_at": "2026-05-31T06:02:25.000000Z",
+                "updated_at": "2026-05-31T06:02:25.000000Z"
+            }
+        },
+        {
+            "id": 20,
+            "user_id": 20,
+            "level_id": 9,
+            "total_xp": 4205,
+            "total_points": 4205,
+            "current_streak": 3,
+            "created_at": "2026-05-31T06:05:33.000000Z",
+            "updated_at": "2026-05-31T06:05:33.000000Z",
+            "user": {
+                "id": 20,
+                "programme_id": 1,
+                "name": "Syazwan Yusof",
+                "username": "syazwan",
+                "email": "syazwan@student.beats.namix.my",
+                "student_id": "52101324113",
+                "role": "student",
+                "profile_photo_path": null,
+                "is_active": true,
+                "email_verified_at": null,
+                "created_at": "2026-05-31T06:02:37.000000Z",
+                "updated_at": "2026-05-31T06:02:37.000000Z",
+                "deleted_at": null,
+                "programme": {
+                    "id": 1,
+                    "code": "DIT",
+                    "name": "Diploma in Information Technology",
+                    "created_at": "2026-05-31T06:02:24.000000Z",
+                    "updated_at": "2026-05-31T06:02:24.000000Z"
+                }
+            },
+            "level": {
+                "id": 9,
+                "level": 9,
+                "xp_required": 310,
+                "created_at": "2026-05-31T06:02:25.000000Z",
+                "updated_at": "2026-05-31T06:02:25.000000Z"
+            }
+        },
+        {
+            "id": 23,
+            "user_id": 23,
+            "level_id": 9,
+            "total_xp": 4190,
+            "total_points": 4190,
+            "current_streak": 1,
+            "created_at": "2026-05-31T06:05:33.000000Z",
+            "updated_at": "2026-05-31T06:05:33.000000Z",
+            "user": {
+                "id": 23,
+                "programme_id": 1,
+                "name": "Siti Khadijah",
+                "username": "khadijah",
+                "email": "khadijah@student.beats.namix.my",
+                "student_id": "52101324116",
+                "role": "student",
+                "profile_photo_path": null,
+                "is_active": true,
+                "email_verified_at": null,
+                "created_at": "2026-05-31T06:02:39.000000Z",
+                "updated_at": "2026-05-31T06:02:39.000000Z",
+                "deleted_at": null,
+                "programme": {
+                    "id": 1,
+                    "code": "DIT",
+                    "name": "Diploma in Information Technology",
+                    "created_at": "2026-05-31T06:02:24.000000Z",
+                    "updated_at": "2026-05-31T06:02:24.000000Z"
+                }
+            },
+            "level": {
+                "id": 9,
+                "level": 9,
+                "xp_required": 310,
+                "created_at": "2026-05-31T06:02:25.000000Z",
+                "updated_at": "2026-05-31T06:02:25.000000Z"
+            }
+        },
+        {
+            "id": 22,
+            "user_id": 22,
+            "level_id": 9,
+            "total_xp": 4110,
+            "total_points": 4110,
+            "current_streak": 2,
+            "created_at": "2026-05-31T06:05:33.000000Z",
+            "updated_at": "2026-05-31T06:05:33.000000Z",
+            "user": {
+                "id": 22,
+                "programme_id": 1,
+                "name": "Ahmad Fauzi",
+                "username": "fauzi",
+                "email": "fauzi@student.beats.namix.my",
+                "student_id": "52101324115",
+                "role": "student",
+                "profile_photo_path": null,
+                "is_active": true,
+                "email_verified_at": null,
+                "created_at": "2026-05-31T06:02:39.000000Z",
+                "updated_at": "2026-05-31T06:02:39.000000Z",
+                "deleted_at": null,
+                "programme": {
+                    "id": 1,
+                    "code": "DIT",
+                    "name": "Diploma in Information Technology",
+                    "created_at": "2026-05-31T06:02:24.000000Z",
+                    "updated_at": "2026-05-31T06:02:24.000000Z"
+                }
+            },
+            "level": {
+                "id": 9,
+                "level": 9,
+                "xp_required": 310,
+                "created_at": "2026-05-31T06:02:25.000000Z",
+                "updated_at": "2026-05-31T06:02:25.000000Z"
+            }
+        },
+        {
+            "id": 29,
+            "user_id": 29,
+            "level_id": 9,
+            "total_xp": 4105,
+            "total_points": 4105,
+            "current_streak": 5,
+            "created_at": "2026-05-31T06:05:33.000000Z",
+            "updated_at": "2026-05-31T06:05:33.000000Z",
+            "user": {
+                "id": 29,
+                "programme_id": 2,
+                "name": "Balqis Sofia",
+                "username": "balqis",
+                "email": "balqis@student.beats.namix.my",
+                "student_id": "52101324206",
+                "role": "student",
+                "profile_photo_path": null,
+                "is_active": true,
+                "email_verified_at": null,
+                "created_at": "2026-05-31T06:02:42.000000Z",
+                "updated_at": "2026-05-31T06:02:42.000000Z",
+                "deleted_at": null,
+                "programme": {
+                    "id": 2,
+                    "code": "DIM",
+                    "name": "Diploma in Multimedia",
+                    "created_at": "2026-05-31T06:02:24.000000Z",
+                    "updated_at": "2026-05-31T06:02:24.000000Z"
+                }
+            },
+            "level": {
+                "id": 9,
+                "level": 9,
+                "xp_required": 310,
+                "created_at": "2026-05-31T06:02:25.000000Z",
+                "updated_at": "2026-05-31T06:02:25.000000Z"
+            }
+        },
+        {
+            "id": 16,
+            "user_id": 16,
+            "level_id": 9,
+            "total_xp": 4040,
+            "total_points": 4040,
+            "current_streak": 1,
+            "created_at": "2026-05-31T06:05:33.000000Z",
+            "updated_at": "2026-05-31T06:05:33.000000Z",
+            "user": {
+                "id": 16,
+                "programme_id": 1,
+                "name": "Zulhilmi Azman",
+                "username": "zulhilmi",
+                "email": "zulhilmi@student.beats.namix.my",
+                "student_id": "52101324109",
+                "role": "student",
+                "profile_photo_path": null,
+                "is_active": true,
+                "email_verified_at": null,
+                "created_at": "2026-05-31T06:02:35.000000Z",
+                "updated_at": "2026-05-31T06:02:35.000000Z",
+                "deleted_at": null,
+                "programme": {
+                    "id": 1,
+                    "code": "DIT",
+                    "name": "Diploma in Information Technology",
+                    "created_at": "2026-05-31T06:02:24.000000Z",
+                    "updated_at": "2026-05-31T06:02:24.000000Z"
+                }
+            },
+            "level": {
+                "id": 9,
+                "level": 9,
+                "xp_required": 310,
+                "created_at": "2026-05-31T06:02:25.000000Z",
+                "updated_at": "2026-05-31T06:02:25.000000Z"
+            }
+        },
+        {
+            "id": 7,
+            "user_id": 7,
+            "level_id": 9,
+            "total_xp": 4040,
+            "total_points": 3990,
+            "current_streak": 5,
+            "created_at": "2026-05-31T06:05:32.000000Z",
+            "updated_at": "2026-06-01T09:31:20.000000Z",
+            "user": {
+                "id": 7,
+                "programme_id": 1,
+                "name": "Muhammad Haikal",
+                "username": "haikal",
+                "email": "haikal@student.beats.namix.my",
+                "student_id": "52101324316",
+                "role": "student",
+                "profile_photo_path": null,
+                "is_active": true,
+                "email_verified_at": null,
+                "created_at": "2026-05-31T06:02:30.000000Z",
+                "updated_at": "2026-05-31T06:02:30.000000Z",
+                "deleted_at": null,
+                "programme": {
+                    "id": 1,
+                    "code": "DIT",
+                    "name": "Diploma in Information Technology",
+                    "created_at": "2026-05-31T06:02:24.000000Z",
+                    "updated_at": "2026-05-31T06:02:24.000000Z"
+                }
+            },
+            "level": {
+                "id": 9,
+                "level": 9,
+                "xp_required": 310,
+                "created_at": "2026-05-31T06:02:25.000000Z",
+                "updated_at": "2026-05-31T06:02:25.000000Z"
+            }
+        },
+        {
+            "id": 40,
+            "user_id": 40,
+            "level_id": 9,
+            "total_xp": 4005,
+            "total_points": 4005,
+            "current_streak": 3,
+            "created_at": "2026-05-31T06:05:34.000000Z",
+            "updated_at": "2026-05-31T06:05:34.000000Z",
+            "user": {
+                "id": 40,
+                "programme_id": 2,
+                "name": "Megat Aris",
+                "username": "megat",
+                "email": "megat@student.beats.namix.my",
+                "student_id": "52101324309",
+                "role": "student",
+                "profile_photo_path": null,
+                "is_active": true,
+                "email_verified_at": null,
+                "created_at": "2026-05-31T06:02:48.000000Z",
+                "updated_at": "2026-05-31T06:02:48.000000Z",
+                "deleted_at": null,
+                "programme": {
+                    "id": 2,
+                    "code": "DIM",
+                    "name": "Diploma in Multimedia",
+                    "created_at": "2026-05-31T06:02:24.000000Z",
+                    "updated_at": "2026-05-31T06:02:24.000000Z"
+                }
+            },
+            "level": {
+                "id": 9,
+                "level": 9,
+                "xp_required": 310,
+                "created_at": "2026-05-31T06:02:25.000000Z",
+                "updated_at": "2026-05-31T06:02:25.000000Z"
+            }
+        }
     ]
   }
   ```
@@ -560,12 +944,42 @@ All endpoints require `Authorization: Bearer {token}` and `role:student`.
   {
     "status": "success",
     "data": [
-      {
-        "id": 1,
-        "name": "Cafeteria Voucher RM5",
-        "cost_points": 500,
-        "stock": 20
-      }
+        {
+            "id": 1,
+            "name": "Free Printing (10 pages)",
+            "cost_points": 50,
+            "stock": 99,
+            "is_active": true,
+            "created_at": "2026-05-31T06:02:26.000000Z",
+            "updated_at": "2026-06-01T09:31:20.000000Z"
+        },
+        {
+            "id": 2,
+            "name": "Cafeteria Voucher (RM5)",
+            "cost_points": 100,
+            "stock": 50,
+            "is_active": true,
+            "created_at": "2026-05-31T06:02:26.000000Z",
+            "updated_at": "2026-05-31T06:02:26.000000Z"
+        },
+        {
+            "id": 3,
+            "name": "Bookstore Voucher (RM10)",
+            "cost_points": 200,
+            "stock": 30,
+            "is_active": true,
+            "created_at": "2026-05-31T06:02:26.000000Z",
+            "updated_at": "2026-05-31T06:02:26.000000Z"
+        },
+        {
+            "id": 4,
+            "name": "BEATS Exclusive Hoodie",
+            "cost_points": 1000,
+            "stock": 10,
+            "is_active": true,
+            "created_at": "2026-05-31T06:02:26.000000Z",
+            "updated_at": "2026-05-31T06:02:26.000000Z"
+        }
     ]
   }
   ```
