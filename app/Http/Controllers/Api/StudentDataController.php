@@ -158,7 +158,7 @@ class StudentDataController extends Controller
     public function getAttendanceHistory(Request $request)
     {
         $attendance = $request->user()->attendanceRecords()
-            ->with(['session.course', 'session.lecturer', 'session.room'])
+            ->with(['classSession.course', 'classSession.lecturer', 'classSession.room'])
             ->orderBy('check_in_time', 'desc')
             ->get();
 

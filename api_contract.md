@@ -80,11 +80,20 @@
 - **Success Response (200 OK)**:
   ```json
   {
-    "id": 1,
+    "id": 5,
+    "programme_id": 1,
     "name": "Muhammad Najmi",
+    "username": "najmi",
     "email": "najmi@student.beats.namix.my",
-    ...
-  }
+    "student_id": "52101324169",
+    "role": "student",
+    "profile_photo_path": null,
+    "is_active": true,
+    "email_verified_at": null,
+    "created_at": "2026-05-31T06:02:29.000000Z",
+    "updated_at": "2026-05-31T06:02:29.000000Z",
+    "deleted_at": null
+}
   ```
 - **Error Response (401 Unauthorized)**: Token is missing or invalid.
 
@@ -154,20 +163,47 @@ All endpoints require `Authorization: Bearer {token}` and `role:student`.
   {
     "status": "success",
     "data": {
-      "id": 1,
-      "name": "Muhammad Najmi",
-      "gamification_profile": {
-        "total_xp": 1000,
-        "total_points": 200,
-        "current_streak": 5,
-        "level": { "level": 2, "xp_required": 500 }
-      },
-      "badges": [
-        { "id": 1, "name": "Perfect Attendance", "icon_path": "badges/perfect.png" }
-      ],
-      "programme": { "id": 1, "code": "DIT", "name": "Diploma in IT" }
+        "id": 5,
+        "programme_id": 1,
+        "name": "Muhammad Najmi",
+        "username": "najmi",
+        "email": "najmi@student.beats.namix.my",
+        "student_id": "52101324169",
+        "role": "student",
+        "profile_photo_path": null,
+        "is_active": true,
+        "email_verified_at": null,
+        "created_at": "2026-05-31T06:02:29.000000Z",
+        "updated_at": "2026-05-31T06:02:29.000000Z",
+        "deleted_at": null,
+        "gamification_profile": {
+            "id": 5,
+            "user_id": 5,
+            "level_id": 9,
+            "total_xp": 3655,
+            "total_points": 3655,
+            "current_streak": 3,
+            "created_at": "2026-05-31T06:05:32.000000Z",
+            "updated_at": "2026-05-31T06:05:32.000000Z",
+            "level": {
+                "id": 9,
+                "level": 9,
+                "xp_required": 310,
+                "created_at": "2026-05-31T06:02:25.000000Z",
+                "updated_at": "2026-05-31T06:02:25.000000Z"
+            }
+        },
+        "badges": [],
+        "programme": {
+            "id": 1,
+            "code": "DIT",
+            "name": "Diploma in Information Technology",
+            "created_at": "2026-05-31T06:02:24.000000Z",
+            "updated_at": "2026-05-31T06:02:24.000000Z"
+        }
     }
   }
+
   ```
 
 ### GET /student/courses
@@ -178,11 +214,174 @@ All endpoints require `Authorization: Bearer {token}` and `role:student`.
   {
     "status": "success",
     "data": [
-      {
-        "id": 1,
-        "code": "SWE3012",
-        "name": "Software Engineering"
-      }
+        {
+            "id": 4,
+            "user_id": 5,
+            "course_id": 1,
+            "lab_id": 1,
+            "role": "student",
+            "created_at": "2026-05-31T06:02:50.000000Z",
+            "updated_at": "2026-05-31T06:02:50.000000Z",
+            "course": {
+                "id": 1,
+                "code": "IPD39806",
+                "name": "Final Year Project",
+                "faculty": "Information Technology",
+                "deleted_at": null,
+                "created_at": "2026-05-31T06:02:49.000000Z",
+                "updated_at": "2026-05-31T06:02:49.000000Z"
+            },
+            "lab": {
+                "id": 1,
+                "course_id": 1,
+                "lecturer_id": 2,
+                "name": "L01",
+                "capacity": 15,
+                "deleted_at": null,
+                "created_at": "2026-05-31T06:02:49.000000Z",
+                "updated_at": "2026-05-31T06:02:49.000000Z"
+            }
+        },
+        {
+            "id": 44,
+            "user_id": 5,
+            "course_id": 2,
+            "lab_id": 5,
+            "role": "student",
+            "created_at": "2026-05-31T06:02:52.000000Z",
+            "updated_at": "2026-05-31T06:02:52.000000Z",
+            "course": {
+                "id": 2,
+                "code": "ITD31403",
+                "name": "Software Engineering",
+                "faculty": "Information Technology",
+                "deleted_at": null,
+                "created_at": "2026-05-31T06:02:49.000000Z",
+                "updated_at": "2026-05-31T06:02:49.000000Z"
+            },
+            "lab": {
+                "id": 5,
+                "course_id": 2,
+                "lecturer_id": 3,
+                "name": "L01",
+                "capacity": 15,
+                "deleted_at": null,
+                "created_at": "2026-05-31T06:02:50.000000Z",
+                "updated_at": "2026-05-31T06:02:50.000000Z"
+            }
+        },
+        {
+            "id": 84,
+            "user_id": 5,
+            "course_id": 3,
+            "lab_id": 9,
+            "role": "student",
+            "created_at": "2026-05-31T06:02:54.000000Z",
+            "updated_at": "2026-05-31T06:02:54.000000Z",
+            "course": {
+                "id": 3,
+                "code": "ITD34103",
+                "name": "IoT Data Analytic",
+                "faculty": "Information Technology",
+                "deleted_at": null,
+                "created_at": "2026-05-31T06:02:49.000000Z",
+                "updated_at": "2026-05-31T06:02:49.000000Z"
+            },
+            "lab": {
+                "id": 9,
+                "course_id": 3,
+                "lecturer_id": 4,
+                "name": "L01",
+                "capacity": 15,
+                "deleted_at": null,
+                "created_at": "2026-05-31T06:02:50.000000Z",
+                "updated_at": "2026-05-31T06:02:50.000000Z"
+            }
+        },
+        {
+            "id": 124,
+            "user_id": 5,
+            "course_id": 4,
+            "lab_id": 13,
+            "role": "student",
+            "created_at": "2026-05-31T06:02:55.000000Z",
+            "updated_at": "2026-05-31T06:02:55.000000Z",
+            "course": {
+                "id": 4,
+                "code": "ITD10403",
+                "name": "Statistics and Data Analytic",
+                "faculty": "Information Technology",
+                "deleted_at": null,
+                "created_at": "2026-05-31T06:02:49.000000Z",
+                "updated_at": "2026-05-31T06:02:49.000000Z"
+            },
+            "lab": {
+                "id": 13,
+                "course_id": 4,
+                "lecturer_id": 2,
+                "name": "L01",
+                "capacity": 15,
+                "deleted_at": null,
+                "created_at": "2026-05-31T06:02:50.000000Z",
+                "updated_at": "2026-05-31T06:02:50.000000Z"
+            }
+        },
+        {
+            "id": 164,
+            "user_id": 5,
+            "course_id": 5,
+            "lab_id": 17,
+            "role": "student",
+            "created_at": "2026-05-31T06:02:57.000000Z",
+            "updated_at": "2026-05-31T06:02:57.000000Z",
+            "course": {
+                "id": 5,
+                "code": "ITD10604",
+                "name": "Data Structure",
+                "faculty": "Information Technology",
+                "deleted_at": null,
+                "created_at": "2026-05-31T06:02:49.000000Z",
+                "updated_at": "2026-05-31T06:02:49.000000Z"
+            },
+            "lab": {
+                "id": 17,
+                "course_id": 5,
+                "lecturer_id": 3,
+                "name": "L01",
+                "capacity": 15,
+                "deleted_at": null,
+                "created_at": "2026-05-31T06:02:50.000000Z",
+                "updated_at": "2026-05-31T06:02:50.000000Z"
+            }
+        },
+        {
+            "id": 204,
+            "user_id": 5,
+            "course_id": 6,
+            "lab_id": 21,
+            "role": "student",
+            "created_at": "2026-05-31T06:02:59.000000Z",
+            "updated_at": "2026-05-31T06:02:59.000000Z",
+            "course": {
+                "id": 6,
+                "code": "ITD20774",
+                "name": "IT Project Management",
+                "faculty": "Information Technology",
+                "deleted_at": null,
+                "created_at": "2026-05-31T06:02:49.000000Z",
+                "updated_at": "2026-05-31T06:02:49.000000Z"
+            },
+            "lab": {
+                "id": 21,
+                "course_id": 6,
+                "lecturer_id": 4,
+                "name": "L01",
+                "capacity": 15,
+                "deleted_at": null,
+                "created_at": "2026-05-31T06:02:50.000000Z",
+                "updated_at": "2026-05-31T06:02:50.000000Z"
+            }
+        }
     ]
   }
   ```
