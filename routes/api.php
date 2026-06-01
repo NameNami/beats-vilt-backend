@@ -23,6 +23,9 @@ Route::get('/user', function (Request $request) {
 
 // Student Data & Actions
 Route::middleware(['auth:sanctum', CheckRoleApi::class.':student'])->group(function () {
+    // Auth Actions
+    Route::post('/student/logout', [StudentAuthController::class, 'logout'])->name('api.student.logout');
+
     // Attendance Actions
     Route::post('/student/check-in-ble', [AttendanceController::class, 'checkInBle'])->name('api.student.check-in-ble');
     Route::post('/student/check-in-qr', [AttendanceController::class, 'checkInQr'])->name('api.student.check-in-qr');
