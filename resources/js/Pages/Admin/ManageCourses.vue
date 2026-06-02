@@ -10,7 +10,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 col-span-1 h-fit">
+            <div class="bg-white p-6 rounded-2xl  border border-gray-100 col-span-1 h-fit">
                 <h2 class="text-lg font-bold text-slate-900 mb-5 border-b border-slate-100 pb-3 flex items-center gap-2">
                     <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                     {{ isEditing ? 'Edit Course' : 'Create New Course' }}
@@ -19,17 +19,17 @@
                 <form @submit.prevent="submitCourse" class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Course Code</label>
-                        <input type="text" v-model="form.code" placeholder="e.g. IPD39806" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg shadow-sm focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5 uppercase" required>
+                        <input type="text" v-model="form.code" placeholder="e.g. IPD39806" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5 uppercase" required>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Course Name</label>
-                        <input type="text" v-model="form.name" placeholder="e.g. Final Year Project" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg shadow-sm focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5" required>
+                        <input type="text" v-model="form.name" placeholder="e.g. Final Year Project" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5" required>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Department / Faculty</label>
-                        <select v-model="form.faculty" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg shadow-sm focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5 font-medium" required>
+                        <select v-model="form.faculty" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5 font-medium" required>
                             <option value="IT">Information Technology (MIIT)</option>
                             <option value="BUSINESS">Business & Management</option>
                             <option value="ENGINEERING">Engineering</option>
@@ -40,7 +40,7 @@
                         <button v-if="isEditing" type="button" @click="cancelEdit" class="bg-gray-100 hover:bg-gray-200 text-slate-700 px-4 py-2 rounded-lg font-bold transition">
                             Cancel
                         </button>
-                        <button type="submit" :disabled="form.processing" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-lg font-bold transition disabled:opacity-50 w-full shadow-sm">
+                        <button type="submit" :disabled="form.processing" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-lg font-bold transition disabled:opacity-50 w-full ">
                             {{ isEditing ? 'Update Course' : 'Save Course' }}
                         </button>
                     </div>
@@ -52,7 +52,7 @@
                         <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                         Manage Labs
                     </h2>
-                    
+
                     <form @submit.prevent="submitLab" class="space-y-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-100">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Lab Name</label>
@@ -77,7 +77,7 @@
                     </form>
 
                     <div class="space-y-2">
-                        <div v-for="lab in editingCourseLabs" :key="lab.id" class="flex justify-between items-center p-3 bg-white border border-gray-100 rounded-lg shadow-sm hover:border-teal-200 transition">
+                        <div v-for="lab in editingCourseLabs" :key="lab.id" class="flex justify-between items-center p-3 bg-white border border-gray-100 rounded-lg  hover:border-teal-200 transition">
                             <div>
                                 <p class="font-bold text-slate-800 text-sm">{{ lab.name }}</p>
                                 <p class="text-[10px] text-slate-500">Cap: {{ lab.capacity }} | ID: {{ lab.id }}</p>
@@ -90,7 +90,7 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden col-span-1 lg:col-span-2">
+            <div class="bg-white rounded-xl  border border-gray-200 overflow-hidden col-span-1 lg:col-span-2">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
                     <h2 class="text-lg font-bold text-slate-900">Academic Catalog</h2>
                 </div>

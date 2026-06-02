@@ -36,7 +36,7 @@
 
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Check-in RSSI Threshold (dBm)</label>
-                        <input type="number" v-model="form.rssi_threshold" min="-100" max="0" step="1" 
+                        <input type="number" v-model="form.rssi_threshold" min="-100" max="0" step="1"
                                class="w-full bg-[#f8fafc] border-gray-200 rounded-xl text-sm focus:ring-amber-600 focus:border-amber-600 font-mono font-bold"
                                placeholder="e.g. -55">
                         <p class="text-[10px] text-gray-400 mt-2">Determines how close a student must be to check in. Valid range: -100 to 0. (Higher values like -50 require being closer than -80).</p>
@@ -44,7 +44,7 @@
 
                     <div class="pt-4 flex justify-end gap-3 border-t border-gray-50">
                         <button type="button" @click="showEditModal = false" class="px-6 py-2.5 text-slate-600 font-bold hover:text-slate-800 transition">Cancel</button>
-                        <button type="submit" :disabled="form.processing" class="px-6 py-2.5 bg-amber-700 text-white rounded-xl font-bold shadow-sm hover:bg-amber-800 transition disabled:opacity-50">Save Changes</button>
+                        <button type="submit" :disabled="form.processing" class="px-6 py-2.5 bg-amber-700 text-white rounded-xl font-bold  hover:bg-amber-800 transition disabled:opacity-50">Save Changes</button>
                     </div>
                 </form>
             </div>
@@ -56,21 +56,21 @@
                 <p class="text-slate-600 text-sm font-medium">Real-time monitoring of campus Bluetooth proximity assets.</p>
             </div>
             <div class="flex gap-3">
-                <button @click="initiateScan" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-sm transition flex items-center gap-2">
+                <button @click="initiateScan" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold  transition flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                     Scan for Devices
                 </button>
             </div>
         </div>
 
-        <div v-if="$page.props.flash?.success" class="mb-6 p-4 bg-teal-50 text-teal-800 rounded-xl border border-teal-100 font-medium flex items-center gap-2 shadow-sm">
+        <div v-if="$page.props.flash?.success" class="mb-6 p-4 bg-teal-50 text-teal-800 rounded-xl border border-teal-100 font-medium flex items-center gap-2 ">
             <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             {{ $page.props.flash.success }}
         </div>
 
         <div class="grid grid-cols-1 gap-6 mb-6">
 
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+            <div class="bg-white rounded-2xl  border border-gray-100 overflow-hidden flex flex-col">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                     <h3 class="text-lg font-black text-slate-900">Transmitter Management</h3>
                     <div class="flex gap-2">
@@ -175,10 +175,10 @@ let pollingInterval = null;
 
 onMounted(() => {
     pollingInterval = setInterval(() => {
-        router.reload({ 
+        router.reload({
             only: ['beacons'],
             preserveScroll: true,
-            preserveState: true 
+            preserveState: true
         });
     }, 5000);
 });

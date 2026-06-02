@@ -473,7 +473,8 @@ All endpoints require `Authorization: Bearer {token}` and `role:student`.
                 "updated_at": "2026-05-31T06:02:26.000000Z"
             }
         }
-    }
+    ]
+  }
   ```
 
 ### GET /student/attendance
@@ -484,15 +485,59 @@ All endpoints require `Authorization: Bearer {token}` and `role:student`.
   {
     "status": "success",
     "data": [
-      {
-        "id": 145,
-        "session_id": 12,
-        "status": "on-time",
-        "check_in_time": "2026-05-25 07:55:00",
-        "session": {
-            "course": { "code": "SWE3012" }
+        {
+            "id": 3294,
+            "user_id": 5,
+            "session_id": 384,
+            "check_in_time": "2026-06-01T04:00:01.000000Z",
+            "status": "absent",
+            "checkin_method": "qr",
+            "created_at": "2026-06-01T04:00:01.000000Z",
+            "updated_at": "2026-06-01T04:00:01.000000Z",
+            "class_session": {
+                "id": 384,
+                "course_id": 6,
+                "lab_id": null,
+                "lecturer_id": 4,
+                "room_id": null,
+                "start_time": "2026-06-01T02:00:00.000000Z",
+                "end_time": "2026-06-01T04:00:00.000000Z",
+                "mode": "online",
+                "checkin_method": "qr",
+                "is_display": false,
+                "is_cancelled": false,
+                "announce_cancelled": false,
+                "is_completed": 1,
+                "deleted_at": null,
+                "created_at": "2026-05-31T06:03:16.000000Z",
+                "updated_at": "2026-06-01T04:00:01.000000Z",
+                "course": {
+                    "id": 6,
+                    "code": "ITD20774",
+                    "name": "IT Project Management",
+                    "faculty": "Information Technology",
+                    "deleted_at": null,
+                    "created_at": "2026-05-31T06:02:49.000000Z",
+                    "updated_at": "2026-05-31T06:02:49.000000Z"
+                },
+                "lecturer": {
+                    "id": 4,
+                    "programme_id": null,
+                    "name": "Ms. Suraya Kamaruddin",
+                    "username": "suraya",
+                    "email": "suraya@beats.namix.my",
+                    "student_id": null,
+                    "role": "lecturer",
+                    "profile_photo_path": null,
+                    "is_active": true,
+                    "email_verified_at": null,
+                    "created_at": "2026-05-31T06:02:29.000000Z",
+                    "updated_at": "2026-05-31T06:02:29.000000Z",
+                    "deleted_at": null
+                },
+                "room": null
+            }
         }
-      }
     ]
   }
   ```

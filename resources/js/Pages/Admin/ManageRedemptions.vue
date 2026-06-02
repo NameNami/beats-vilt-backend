@@ -10,7 +10,7 @@
         <!-- Rewards Section -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
             <!-- Create/Edit Reward Form -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 col-span-1 h-fit">
+            <div class="bg-white p-6 rounded-2xl  border border-gray-100 col-span-1 h-fit">
                 <h2 class="text-lg font-bold text-slate-900 mb-5 border-b border-slate-100 pb-3 flex items-center gap-2">
                     <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path>
@@ -21,17 +21,17 @@
                 <form @submit.prevent="submitReward" class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Reward Name</label>
-                        <input type="text" v-model="rewardForm.name" placeholder="e.g. Starbucks Voucher" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg shadow-sm focus:ring-indigo-600 focus:border-indigo-600 text-sm py-2.5" required>
+                        <input type="text" v-model="rewardForm.name" placeholder="e.g. Starbucks Voucher" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-indigo-600 focus:border-indigo-600 text-sm py-2.5" required>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">XP Cost</label>
-                            <input type="number" v-model="rewardForm.cost_points" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg shadow-sm focus:ring-indigo-600 focus:border-indigo-600 text-sm py-2.5" required min="0">
+                            <input type="number" v-model="rewardForm.cost_points" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-indigo-600 focus:border-indigo-600 text-sm py-2.5" required min="0">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Stock</label>
-                            <input type="number" v-model="rewardForm.stock" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg shadow-sm focus:ring-indigo-600 focus:border-indigo-600 text-sm py-2.5" required min="0">
+                            <input type="number" v-model="rewardForm.stock" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-indigo-600 focus:border-indigo-600 text-sm py-2.5" required min="0">
                         </div>
                     </div>
 
@@ -44,7 +44,7 @@
                         <button v-if="isEditingReward" type="button" @click="cancelEditReward" class="bg-gray-100 hover:bg-gray-200 text-slate-700 px-4 py-2 rounded-lg font-bold transition text-sm">
                             Cancel
                         </button>
-                        <button type="submit" :disabled="rewardForm.processing" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg font-bold transition disabled:opacity-50 w-full shadow-sm text-sm">
+                        <button type="submit" :disabled="rewardForm.processing" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg font-bold transition disabled:opacity-50 w-full  text-sm">
                             {{ isEditingReward ? 'Update Reward' : 'Save Reward' }}
                         </button>
                     </div>
@@ -52,7 +52,7 @@
             </div>
 
             <!-- Rewards List -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden col-span-1 lg:col-span-2">
+            <div class="bg-white rounded-xl  border border-gray-200 overflow-hidden col-span-1 lg:col-span-2">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
                     <h2 class="text-lg font-bold text-slate-900">Available Rewards</h2>
                 </div>
@@ -98,7 +98,7 @@
         </div>
 
         <!-- Redemptions Section -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="bg-white rounded-xl  border border-gray-200 overflow-hidden">
             <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
                 <h2 class="text-lg font-bold text-slate-900">Recent Redemptions</h2>
             </div>

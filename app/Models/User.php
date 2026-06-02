@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+
+use App\Traits\Auditable;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -16,6 +18,8 @@ use Illuminate\Notifications\Notifiable;
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
+    use Auditable;
+
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasApiTokens, SoftDeletes;
 

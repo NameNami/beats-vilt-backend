@@ -5,7 +5,7 @@
                 <div>
                     <h1 class="text-2xl font-semibold mb-2 text-gray-900">System-Wide Analytics</h1>
                 </div>
-                <button @click="exportGlobalReport" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-sm transition flex items-center gap-2">
+                <button @click="exportGlobalReport" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold  transition flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                     Export Global Report
                 </button>
@@ -30,7 +30,7 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="bg-white rounded-xl  border border-gray-200 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 bg-white flex items-center gap-3">
                     <div class="w-1.5 h-4 bg-orange-500 rounded-full"></div>
                     <h2 class="text-lg font-bold text-slate-900">University-Wide Intervention Required</h2>

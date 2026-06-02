@@ -41,7 +41,7 @@
                     </div>
                     <div class="pt-4 flex justify-end gap-3">
                         <button type="button" @click="showEnrollModal = false" class="px-6 py-2 text-slate-600 font-bold hover:text-slate-800 transition">Cancel</button>
-                        <button type="submit" :disabled="form.processing" class="px-6 py-2 bg-orange-600 text-white rounded-xl font-bold shadow-sm hover:bg-orange-700 transition">Enroll Student</button>
+                        <button type="submit" :disabled="form.processing" class="px-6 py-2 bg-orange-600 text-white rounded-xl font-bold  hover:bg-orange-700 transition">Enroll Student</button>
                     </div>
                 </form>
             </div>
@@ -53,16 +53,16 @@
                 <p class="text-slate-600 text-sm font-medium">Manage student accounts and course enrollments with precision.</p>
             </div>
             <div class="flex gap-3">
-                <Link :href="route('admin.users.index')" class="bg-slate-800 hover:bg-slate-900 text-white px-6 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 transition text-sm">
+                <Link :href="route('admin.users.index')" class="bg-slate-800 hover:bg-slate-900 text-white px-6 py-2.5 rounded-xl font-bold  flex items-center gap-2 transition text-sm">
                     Manage Accounts
                 </Link>
-                <button @click="showEnrollModal = true" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 transition text-sm">
+                <button @click="showEnrollModal = true" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold  flex items-center gap-2 transition text-sm">
                     Enroll Student
                 </button>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="bg-white rounded-2xl  border border-gray-100 overflow-hidden">
             <table class="w-full text-left border-collapse">
                 <thead>
                 <tr class="bg-gray-50/50 border-b border-gray-100 text-[11px] uppercase tracking-widest text-gray-400 font-bold">
@@ -81,7 +81,7 @@
                     <td class="px-8 py-4 text-sm font-bold text-sky-600">{{ student.student_id || 'N/A' }}</td>
                     <td class="px-8 py-4">
                         <div class="flex flex-wrap gap-2">
-                            <div v-for="enrollment in student.course_enrollments" :key="enrollment.id" 
+                            <div v-for="enrollment in student.course_enrollments" :key="enrollment.id"
                                 class="flex items-center gap-2 bg-sky-50 text-sky-800 px-3 py-1 rounded-full text-[10px] font-bold border border-sky-100">
                                 {{ enrollment.course?.code }} <span v-if="enrollment.lab" class="text-sky-400">({{ enrollment.lab.name }})</span>
                                 <button @click="removeEnrollment(enrollment.id)" class="text-sky-300 hover:text-rose-600 transition">

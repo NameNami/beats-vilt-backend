@@ -49,12 +49,16 @@ class WebAnalyticsController extends Controller
 
         foreach ($studentEnrollments as $enrollment) {
             // How many sessions has this specific course held?
-            $courseSessionsCount = ClassSession::where('course_id', $enrollment->course_id)->count();
+            $courseSessionsCount = ClassSession::where('course_id', $enrollment->course_id)
+                ->where('start_time', '<=', now())
+                ->where('is_cancelled', false)
+                ->count();
 
             if ($courseSessionsCount > 0) {
                 // How many sessions did this student attend?
                 $attendedCount = AttendanceRecord::where('user_id', $enrollment->user_id)
                     ->whereIn('session_id', ClassSession::where('course_id', $enrollment->course_id)->pluck('id'))
+                    ->whereIn('status', ['present', 'on-time', 'late'])
                     ->count();
 
                 $attendancePercentage = round(($attendedCount / $courseSessionsCount) * 100);
@@ -97,10 +101,15 @@ class WebAnalyticsController extends Controller
                 ->where('role', 'student')
                 ->pluck('course_id');
 
-            $totalPossibleSessions = ClassSession::whereIn('course_id', $enrolledCourseIds)->count();
+            $totalPossibleSessions = ClassSession::whereIn('course_id', $enrolledCourseIds)
+                ->where('start_time', '<=', now())
+                ->where('is_cancelled', false)
+                ->count();
 
             if ($totalPossibleSessions > 0) {
-                $attendedCount = AttendanceRecord::where('user_id', $student->id)->count();
+                $attendedCount = AttendanceRecord::where('user_id', $student->id)
+                    ->whereIn('status', ['present', 'on-time', 'late'])
+                    ->count();
                 $percentage = round(($attendedCount / $totalPossibleSessions) * 100);
 
                 if ($percentage < 80) {

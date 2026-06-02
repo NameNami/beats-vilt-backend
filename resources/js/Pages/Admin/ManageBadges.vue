@@ -9,7 +9,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Create/Edit Form -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 col-span-1 h-fit">
+            <div class="bg-white p-6 rounded-2xl  border border-gray-100 col-span-1 h-fit">
                 <h2 class="text-lg font-bold text-slate-900 mb-5 border-b border-slate-100 pb-3 flex items-center gap-2">
                     <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
@@ -20,24 +20,24 @@
                 <form @submit.prevent="submitBadge" class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Badge Name</label>
-                        <input type="text" v-model="form.name" placeholder="e.g. Early Bird" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg shadow-sm focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5" required>
+                        <input type="text" v-model="form.name" placeholder="e.g. Present Student" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5" required>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Description</label>
-                        <textarea v-model="form.description" placeholder="Awarded for 10 early check-ins" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg shadow-sm focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5" rows="3" required></textarea>
+                        <textarea v-model="form.description" placeholder="Awarded for 10 present check-ins" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5" rows="3" required></textarea>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Badge Type</label>
-                        <input type="text" v-model="form.type" placeholder="e.g. Achievement" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg shadow-sm focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5" required>
+                        <input type="text" v-model="form.type" placeholder="e.g. Achievement" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5" required>
                     </div>
 
                     <div class="grid grid-cols-1 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Requirement Type</label>
-                            <select v-model="form.requirement_type" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg shadow-sm focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5 font-medium" required>
-                                <option value="early_checkins">Early Check-ins</option>
+                            <select v-model="form.requirement_type" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5 font-medium" required>
+                                <option value="present_checkins">Present Check-ins</option>
                                 <option value="on_time_checkins">On-time Check-ins</option>
                                 <option value="streak_count">Streak Count</option>
                                 <option value="total_xp">Total XP</option>
@@ -45,7 +45,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Requirement Value</label>
-                            <input type="number" v-model="form.requirement_value" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg shadow-sm focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5" required min="1">
+                            <input type="number" v-model="form.requirement_value" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5" required min="1">
                         </div>
                     </div>
 
@@ -53,7 +53,7 @@
                         <button v-if="isEditing" type="button" @click="cancelEdit" class="bg-gray-100 hover:bg-gray-200 text-slate-700 px-4 py-2 rounded-lg font-bold transition text-sm">
                             Cancel
                         </button>
-                        <button type="submit" :disabled="form.processing" class="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2.5 rounded-lg font-bold transition disabled:opacity-50 w-full shadow-sm text-sm">
+                        <button type="submit" :disabled="form.processing" class="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2.5 rounded-lg font-bold transition disabled:opacity-50 w-full  text-sm">
                             {{ isEditing ? 'Update Badge' : 'Save Badge' }}
                         </button>
                     </div>
@@ -61,7 +61,7 @@
             </div>
 
             <!-- Badges List -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden col-span-1 lg:col-span-2">
+            <div class="bg-white rounded-xl  border border-gray-200 overflow-hidden col-span-1 lg:col-span-2">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
                     <h2 class="text-lg font-bold text-slate-900">Existing Badges</h2>
                 </div>
@@ -134,7 +134,7 @@ const form = useForm({
     name: '',
     description: '',
     type: 'Achievement',
-    requirement_type: 'early_checkins',
+    requirement_type: 'present_checkins',
     requirement_value: 1,
     icon_path: null,
 });
@@ -184,7 +184,7 @@ const resetForm = () => {
 
 const formatRequirement = (type) => {
     const types = {
-        early_checkins: 'Early Check-ins',
+        present_checkins: 'Present Check-ins',
         on_time_checkins: 'On-time Check-ins',
         streak_count: 'Streak Count',
         total_xp: 'Total XP'

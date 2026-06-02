@@ -73,8 +73,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/sessions/update/{id}', [AdminController::class, 'updateSession'])->name('sessions.update');
     Route::post('/sessions/{id}', [AdminController::class, 'deleteSession'])->name('sessions.destroy');
 
-    // Analytics
+    // Analytics & Audit
     Route::get('/analytics', [App\Http\Controllers\WebAnalyticsController::class, 'globalAnalytics'])->name('analytics');
+    Route::get('/audit-logs', [App\Http\Controllers\AdminAuditLogController::class, 'index'])->name('audit.logs');
 
     // Core System Deletions (Soft Deletes)
     Route::post('/courses/delete/{id}', [AdminController::class, 'deleteCourse'])->name('courses.destroy');

@@ -3,15 +3,15 @@ import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { ref, computed } from 'vue';
 import { useForm, router, Head } from '@inertiajs/vue3';
 import dayjs from 'dayjs';
-import { 
-    Calendar, 
-    List, 
-    MapPin, 
-    User, 
-    Users, 
-    Globe, 
-    Building2, 
-    ChevronLeft, 
+import {
+    Calendar,
+    List,
+    MapPin,
+    User,
+    Users,
+    Globe,
+    Building2,
+    ChevronLeft,
     ChevronRight,
     Plus,
     Filter,
@@ -84,7 +84,7 @@ const weekDates = computed(() => {
 const groupedSessions = computed(() => {
     return weekDates.value.reduce((acc, day) => {
         let daySessions = sessionsWithConflicts.value.filter(s => s.date === day.date);
-        
+
         // Apply local room filter if set
         if (activeFilters.value.room_id) {
             daySessions = daySessions.filter(s => s.room_id == activeFilters.value.room_id);
@@ -92,7 +92,7 @@ const groupedSessions = computed(() => {
 
         // Sort sessions by start time for consistent lane assignment
         const sorted = [...daySessions].sort((a, b) => a.start.localeCompare(b.start));
-        
+
         const lanes = [];
         const result = sorted.map(session => {
             let laneIndex = lanes.findIndex(laneEnd => session.start >= laneEnd);
@@ -189,7 +189,7 @@ const navigateWeek = (direction) => {
     } else {
         targetDate = dayjs();
     }
-    router.get(route('admin.sessions.index'), { 
+    router.get(route('admin.sessions.index'), {
         date: targetDate.format('YYYY-MM-DD'),
         course_id: activeFilters.value.course_id,
         faculty: activeFilters.value.faculty
@@ -262,7 +262,7 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
 <template>
     <AdminLayout>
         <Head title="Timetable Management" />
-        
+
         <div class="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-6 mb-8">
             <div>
                 <h1 class="text-2xl font-semibold mb-2 text-gray-900">Timetable Management</h1>
@@ -287,7 +287,7 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
                     {{ weekRangeDisplay }}
                 </div>
 
-                <button @click="isEditing = false; showForm = true" class="bg-orange-600 hover:bg-orange-700 text-white px-5 py-2 rounded-lg font-bold shadow-sm transition flex items-center gap-2 text-sm">
+                <button @click="isEditing = false; showForm = true" class="bg-orange-600 hover:bg-orange-700 text-white px-5 py-2 rounded-lg font-bold  transition flex items-center gap-2 text-sm">
                     <Plus class="w-4 h-4" />
                     NEW SLOT
                 </button>
@@ -295,7 +295,7 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
         </div>
 
         <!-- Filter Bar -->
-        <div class="bg-white p-4 rounded-xl border border-gray-200 mb-6 flex flex-wrap items-center gap-4 shadow-sm">
+        <div class="bg-white p-4 rounded-xl border border-gray-200 mb-6 flex flex-wrap items-center gap-4 ">
             <div class="flex items-center gap-2 text-slate-500 mr-2">
                 <Filter class="w-4 h-4" />
                 <span class="text-xs font-bold uppercase tracking-widest">Filters</span>
@@ -329,7 +329,7 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
         </div>
 
         <!-- Conflict Summary Alert -->
-        <div v-if="Math.ceil(totalHardConflicts) > 0" class="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-center justify-between shadow-sm animate-pulse">
+        <div v-if="Math.ceil(totalHardConflicts) > 0" class="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-center justify-between  animate-pulse">
             <div class="flex items-center gap-3">
                 <div class="bg-rose-100 p-2 rounded-lg">
                     <AlertTriangle class="w-5 h-5 text-rose-600" />
@@ -346,25 +346,25 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
 
         <!-- Timetable View Selector -->
         <div class="flex bg-slate-100/80 p-1 rounded-lg border border-slate-200/60 w-fit mb-6">
-            <button @click="view = 'week'" :class="['flex items-center gap-2 px-5 py-2 rounded-md text-sm font-semibold transition-all', view === 'week' ? 'bg-white text-orange-600 border border-slate-200/50 shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50']">
+            <button @click="view = 'week'" :class="['flex items-center gap-2 px-5 py-2 rounded-md text-sm font-semibold transition-all', view === 'week' ? 'bg-white text-orange-600 border border-slate-200/50 ' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50']">
                 <Calendar class="w-4 h-4" /> Week
             </button>
-            <button @click="view = 'room'" :class="['flex items-center gap-2 px-5 py-2 rounded-md text-sm font-semibold transition-all', view === 'room' ? 'bg-white text-orange-600 border border-slate-200/50 shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50']">
+            <button @click="view = 'room'" :class="['flex items-center gap-2 px-5 py-2 rounded-md text-sm font-semibold transition-all', view === 'room' ? 'bg-white text-orange-600 border border-slate-200/50 ' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50']">
                 <MapPin class="w-4 h-4" /> Room Matrix
             </button>
-            <button @click="view = 'list'" :class="['flex items-center gap-2 px-5 py-2 rounded-md text-sm font-semibold transition-all', view === 'list' ? 'bg-white text-orange-600 border border-slate-200/50 shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50']">
+            <button @click="view = 'list'" :class="['flex items-center gap-2 px-5 py-2 rounded-md text-sm font-semibold transition-all', view === 'list' ? 'bg-white text-orange-600 border border-slate-200/50 ' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50']">
                 <List class="w-4 h-4" /> List
             </button>
         </div>
 
         <!-- Room Matrix View -->
         <div v-if="view === 'room'" class="space-y-4 mb-12">
-            <div class="flex items-center gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-4 bg-white p-4 rounded-xl border border-slate-200 ">
                 <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Select Date:</span>
                 <input type="date" v-model="selectedRoomDate" class="bg-slate-50 border-slate-200 rounded-lg text-sm px-3 py-1.5 focus:ring-orange-500 focus:border-orange-500">
             </div>
 
-            <div class="border border-slate-200 rounded-xl bg-white overflow-hidden shadow-sm">
+            <div class="border border-slate-200 rounded-xl bg-white overflow-hidden ">
                 <div class="overflow-x-auto">
                     <div class="min-w-[1200px]">
                         <div class="flex border-b border-slate-200 bg-slate-50/50">
@@ -392,11 +392,11 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
                                 <div class="flex-1 relative h-[80px] group-hover:bg-slate-50/30 transition-colors">
                                     <div v-for="session in roomMatrixSessions[room.id]" :key="'matrix-sess-'+session.id"
                                          @click="editSession(session)"
-                                         :class="['absolute top-2 bottom-2 rounded-lg border p-2 overflow-hidden hover:shadow-md transition-all cursor-pointer hover:z-20 hover:scale-[1.01]', 
+                                         :class="['absolute top-2 bottom-2 rounded-lg border p-2 overflow-hidden hover:shadow-md transition-all cursor-pointer hover:z-20 hover:scale-[1.01]',
                                                   session.hardConflicts.length > 0 ? 'bg-rose-50 border-rose-300 text-rose-900 border-2' : COLOR_MAP[session.color]]"
-                                         :style="{ 
-                                             left: timeToPercent(session.start) + '%', 
-                                             width: `calc(${getDurationPercent(session.start, session.end)}% - 4px)`, 
+                                         :style="{
+                                             left: timeToPercent(session.start) + '%',
+                                             width: `calc(${getDurationPercent(session.start, session.end)}% - 4px)`,
                                              marginLeft: '2px'
                                          }">
                                         <div class="flex justify-between items-start">
@@ -419,7 +419,7 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
         </div>
 
         <!-- Week View (Horizontal Grid) -->
-        <div v-if="view === 'week'" class="border border-slate-200 rounded-xl bg-white overflow-hidden mb-12 shadow-sm">
+        <div v-if="view === 'week'" class="border border-slate-200 rounded-xl bg-white overflow-hidden mb-12 ">
             <div class="overflow-x-auto">
                 <div class="min-w-[1200px]">
                     <div class="flex border-b border-slate-200 bg-slate-50/50">
@@ -447,12 +447,12 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
                             <div class="flex-1 relative group-hover:bg-slate-50/30 transition-colors">
                                 <div v-for="session in groupedSessions[day.name].sessions" :key="session.id"
                                      @click="editSession(session)"
-                                     :class="['absolute rounded-lg border p-2 overflow-hidden hover:shadow-md transition-all cursor-pointer hover:z-20 hover:scale-[1.01]', 
-                                              session.hardConflicts.length > 0 ? 'bg-rose-50 border-rose-300 text-rose-900 border-2' : COLOR_MAP[session.color], 
+                                     :class="['absolute rounded-lg border p-2 overflow-hidden hover:shadow-md transition-all cursor-pointer hover:z-20 hover:scale-[1.01]',
+                                              session.hardConflicts.length > 0 ? 'bg-rose-50 border-rose-300 text-rose-900 border-2' : COLOR_MAP[session.color],
                                               session.isOngoing ? 'border-2 border-orange-400 z-30 shadow-md shadow-orange-500/20' : '']"
-                                     :style="{ 
-                                         left: timeToPercent(session.start) + '%', 
-                                         width: `calc(${getDurationPercent(session.start, session.end)}% - 4px)`, 
+                                     :style="{
+                                         left: timeToPercent(session.start) + '%',
+                                         width: `calc(${getDurationPercent(session.start, session.end)}% - 4px)`,
                                          marginLeft: '2px',
                                          top: (session.laneIndex * 55 + 8) + 'px',
                                          height: '50px'
@@ -488,7 +488,7 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
         </div>
 
         <!-- List View (Session Directory) -->
-        <div v-else class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-12">
+        <div v-else class="bg-white rounded-xl  border border-gray-200 overflow-hidden mb-12">
             <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
                 <h2 class="text-lg font-bold text-slate-900">Session Directory</h2>
                 <div class="text-xs font-bold text-slate-500 px-3 py-1 bg-slate-100 rounded-full">
@@ -555,7 +555,7 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
                     </button>
                 </div>
 
-                <div v-if="$page.props.errors?.conflict" class="m-6 p-4 bg-rose-50 text-rose-800 rounded-xl border border-rose-100 shadow-sm flex items-start gap-3">
+                <div v-if="$page.props.errors?.conflict" class="m-6 p-4 bg-rose-50 text-rose-800 rounded-xl border border-rose-100  flex items-start gap-3">
                     <svg class="w-5 h-5 text-rose-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                     <div>
                         <p class="font-bold text-sm">Scheduling Conflict</p>
@@ -604,7 +604,7 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
                     </div>
                     <div class="pt-4 flex justify-end gap-3 border-t border-gray-50 mt-4">
                         <button type="button" @click="closeModal" class="px-6 py-2.5 text-slate-600 font-bold hover:text-slate-800 transition">Cancel</button>
-                        <button type="submit" :disabled="form.processing" class="px-6 py-2.5 bg-orange-600 text-white rounded-xl font-bold shadow-sm hover:bg-orange-700 transition disabled:opacity-50">
+                        <button type="submit" :disabled="form.processing" class="px-6 py-2.5 bg-orange-600 text-white rounded-xl font-bold  hover:bg-orange-700 transition disabled:opacity-50">
                             {{ isEditing ? 'Update' : 'Save' }} Session
                         </button>
                     </div>

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +12,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[Fillable(['code', 'name', 'faculty'])]
 class Course extends Model
 {
+    use Auditable;
+
     use HasFactory, SoftDeletes;
 
     public function labs()

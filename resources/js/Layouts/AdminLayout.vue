@@ -19,7 +19,8 @@ import {
     Briefcase,
     Radio,
     Award,
-    Gift
+    Gift,
+    FileText
 } from 'lucide-vue-next';
 
 // Grab the user globally from Inertia
@@ -178,6 +179,15 @@ onUnmounted(() => {
                 >
                     <BarChart3 class="w-5 h-5" />
                     Global Analytics
+                </Link>
+
+                <Link
+                    href="/admin/audit-logs"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                    :class="[ $page.url.startsWith('/admin/audit-logs') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
+                >
+                    <FileText class="w-5 h-5" />
+                    Audit Logs
                 </Link>
 
                 <div class="px-3 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-4">Gamification</div>

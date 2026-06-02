@@ -9,18 +9,18 @@
             </div>
         </div>
 
-        <div v-if="$page.props.flash?.success" class="mb-6 p-4 bg-teal-50 text-teal-800 rounded-xl border border-teal-100 font-medium flex items-center gap-2 shadow-sm">
+        <div v-if="$page.props.flash?.success" class="mb-6 p-4 bg-teal-50 text-teal-800 rounded-xl border border-teal-100 font-medium flex items-center gap-2 ">
             <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             {{ $page.props.flash.success }}
         </div>
-        <div v-if="errors && Object.keys(errors).length > 0" class="mb-6 p-4 bg-rose-50 text-rose-800 rounded-xl border border-rose-100 shadow-sm">
+        <div v-if="errors && Object.keys(errors).length > 0" class="mb-6 p-4 bg-rose-50 text-rose-800 rounded-xl border border-rose-100 ">
             <p class="font-bold flex items-center gap-2"><svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Please check the form for errors.</p>
             <ul class="list-disc pl-8 mt-2 text-sm">
                 <li v-for="(error, key) in errors" :key="key">{{ error }}</li>
             </ul>
         </div>
 
-        <div v-if="!isEditing" class="bg-orange-50/30 p-6 rounded-xl shadow-sm border border-orange-100 flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
+        <div v-if="!isEditing" class="bg-orange-50/30 p-6 rounded-xl  border border-orange-100 flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
             <div>
                 <h2 class="text-lg font-bold text-orange-900">Bulk Import Students</h2>
                 <p class="text-sm text-orange-700 mt-1">Upload a CSV file to create multiple accounts instantly.</p>
@@ -36,14 +36,14 @@
                     class="block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-orange-100 file:text-orange-800 hover:file:bg-orange-200 cursor-pointer transition"
                     required
                 />
-                <button type="submit" :disabled="importForm.processing" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-lg font-bold transition disabled:opacity-50 whitespace-nowrap shadow-sm">
+                <button type="submit" :disabled="importForm.processing" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-lg font-bold transition disabled:opacity-50 whitespace-nowrap ">
                     {{ importForm.processing ? 'Uploading...' : 'Import CSV' }}
                 </button>
             </form>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 col-span-1 h-fit">
+            <div class="bg-white p-6 rounded-xl  border border-gray-200 col-span-1 h-fit">
                 <h2 class="text-lg font-bold text-slate-900 mb-5 border-b border-slate-100 pb-3">
                     {{ isEditing ? 'Edit User Profile' : 'Create New User' }}
                 </h2>
@@ -51,27 +51,27 @@
                 <form @submit.prevent="submitUser" class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Full Name</label>
-                        <input type="text" v-model="form.name" placeholder="e.g. Ali Bin Abu" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg shadow-sm focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5" required>
+                        <input type="text" v-model="form.name" placeholder="e.g. Ali Bin Abu" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5" required>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Username</label>
-                        <input type="text" v-model="form.username" placeholder="e.g. ali_abu" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg shadow-sm focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5" required>
+                        <input type="text" v-model="form.username" placeholder="e.g. ali_abu" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5" required>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Email Address</label>
-                        <input type="email" v-model="form.email" placeholder="e.g. ali@beats.edu" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg shadow-sm focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5" required>
+                        <input type="email" v-model="form.email" placeholder="e.g. ali@beats.edu" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5" required>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Student / Staff ID</label>
-                        <input type="text" v-model="form.student_id" placeholder="e.g. ST-2024" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg shadow-sm focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5">
+                        <input type="text" v-model="form.student_id" placeholder="e.g. ST-2024" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5">
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">System Role</label>
-                        <select v-model="form.role" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg shadow-sm focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5 font-medium" required>
+                        <select v-model="form.role" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5 font-medium" required>
                             <option value="student">Student</option>
                             <option value="lecturer">Lecturer</option>
                             <option value="admin">Administrator</option>
@@ -83,11 +83,11 @@
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">
                                 Password <span v-if="isEditing" class="text-[10px] font-normal lowercase">(Leave blank to keep current)</span>
                             </label>
-                            <input type="password" v-model="form.password" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg shadow-sm focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5" :required="!isEditing">
+                            <input type="password" v-model="form.password" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5" :required="!isEditing">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Confirm Password</label>
-                            <input type="password" v-model="form.password_confirmation" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg shadow-sm focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5" :required="!isEditing || form.password.length > 0">
+                            <input type="password" v-model="form.password_confirmation" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5" :required="!isEditing || form.password.length > 0">
                         </div>
                     </div>
 
@@ -95,19 +95,19 @@
                         <button v-if="isEditing" type="button" @click="cancelEdit" class="bg-gray-100 hover:bg-gray-200 text-slate-700 px-4 py-2 rounded-lg font-bold transition">
                             Cancel
                         </button>
-                        <button type="submit" :disabled="form.processing" class="bg-slate-900 hover:bg-slate-800 text-white px-6 py-2.5 rounded-lg font-bold transition disabled:opacity-50 w-full shadow-sm">
+                        <button type="submit" :disabled="form.processing" class="bg-slate-900 hover:bg-slate-800 text-white px-6 py-2.5 rounded-lg font-bold transition disabled:opacity-50 w-full ">
                             {{ isEditing ? 'Update Profile' : 'Save New User' }}
                         </button>
                     </div>
                 </form>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden col-span-1 lg:col-span-2">
+            <div class="bg-white rounded-xl  border border-gray-200 overflow-hidden col-span-1 lg:col-span-2">
                 <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row md:justify-between md:items-center bg-white gap-4">
                     <h2 class="text-lg font-bold text-slate-900">Active Directory</h2>
                     <div class="relative w-full md:w-72">
                         <svg class="w-4 h-4 absolute left-3 top-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        <input type="text" v-model="searchQuery" placeholder="Search by name or ID..." class="w-full bg-[#f8fafc] border-gray-200 rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-orange-600 focus:border-orange-600 shadow-sm">
+                        <input type="text" v-model="searchQuery" placeholder="Search by name or ID..." class="w-full bg-[#f8fafc] border-gray-200 rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-orange-600 focus:border-orange-600 ">
                     </div>
                 </div>
 

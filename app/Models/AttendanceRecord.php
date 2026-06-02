@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 
 class AttendanceRecord extends Model
 {
+    use Auditable;
+
     protected $guarded = [];
 
     protected function casts(): array

@@ -32,7 +32,7 @@
                     </div>
                     <div class="pt-4 flex justify-end gap-3">
                         <button type="button" @click="showAddForm = false" class="px-6 py-2 text-slate-600 font-bold hover:text-slate-800 transition">Cancel</button>
-                        <button type="submit" :disabled="form.processing" class="px-6 py-2 bg-orange-600 text-white rounded-xl font-bold shadow-sm hover:bg-orange-700 transition">Assign Course</button>
+                        <button type="submit" :disabled="form.processing" class="px-6 py-2 bg-orange-600 text-white rounded-xl font-bold  hover:bg-orange-700 transition">Assign Course</button>
                     </div>
                 </form>
             </div>
@@ -43,13 +43,13 @@
                 <h1 class="text-2xl font-semibold mb-2 text-gray-900">Lecturer Management</h1>
                 <p class="text-slate-600 text-sm font-medium">Manage faculty members, track assigned courses, and view performance metrics.</p>
             </div>
-            <button @click="showAddForm = true" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-sm transition flex items-center gap-2 text-sm">
+            <button @click="showAddForm = true" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold  transition flex items-center gap-2 text-sm">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Assign Course
             </button>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="bg-white rounded-2xl  border border-gray-100 overflow-hidden">
             <div class="p-6 border-b border-gray-100 bg-white">
                 <h2 class="text-lg font-black text-slate-900">Lecturer Directory & Assignments</h2>
             </div>
@@ -70,7 +70,7 @@
                     </td>
                     <td class="px-8 py-4">
                         <div class="flex flex-wrap gap-2">
-                            <div v-for="enrollment in lecturer.course_enrollments" :key="enrollment.id" 
+                            <div v-for="enrollment in lecturer.course_enrollments" :key="enrollment.id"
                                 class="flex items-center gap-2 bg-orange-50 text-orange-800 px-3 py-1 rounded-full text-[10px] font-bold border border-orange-100">
                                 {{ enrollment.course?.code }}
                                 <button @click="deleteAssignment(enrollment.id)" class="text-orange-400 hover:text-rose-600 transition">

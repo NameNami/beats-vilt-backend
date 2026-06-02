@@ -27,7 +27,7 @@ class AdminGamificationController extends Controller
             'description' => 'required|string',
             'icon_path' => 'nullable|string',
             'type' => 'required|string',
-            'requirement_type' => 'required|in:early_checkins,on_time_checkins,streak_count,total_xp',
+            'requirement_type' => 'required|in:present_checkins,on_time_checkins,streak_count,total_xp',
             'requirement_value' => 'required|integer|min:1',
         ]);
 
@@ -44,7 +44,7 @@ class AdminGamificationController extends Controller
             'description' => 'required|string',
             'icon_path' => 'nullable|string',
             'type' => 'required|string',
-            'requirement_type' => 'required|in:early_checkins,on_time_checkins,streak_count,total_xp',
+            'requirement_type' => 'required|in:present_checkins,on_time_checkins,streak_count,total_xp',
             'requirement_value' => 'required|integer|min:1',
         ]);
 
