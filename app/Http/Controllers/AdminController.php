@@ -8,9 +8,11 @@ use App\Models\CourseEnrollment;
 use App\Models\Lab;
 use App\Models\ClassSession;
 use App\Models\Room;
+use App\Models\SystemSetting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
@@ -101,18 +103,88 @@ class AdminController extends Controller
     /**
      * 4. Class Session Management
      */
-    public function manageSessions()
+    public function manageSessions(Request $request)
     {
-        $sessions = ClassSession::with(['course', 'lab', 'lecturer', 'room'])
-            ->orderBy('start_time', 'desc')
-            ->get();
+        $date = $request->input('date') ? Carbon::parse($request->input('date')) : now();
+        $startOfWeek = $date->copy()->startOfWeek(Carbon::MONDAY);
+        $endOfWeek = $date->copy()->endOfWeek(Carbon::SUNDAY);
+
+        $courseIdFilter = $request->input('course_id');
+        $facultyFilter = $request->input('faculty');
+
+        $semesterStartDate = Carbon::parse(SystemSetting::get('semester_start_date', '2026-03-04'));
+        $totalWeeks = (int) SystemSetting::get('semester_total_weeks', 14);
+        $semesterEndDate = $semesterStartDate->copy()->addWeeks($totalWeeks)->endOfWeek(Carbon::SUNDAY);
+
+        $currentWeek = (int) $semesterStartDate->diffInWeeks($startOfWeek) + 1;
+
+        $query = ClassSession::with(['course', 'lab', 'lecturer', 'room'])
+            ->whereBetween('start_time', [$startOfWeek, $endOfWeek]);
+
+        if ($courseIdFilter) {
+            $query->where('course_id', $courseIdFilter);
+        }
+
+        if ($facultyFilter) {
+            $query->whereHas('course', function($q) use ($facultyFilter) {
+                $q->where('faculty', $facultyFilter);
+            });
+        }
+
+        $sessions = $query->get();
+
+        // Map unique courses to colors
+        $courseIds = $sessions->pluck('course_id')->unique()->values();
+        $availableColors = ['blue', 'emerald', 'purple', 'orange', 'rose', 'slate', 'indigo', 'cyan'];
+        $courseColorMap = [];
+
+        foreach ($courseIds as $index => $courseId) {
+            $courseColorMap[$courseId] = $availableColors[$index % count($availableColors)];
+        }
+
+        $formattedSessions = $sessions->map(function ($session) use ($courseColorMap) {
+            return [
+                'id' => $session->id,
+                'courseCode' => $session->course->code,
+                'title' => $session->course->name,
+                'day' => $session->start_time->format('l'),
+                'date' => $session->start_time->toDateString(),
+                'start' => $session->start_time->format('H:i'),
+                'end' => $session->end_time->format('H:i'),
+                'mode' => $session->mode,
+                'lab' => $session->lab ? $session->lab->name : 'Lecture',
+                'location' => $session->room ? $session->room->name : 'N/A',
+                'instructor' => $session->lecturer?->name ?? 'N/A',
+                'students' => $session->course->students()->count(),
+                'color' => $courseColorMap[$session->course_id] ?? 'indigo',
+                'isCancelled' => $session->is_cancelled,
+                'isOngoing' => now()->between($session->start_time, $session->end_time) && !$session->is_cancelled,
+
+                // CRUD fields
+                'course_id' => $session->course_id,
+                'lab_id' => $session->lab_id,
+                'lecturer_id' => $session->lecturer_id,
+                'room_id' => $session->room_id,
+                'start_time' => $session->start_time,
+                'end_time' => $session->end_time,
+                'checkin_method' => $session->checkin_method,
+            ];
+        });
 
         return Inertia::render('Admin/ManageSessions', [
-            'sessions' => $sessions,
+            'sessions' => $formattedSessions,
             'courses' => Course::all(),
             'labs' => Lab::all(),
             'lecturers' => User::where('role', 'lecturer')->get(),
             'rooms' => Room::all(),
+            'weekStartDate' => $startOfWeek->toDateString(),
+            'currentWeek' => $currentWeek,
+            'semesterStart' => $semesterStartDate->toDateString(),
+            'semesterEnd' => $semesterEndDate->toDateString(),
+            'filters' => [
+                'course_id' => $courseIdFilter,
+                'faculty' => $facultyFilter,
+            ]
         ]);
     }
 
@@ -128,6 +200,28 @@ class AdminController extends Controller
             'mode' => 'required|in:online,physical',
             'checkin_method' => 'required|in:ble,qr,manual',
         ]);
+
+        $conflict = ClassSession::where(function ($query) use ($validated) {
+            $query->where('room_id', $validated['room_id'])
+                  ->orWhere('lecturer_id', $validated['lecturer_id'])
+                  ->orWhere('lab_id', $validated['lab_id']);
+        })->where(function ($query) use ($validated) {
+            $query->whereBetween('start_time', [$validated['start_time'], $validated['end_time']])
+                  ->orWhereBetween('end_time', [$validated['start_time'], $validated['end_time']])
+                  ->orWhere(function ($q) use ($validated) {
+                      $q->where('start_time', '<=', $validated['start_time'])
+                        ->where('end_time', '>=', $validated['end_time']);
+                  });
+        })->first();
+
+        if ($conflict) {
+            $conflictReason = [];
+            if ($conflict->room_id == $validated['room_id']) $conflictReason[] = 'Room';
+            if ($conflict->lecturer_id == $validated['lecturer_id']) $conflictReason[] = 'Lecturer';
+            if ($conflict->lab_id == $validated['lab_id']) $conflictReason[] = 'Lab Group';
+            
+            return back()->withErrors(['conflict' => 'Scheduling conflict detected for: ' . implode(', ', $conflictReason) . '. Please select a different time, room, or lecturer.']);
+        }
 
         ClassSession::create($validated);
 
@@ -147,6 +241,29 @@ class AdminController extends Controller
             'mode' => 'required|in:online,physical',
             'checkin_method' => 'required|in:ble,qr,manual',
         ]);
+
+        $conflict = ClassSession::where('id', '!=', $id)
+            ->where(function ($query) use ($validated) {
+                $query->where('room_id', $validated['room_id'])
+                      ->orWhere('lecturer_id', $validated['lecturer_id'])
+                      ->orWhere('lab_id', $validated['lab_id']);
+            })->where(function ($query) use ($validated) {
+                $query->whereBetween('start_time', [$validated['start_time'], $validated['end_time']])
+                      ->orWhereBetween('end_time', [$validated['start_time'], $validated['end_time']])
+                      ->orWhere(function ($q) use ($validated) {
+                          $q->where('start_time', '<=', $validated['start_time'])
+                            ->where('end_time', '>=', $validated['end_time']);
+                      });
+            })->first();
+
+        if ($conflict) {
+            $conflictReason = [];
+            if ($conflict->room_id == $validated['room_id']) $conflictReason[] = 'Room';
+            if ($conflict->lecturer_id == $validated['lecturer_id']) $conflictReason[] = 'Lecturer';
+            if ($conflict->lab_id == $validated['lab_id']) $conflictReason[] = 'Lab Group';
+            
+            return back()->withErrors(['conflict' => 'Scheduling conflict detected for: ' . implode(', ', $conflictReason) . '. Please select a different time, room, or lecturer.']);
+        }
 
         $session->update($validated);
 

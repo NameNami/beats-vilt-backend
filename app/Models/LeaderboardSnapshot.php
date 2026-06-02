@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
 #[Fillable(['user_id', 'course_id', 'period_type', 'xp_at_snapshot', 'rank'])]
 class LeaderboardSnapshot extends Model
 {
+    use Auditable;
+
     const CREATED_AT = 'created_at';
     public $timestamps = false;
 

@@ -19,7 +19,8 @@ class AdminBleDeviceController extends Controller
                 'room_id' => $beacon->room_id,
                 'room_name' => $beacon->room?->name,
                 'status' => $beacon->status,
-                'battery' => $beacon->battery,
+                'rssi_threshold' => $beacon->rssi_threshold,
+                'last_seen' => $beacon->last_seen?->diffForHumans(),
             ];
         });
 
@@ -36,6 +37,7 @@ class AdminBleDeviceController extends Controller
         $validated = $request->validate([
             'room_id' => 'nullable|exists:rooms,id',
             'status' => 'required|string|in:Online,Offline,Maintenance,Unassigned',
+            'rssi_threshold' => 'required|integer|between:-100,0',
         ]);
 
         // If room_id is null, force status to Unassigned (matching frontend logic)

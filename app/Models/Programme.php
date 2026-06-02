@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 
@@ -9,6 +11,8 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 
 class Programme extends Model
 {
+    use Auditable;
+
     public function users()
     {
         return $this->hasMany(User::class);

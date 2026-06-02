@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
 #[Fillable(['session_id', 'token', 'expires_at'])]
 class QrToken extends Model
 {
+    use Auditable;
+
     protected function casts(): array
     {
         return [

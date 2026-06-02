@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,6 +17,8 @@ use Illuminate\Database\Eloquent\Model;
 ])]
 class Badge extends Model
 {
+    use Auditable;
+
     protected function casts(): array
     {
         return ['requirement_value' => 'integer'];
