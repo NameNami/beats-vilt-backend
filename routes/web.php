@@ -82,12 +82,28 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     Route::get('/settings', [App\Http\Controllers\AdminSettingsController::class, 'index'])->name('settings');
     Route::post('/settings', [App\Http\Controllers\AdminSettingsController::class, 'update'])->name('settings.update');
+    Route::post('/settings/profile', [App\Http\Controllers\AdminSettingsController::class, 'updateProfile'])->name('settings.profile');
+    Route::post('/settings/password', [App\Http\Controllers\AdminSettingsController::class, 'updatePassword'])->name('settings.password');
+    Route::post('/settings/photo', [App\Http\Controllers\AdminSettingsController::class, 'updatePhoto'])->name('settings.photo');
+    Route::delete('/settings/photo', [App\Http\Controllers\AdminSettingsController::class, 'deletePhoto'])->name('settings.photo.delete');
 
     // BLE Device Management
     Route::get('/ble-devices', [App\Http\Controllers\AdminBleDeviceController::class, 'index'])->name('ble-devices.index');
     Route::put('/ble-devices/{beacon}', [App\Http\Controllers\AdminBleDeviceController::class, 'update'])->name('ble-devices.update');
     Route::put('/ble-devices/{beacon}/unassign', [App\Http\Controllers\AdminBleDeviceController::class, 'unassign'])->name('ble-devices.unassign');
     Route::post('/ble-devices/scan', [App\Http\Controllers\AdminBleDeviceController::class, 'scan'])->name('ble-devices.scan');
+
+    // Gamification Management
+    Route::get('/badges', [App\Http\Controllers\AdminGamificationController::class, 'manageBadges'])->name('badges.index');
+    Route::post('/badges', [App\Http\Controllers\AdminGamificationController::class, 'storeBadge'])->name('badges.store');
+    Route::post('/badges/update/{id}', [App\Http\Controllers\AdminGamificationController::class, 'updateBadge'])->name('badges.update');
+    Route::post('/badges/delete/{id}', [App\Http\Controllers\AdminGamificationController::class, 'deleteBadge'])->name('badges.destroy');
+
+    Route::get('/redemptions', [App\Http\Controllers\AdminGamificationController::class, 'manageRedemptions'])->name('redemptions.index');
+    Route::post('/rewards', [App\Http\Controllers\AdminGamificationController::class, 'storeReward'])->name('rewards.store');
+    Route::post('/rewards/update/{id}', [App\Http\Controllers\AdminGamificationController::class, 'updateReward'])->name('rewards.update');
+    Route::post('/rewards/delete/{id}', [App\Http\Controllers\AdminGamificationController::class, 'deleteReward'])->name('rewards.destroy');
+    Route::post('/redemptions/status/{id}', [App\Http\Controllers\AdminGamificationController::class, 'updateRedemptionStatus'])->name('redemptions.update-status');
 });
 
 

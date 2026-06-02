@@ -3,19 +3,16 @@
 
         <div class="flex justify-between items-end mb-8">
             <div>
-                <p class="text-xs font-bold tracking-widest text-amber-700 uppercase mb-2">Curriculum Setup</p>
-                <h2 class="text-4xl font-black text-slate-900 tracking-tight leading-tight">
-                    Course <span class="text-amber-600 italic">Administration</span>
-                </h2>
-                <p class="text-slate-600 mt-3">Define academic subjects, manage faculties, and configure lab capacities.</p>
+                <h1 class="text-2xl font-semibold mb-2 text-gray-900">Course Administration</h1>
+                <p class="text-slate-600 text-sm font-medium">Define academic subjects, manage faculties, and configure lab capacities.</p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 col-span-1 h-fit">
-                <h2 class="text-lg font-black text-slate-800 mb-5 border-b border-gray-100 pb-3 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                <h2 class="text-lg font-bold text-slate-900 mb-5 border-b border-slate-100 pb-3 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                     {{ isEditing ? 'Edit Course' : 'Create New Course' }}
                 </h2>
 
@@ -43,7 +40,7 @@
                         <button v-if="isEditing" type="button" @click="cancelEdit" class="bg-gray-100 hover:bg-gray-200 text-slate-700 px-4 py-2 rounded-lg font-bold transition">
                             Cancel
                         </button>
-                        <button type="submit" :disabled="form.processing" class="bg-amber-700 hover:bg-amber-800 text-white px-6 py-2.5 rounded-lg font-bold transition disabled:opacity-50 w-full shadow-sm">
+                        <button type="submit" :disabled="form.processing" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-lg font-bold transition disabled:opacity-50 w-full shadow-sm">
                             {{ isEditing ? 'Update Course' : 'Save Course' }}
                         </button>
                     </div>
@@ -51,7 +48,7 @@
 
                 <!-- Lab Management Section (Only visible when editing a course) -->
                 <div v-if="isEditing" class="mt-8 pt-8 border-t border-gray-100">
-                    <h2 class="text-lg font-black text-slate-800 mb-5 flex items-center gap-2">
+                    <h2 class="text-lg font-bold text-slate-900 mb-5 flex items-center gap-2">
                         <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                         Manage Labs
                     </h2>
@@ -93,9 +90,9 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden col-span-1 lg:col-span-2">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden col-span-1 lg:col-span-2">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
-                    <h2 class="text-lg font-black text-slate-800">Academic Catalog</h2>
+                    <h2 class="text-lg font-bold text-slate-900">Academic Catalog</h2>
                 </div>
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -126,7 +123,7 @@
                             <span class="px-2 py-1 bg-slate-100 text-slate-600 rounded text-[10px] font-black uppercase">{{ course.labs?.length || 0 }} Labs</span>
                         </td>
                         <td class="px-6 py-4 text-right space-x-3">
-                            <button @click="editCourse(course)" class="text-slate-400 hover:text-amber-600 transition"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                            <button @click="editCourse(course)" class="text-slate-400 hover:text-orange-600 transition"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
                             <button @click="deleteCourse(course.id)" class="text-slate-400 hover:text-rose-600 transition"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                         </td>
                     </tr>

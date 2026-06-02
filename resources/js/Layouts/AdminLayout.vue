@@ -17,7 +17,9 @@ import {
     Info,
     GraduationCap,
     Briefcase,
-    Radio
+    Radio,
+    Award,
+    Gift
 } from 'lucide-vue-next';
 
 // Grab the user globally from Inertia
@@ -176,6 +178,26 @@ onUnmounted(() => {
                 >
                     <BarChart3 class="w-5 h-5" />
                     Global Analytics
+                </Link>
+
+                <div class="px-3 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-4">Gamification</div>
+
+                <Link
+                    href="/admin/badges"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                    :class="[ $page.url.startsWith('/admin/badges') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
+                >
+                    <Award class="w-5 h-5" />
+                    Manage Badges
+                </Link>
+
+                <Link
+                    href="/admin/redemptions"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                    :class="[ $page.url.startsWith('/admin/redemptions') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
+                >
+                    <Gift class="w-5 h-5" />
+                    Redemptions
                 </Link>
             </nav>
 

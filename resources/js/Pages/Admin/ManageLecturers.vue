@@ -32,7 +32,7 @@
                     </div>
                     <div class="pt-4 flex justify-end gap-3">
                         <button type="button" @click="showAddForm = false" class="px-6 py-2 text-slate-600 font-bold hover:text-slate-800 transition">Cancel</button>
-                        <button type="submit" :disabled="form.processing" class="px-6 py-2 bg-amber-700 text-white rounded-xl font-bold shadow-sm hover:bg-amber-800 transition">Assign Course</button>
+                        <button type="submit" :disabled="form.processing" class="px-6 py-2 bg-orange-600 text-white rounded-xl font-bold shadow-sm hover:bg-orange-700 transition">Assign Course</button>
                     </div>
                 </form>
             </div>
@@ -40,12 +40,10 @@
 
         <div class="flex justify-between items-end mb-8">
             <div>
-                <h2 class="text-4xl font-black text-slate-900 tracking-tight leading-tight">
-                    Lecturer Management
-                </h2>
-                <p class="text-slate-600 mt-2">Manage faculty members, track assigned courses, and view performance metrics.</p>
+                <h1 class="text-2xl font-semibold mb-2 text-gray-900">Lecturer Management</h1>
+                <p class="text-slate-600 text-sm font-medium">Manage faculty members, track assigned courses, and view performance metrics.</p>
             </div>
-            <button @click="showAddForm = true" class="bg-amber-700 hover:bg-amber-800 text-white px-6 py-3 rounded-xl font-bold shadow-sm transition flex items-center gap-2">
+            <button @click="showAddForm = true" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-sm transition flex items-center gap-2 text-sm">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Assign Course
             </button>
@@ -73,9 +71,9 @@
                     <td class="px-8 py-4">
                         <div class="flex flex-wrap gap-2">
                             <div v-for="enrollment in lecturer.course_enrollments" :key="enrollment.id" 
-                                class="flex items-center gap-2 bg-amber-50 text-amber-800 px-3 py-1 rounded-full text-[10px] font-bold border border-amber-100">
+                                class="flex items-center gap-2 bg-orange-50 text-orange-800 px-3 py-1 rounded-full text-[10px] font-bold border border-orange-100">
                                 {{ enrollment.course?.code }}
-                                <button @click="deleteAssignment(enrollment.id)" class="text-amber-400 hover:text-rose-600 transition">
+                                <button @click="deleteAssignment(enrollment.id)" class="text-orange-400 hover:text-rose-600 transition">
                                     <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                                 </button>
                             </div>
@@ -83,7 +81,7 @@
                         </div>
                     </td>
                     <td class="px-8 py-4 text-right">
-                        <Link :href="route('admin.users.index')" class="text-slate-400 hover:text-amber-700 transition inline-block">
+                        <Link :href="route('admin.users.index')" class="text-slate-400 hover:text-orange-600 transition inline-block">
                             <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                         </Link>
                     </td>
