@@ -24,9 +24,13 @@
         "@vitejs/plugin-vue": "^6.0.5",
         "@vueuse/core": "^14.3.0",
         "@vueuse/integrations": "^14.3.0",
+        "apexcharts": "^5.13.0",
+        "dayjs": "^1.11.20",
+        "flowbite": "^4.0.2",
+        "flowbite-datepicker": "^2.0.0",
         "lucide-vue-next": "^1.0.0",
         "qrcode": "^1.5.4",
-        "dayjs": "^1.11.20",
-        "vue": "^3.5.31"
+        "vue": "^3.5.31",
+        "vue3-apexcharts": "^1.11.1"
     }
 }

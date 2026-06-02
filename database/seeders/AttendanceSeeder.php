@@ -56,10 +56,9 @@ class AttendanceSeeder extends Seeder
                     }
                 }
 
-                if (in_array($status, ['early', 'on-time', 'late', 'present'])) {
+                if (in_array($status, ['on-time', 'late', 'present'])) {
                     $start = Carbon::parse($session->start_time);
                     $checkIn = match ($status) {
-                        'early'   => $start->copy()->subMinutes(rand(5, 15)),
                         'on-time' => $start->copy()->addMinutes(rand(0, 5)),
                         'late'    => $start->copy()->addMinutes(rand(11, 25)),
                         'present' => $start->copy()->addMinutes(rand(0, 10)),
@@ -85,8 +84,8 @@ class AttendanceSeeder extends Seeder
 
     private function getRandomPresentStatus()
     {
-        $statuses = ['early', 'on-time', 'late', 'present'];
-        $weights = [20, 50, 20, 10]; // Probabilities
+        $statuses = ['on-time', 'late', 'present'];
+        $weights = [70, 20, 10]; // Probabilities
         
         $r = rand(1, 100);
         $current = 0;

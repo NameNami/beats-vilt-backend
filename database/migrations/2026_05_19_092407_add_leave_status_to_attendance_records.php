@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         if (DB::getDriverName() === 'mysql') {
-            DB::statement("ALTER TABLE attendance_records MODIFY COLUMN status ENUM('early', 'on-time', 'late', 'absent', 'present', 'leave') NOT NULL");
+            DB::statement("ALTER TABLE attendance_records MODIFY COLUMN status ENUM('on-time', 'late', 'absent', 'present', 'leave') NOT NULL");
         }
     }
 
@@ -23,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         if (DB::getDriverName() === 'mysql') {
-            DB::statement("ALTER TABLE attendance_records MODIFY COLUMN status ENUM('early', 'on-time', 'late', 'absent', 'present') NOT NULL");
+            DB::statement("ALTER TABLE attendance_records MODIFY COLUMN status ENUM('on-time', 'late', 'absent', 'present') NOT NULL");
         }
     }
 };

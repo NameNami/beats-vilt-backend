@@ -34,12 +34,6 @@ class RewardSeeder extends Seeder
                 'is_active'   => true,
             ],
             [
-                'name'        => 'Early Exam Registration',
-                'cost_points' => 500,
-                'stock'       => 20,
-                'is_active'   => true,
-            ],
-            [
                 'name'        => 'BEATS Exclusive Hoodie',
                 'cost_points' => 1000,
                 'stock'       => 10,

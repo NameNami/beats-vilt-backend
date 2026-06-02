@@ -21,3 +21,8 @@ Schedule::command('app:change-beacon-status')
 
 Schedule::command('app:renew-beacon-uuid')
     ->everyFiveMinutes();
+
+Schedule::command('gamification:snapshot-leaderboard')
+    ->weeklyOn(0, '23:59') // Runs every Sunday at 23:59
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/leaderboard-snapshot.log'));

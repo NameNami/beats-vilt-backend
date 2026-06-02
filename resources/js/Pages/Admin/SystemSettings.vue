@@ -17,7 +17,7 @@
                     <h2 class="text-lg font-bold text-slate-900 mb-1">Personal Profile</h2>
                     <p class="text-sm text-slate-500">Update your account information and profile picture.</p>
                 </div>
-                
+
                 <div class="lg:col-span-2 space-y-6">
                     <!-- Profile Info Card -->
                     <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-10">
@@ -51,7 +51,7 @@
 
                         <!-- Profile Picture -->
                         <div class="flex flex-col items-center space-y-4">
-                            <div class="w-32 h-32 rounded-[2rem] border-4 border-slate-50 shadow-inner overflow-hidden flex items-center justify-center bg-slate-100 relative">
+                            <div class="w-32 h-32 rounded-[2rem] border-4 border-slate-50 shadow-inner overflow-hidden flex items-center justify-center bg-slate-100 relative">      
                                 <img :src="profilePhotoUrl" alt="Profile" class="w-full h-full object-cover">
                                 <div v-if="isUploading" class="absolute inset-0 bg-black/20 flex items-center justify-center">
                                     <div class="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -60,7 +60,7 @@
                             <div class="flex flex-col items-center gap-2">
                                 <div class="flex items-center gap-2">
                                     <input type="file" ref="photoInput" class="hidden" accept="image/*" @change="onPhotoChange">
-                                    <button @click="triggerPhotoInput" class="px-4 py-1.5 bg-white border border-gray-200 rounded-full text-xs font-bold text-slate-700 hover:bg-slate-50 transition flex items-center gap-2 shadow-sm">
+                                    <button @click="triggerPhotoInput" class="px-4 py-1.5 bg-white border border-gray-100 rounded-full text-xs font-bold text-slate-700 hover:bg-slate-50 transition flex items-center gap-2 shadow-sm">
                                         <Camera class="w-3.5 h-3.5" />
                                         Change
                                     </button>

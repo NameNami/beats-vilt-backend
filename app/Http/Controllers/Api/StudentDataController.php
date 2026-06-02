@@ -158,7 +158,7 @@ class StudentDataController extends Controller
     public function getAttendanceHistory(Request $request)
     {
         $attendance = $request->user()->attendanceRecords()
-            ->with(['session.course', 'session.lecturer', 'session.room'])
+            ->with(['classSession.course', 'classSession.lecturer', 'classSession.room'])
             ->orderBy('check_in_time', 'desc')
             ->get();
 
@@ -166,6 +166,46 @@ class StudentDataController extends Controller
             'status' => 'success',
             'data' => $attendance
         ], 200);
+    }
+
+    /**
+     * Return the student's redemption history.
+     */
+    public function getRedemptions(Request $request)
+    {
+        $redemptions = $request->user()->redemptions()
+            ->with('reward')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $redemptions
+        ], 200);
+    }
+
+    /**
+     * Mark a specific notification as read.
+     */
+    public function markNotificationAsRead(Request $request, Notification $notification)
+    {
+        if ($notification->user_id !== $request->user()->id) {
+            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
+        }
+
+        $notification->update(['is_read' => true]);
+
+        return response()->json(['status' => 'success', 'message' => 'Notification marked as read']);
+    }
+
+    /**
+     * Mark all notifications as read.
+     */
+    public function markAllNotificationsAsRead(Request $request)
+    {
+        $request->user()->appNotifications()->where('is_read', false)->update(['is_read' => true]);
+
+        return response()->json(['status' => 'success', 'message' => 'All notifications marked as read']);
     }
 
     /**
@@ -232,6 +272,29 @@ class StudentDataController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $schedule
+        ], 200);
+    }
+
+    /**
+     * Retrieve the active beacons for a specific room.
+     */
+    public function getRoomBeacons($roomId)
+    {
+        $beacons = Beacon::where('room_id', $roomId)
+            ->where('status', 'online')
+            ->select('id', 'uuid', 'mac_address', 'rssi_threshold')
+            ->get();
+
+        if ($beacons->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No active beacons found for this room'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $beacons
         ], 200);
     }
 }

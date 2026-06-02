@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
-            $table->string('key')->unique(); // e.g., 'early_window_minutes'
+            $table->string('key')->unique(); // e.g., 'late_window_minutes'
             $table->string('value');         // e.g., '15'
             $table->timestamps();
         });
