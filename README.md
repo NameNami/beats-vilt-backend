@@ -1,58 +1,115 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# BEATS: Bluetooth Enabled Attendance Tracking System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+BEATS is a modern, automated student attendance tracking platform designed to eliminate the friction of manual roll-calls. Built on the VILT stack (Vue, Inertia, Laravel, Tailwind), BEATS leverages a robust Bluetooth Low Energy (BLE) ecosystem and dynamic QR codes to provide seamless check-ins. A sophisticated built-in gamification engine motivates student participation through XP, streaks, levels, and badges.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🌟 Key Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Seamless Attendance Ecosystem
+*   **Proximity-based BLE Check-ins:** Students automatically mark their attendance via mobile devices when in range of classroom BLE beacons.
+*   **Dynamic QR Codes:** A fallback method utilizing time-sensitive, rotating QR codes projected by the lecturer.
+*   **Automated Processing:** Background jobs automatically classify missing students as 'Absent' once a class session concludes.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Gamification Engine
+*   **XP & Leveling:** Students earn XP for on-time and present check-ins, leveling up their gamification profiles.
+*   **Streaks:** Consecutive check-ins build streaks that award multiplier bonuses.
+*   **Achievement Badges:** Custom badges (e.g., "Present Check-ins", "Total XP") are automatically awarded when requirements are met.
+*   **Leaderboards:** Global and course-specific leaderboards with automated snapshots foster healthy competition.
+*   **Reward Redemptions:** Students can exchange earned XP/currency for real-world rewards.
 
-## Learning Laravel
+### Multi-Role Dashboards
+*   **Administrator Portal:** Total system control including user management, course/session scheduling, BLE device assignments, gamification asset creation, and system-wide analytics.
+*   **Lecturer Portal:** Tools to manage daily classroom attendance, generate QR codes, view course-specific reports, process student leave applications, and identify "at-risk" students.
+*   **Student App (API):** A dedicated, secure API layer for the mobile app, allowing students to check in, view their timetables, track their attendance history, and monitor their gamification progress.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### System-Wide Audit Logging
+*   **Full Accountability:** An automated `Auditable` trait tracks every creation, update, and deletion across all primary models.
+*   **Transparent History:** An administrative interface provides a searchable, filterable ledger of exactly who changed what, complete with old and new values.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## 🛠️ Technology Stack
 
-## Agentic Development
+*   **Framework:** Laravel 11.x
+*   **Frontend:** Vue.js 3 + Inertia.js
+*   **Styling:** Tailwind CSS + Lucide Icons
+*   **Database:** MySQL
+*   **Authentication:** Laravel Sanctum (API) & Session based (Web)
+*   **Task Scheduling:** Laravel Task Scheduler
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+---
+
+## 🚀 Setup & Installation
+
+### Prerequisites
+*   PHP >= 8.2
+*   Composer
+*   Node.js & NPM
+*   MySQL
+
+### Local Development
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/NameNami/beats-vilt-backend.git
+    cd beats-vilt-backend
+    ```
+
+2.  **Install PHP dependencies:**
+    ```bash
+    composer install
+    ```
+
+3.  **Install Node dependencies:**
+    ```bash
+    npm install
+    ```
+
+4.  **Environment Setup:**
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
+    *Update the `.env` file with your local MySQL database credentials.*
+
+5.  **Database Migration & Seeding:**
+    Run the migrations and seed the database with initial testing data (users, courses, sessions, beacons, etc.):
+    ```bash
+    php artisan migrate:fresh --seed
+    ```
+
+6.  **Compile Frontend Assets:**
+    ```bash
+    npm run dev
+    ```
+
+7.  **Serve the Application:**
+    ```bash
+    php artisan serve
+    ```
+
+8.  **Run the Scheduler (Optional but recommended):**
+    To ensure background tasks (like beacon rotation and automated absences) fire:
+    ```bash
+    php artisan schedule:work
+    ```
+
+---
+
+## 🔐 Testing Accounts
+
+The database seeder creates standard testing accounts:
+*   **Admin:** `admin@beats.com` / `password`
+*   **Lecturer:** `lecturer@beats.com` / `password`
+*   **Student:** `student@beats.com` / `password`
+
+---
+
+## 🧪 Testing
+
+The project is thoroughly tested using Pest. To run the test suite:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+php artisan test
 ```
-
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
