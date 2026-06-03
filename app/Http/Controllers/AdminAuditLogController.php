@@ -40,13 +40,23 @@ class AdminAuditLogController extends Controller
             }
         }
 
-        $logs = $query->latest()
-            ->paginate(50)
-            ->withQueryString();
+        // Sorting
+        $sortField = $request->input('sort', 'created_at');
+        $sortDirection = $request->input('direction', 'desc');
+
+        // Whitelist allowed sort columns to prevent SQL injection
+        $allowedSorts = ['created_at', 'action', 'model_type'];
+        if (in_array($sortField, $allowedSorts)) {
+            $query->orderBy($sortField, $sortDirection === 'asc' ? 'asc' : 'desc');
+        } else {
+            $query->latest(); // fallback
+        }
+
+        $logs = $query->paginate(50)->withQueryString();
 
         return Inertia::render('Admin/AuditLogs', [
             'logs' => $logs,
-            'filters' => $request->only(['search', 'action', 'date_range'])
+            'filters' => $request->only(['search', 'action', 'date_range', 'sort', 'direction'])
         ]);
     }
 }

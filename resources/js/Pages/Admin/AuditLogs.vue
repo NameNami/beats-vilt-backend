@@ -58,10 +58,25 @@
                 <table class="w-full text-left text-sm">
                     <thead class="bg-gray-50/50 text-gray-500 text-[11px] uppercase tracking-widest font-bold">
                         <tr>
-                            <th class="px-6 py-4">Timestamp</th>
+                            <th class="px-6 py-4 cursor-pointer hover:bg-gray-100 transition" @click="sortBy('created_at')">
+                                <div class="flex items-center gap-1">
+                                    Timestamp
+                                    <svg v-if="filters.sort === 'created_at'" class="w-3 h-3" :class="filters.direction === 'asc' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </th>
                             <th class="px-6 py-4">User</th>
-                            <th class="px-6 py-4">Action</th>
-                            <th class="px-6 py-4">Model</th>
+                            <th class="px-6 py-4 cursor-pointer hover:bg-gray-100 transition" @click="sortBy('action')">
+                                <div class="flex items-center gap-1">
+                                    Action
+                                    <svg v-if="filters.sort === 'action'" class="w-3 h-3" :class="filters.direction === 'asc' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 cursor-pointer hover:bg-gray-100 transition" @click="sortBy('model_type')">
+                                <div class="flex items-center gap-1">
+                                    Model
+                                    <svg v-if="filters.sort === 'model_type'" class="w-3 h-3" :class="filters.direction === 'asc' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </th>
                             <th class="px-6 py-4">Target ID</th>
                             <th class="px-6 py-4 w-1/3">Changes</th>
                         </tr>
@@ -156,6 +171,8 @@ const filters = reactive({
     search: props.filters?.search || '',
     action: props.filters?.action || '',
     date_range: props.filters?.date_range || '',
+    sort: props.filters?.sort || 'created_at',
+    direction: props.filters?.direction || 'desc',
 });
 
 const applyFilters = () => {
@@ -164,6 +181,16 @@ const applyFilters = () => {
         preserveScroll: true,
         replace: true
     });
+};
+
+const sortBy = (field) => {
+    if (filters.sort === field) {
+        filters.direction = filters.direction === 'asc' ? 'desc' : 'asc';
+    } else {
+        filters.sort = field;
+        filters.direction = 'desc';
+    }
+    applyFilters();
 };
 
 function debounce(func, wait) {
