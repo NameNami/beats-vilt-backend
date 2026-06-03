@@ -126,7 +126,7 @@ The project includes a `docker-compose.yml` pre-configured for the backend, data
 ## 🔐 Testing Accounts
 
 The seeder automatically provisions the database with several accounts across all roles. The primary domain configured for the app is `beats.namix.my`.
-
+https://beats.namix.my
 **Admin Account:**
 *   Email: `admin@beats.namix.my`
 *   Password: `password`
