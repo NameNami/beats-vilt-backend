@@ -79,8 +79,16 @@
                     <div class="space-y-2">
                         <div v-for="lab in editingCourseLabs" :key="lab.id" class="flex justify-between items-center p-3 bg-white border border-gray-100 rounded-lg  hover:border-teal-200 transition">
                             <div>
-                                <p class="font-bold text-slate-800 text-sm">{{ lab.name }}</p>
-                                <p class="text-[10px] text-slate-500">Cap: {{ lab.capacity }} | ID: {{ lab.id }}</p>
+                                <p class="font-bold text-slate-800 text-sm">
+                                    {{ lab.name }}
+                                    <span class="text-xs text-slate-500 font-normal ml-1">by {{ lab.lecturer?.name || 'Unassigned' }}</span>
+                                </p>
+                                <p class="text-[10px] text-slate-500 mt-0.5">
+                                    <span class="font-bold">Enrolled:</span> {{ lab.enrollments?.length || 0 }} / {{ lab.capacity }}
+                                    <span v-if="(lab.enrollments?.length || 0) >= lab.capacity" class="text-rose-600 font-bold ml-1 uppercase tracking-widest">(Full)</span>
+                                    <span class="mx-2 text-slate-300">|</span>
+                                    ID: {{ lab.id }}
+                                </p>
                             </div>
                             <button @click="deleteLab(lab.id)" class="text-slate-300 hover:text-rose-600 transition">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -112,7 +120,7 @@
                                 </div>
                                 <div>
                                     <p class="font-bold text-slate-900">{{ course.name }}</p>
-                                    <p class="text-[11px] text-gray-500 font-medium">Course ID: {{ course.id }}</p>
+                                    <p class="text-[11px] text-gray-500 font-medium">Course ID: {{ course.id }} &bull; <span class="text-orange-600 font-bold">{{ course.enrollments?.length || 0 }} Students</span></p>
                                 </div>
                             </div>
                         </td>

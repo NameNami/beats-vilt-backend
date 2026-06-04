@@ -32,12 +32,13 @@
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Select Lab / Group (Optional)</label>
-                        <select v-model="form.lab_id" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg text-sm">
+                        <select v-model="form.lab_id" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg text-sm" :class="{ 'border-rose-300 focus:border-rose-500 focus:ring-rose-500': form.errors.lab_id }">
                             <option value="">None / Open Class</option>
-                            <option v-for="lab in filteredLabs" :key="lab.id" :value="lab.id">
-                                {{ lab.name }} (Capacity: {{ lab.capacity }})
+                            <option v-for="lab in filteredLabs" :key="lab.id" :value="lab.id" :disabled="(lab.enrollments?.length || 0) >= lab.capacity">
+                                {{ lab.name }} (Enrolled: {{ lab.enrollments?.length || 0 }} / {{ lab.capacity }}) {{ (lab.enrollments?.length || 0) >= lab.capacity ? '- FULL' : '' }}
                             </option>
                         </select>
+                        <p v-if="form.errors.lab_id" class="text-rose-500 text-xs mt-1 font-medium">{{ form.errors.lab_id }}</p>
                     </div>
                     <div class="pt-4 flex justify-end gap-3">
                         <button type="button" @click="showEnrollModal = false" class="px-6 py-2 text-slate-600 font-bold hover:text-slate-800 transition">Cancel</button>
