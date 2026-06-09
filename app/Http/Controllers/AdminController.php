@@ -39,7 +39,11 @@ class AdminController extends Controller
     public function manageCourses()
     {
         return Inertia::render('Admin/ManageCourses', [
-            'courses' => Course::with('labs')->get(),
+            'courses' => Course::with(['enrollments' => function($q) {
+                $q->where('role', 'student');
+            }, 'labs.lecturer', 'labs.enrollments' => function($q) {
+                $q->where('role', 'student');
+            }])->get(),
             'lecturers' => User::where('role', 'lecturer')->get()
         ]);
     }
@@ -320,7 +324,9 @@ class AdminController extends Controller
         return Inertia::render('Admin/ManageStudents', [
             'students' => $students,
             'availableCourses' => Course::all(),
-            'availableLabs' => Lab::all()
+            'availableLabs' => Lab::with(['enrollments' => function($q) {
+                $q->where('role', 'student');
+            }])->get()
         ]);
     }
 
@@ -332,13 +338,26 @@ class AdminController extends Controller
             'lab_id' => 'nullable|exists:labs,id',
         ]);
 
-        CourseEnrollment::create([
-            'user_id' => $request->user_id,
-            'course_id' => $request->course_id,
-            'lab_id' => $request->lab_id,
-            'role' => 'student',
-            'enrolled_at' => now(),
-        ]);
+        $existing = CourseEnrollment::where('user_id', $request->user_id)
+            ->where('course_id', $request->course_id)
+            ->where('role', 'student')
+            ->first();
+
+        if ($request->lab_id && (!$existing || $existing->lab_id != $request->lab_id)) {
+            $lab = Lab::findOrFail($request->lab_id);
+            $currentEnrollments = CourseEnrollment::where('lab_id', $lab->id)
+                ->where('role', 'student')
+                ->count();
+
+            if ($currentEnrollments >= $lab->capacity) {
+                return back()->withErrors(['lab_id' => 'This lab has reached its maximum capacity.']);
+            }
+        }
+
+        CourseEnrollment::updateOrCreate(
+            ['user_id' => $request->user_id, 'course_id' => $request->course_id, 'role' => 'student'],
+            ['lab_id' => $request->lab_id, 'enrolled_at' => now()]
+        );
 
         return back()->with('success', 'Student enrolled successfully.');
     }
