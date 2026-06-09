@@ -89,7 +89,7 @@ class UserSeeder extends Seeder
 
         foreach ($students as $student) {
             User::updateOrCreate(
-                ['email' => $student['username'] . '@student.beats.namix.my'],
+                ['email' => $student['username'] . '@s.beats.namix.my'],
                 [
                     'name'           => $student['name'],
                     'username'       => $student['username'],
