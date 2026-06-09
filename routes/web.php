@@ -67,15 +67,29 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/users/{id}', [AdminController::class, 'deleteUser'])->name('users.destroy');
     Route::post('/users/import', [AdminController::class, 'importStudents'])->name('users.import');
 
+    // Broadcast Announcements
+    Route::get('/broadcasts', [App\Http\Controllers\AdminBroadcastController::class, 'index'])->name('broadcasts.index');
+    Route::post('/broadcasts', [App\Http\Controllers\AdminBroadcastController::class, 'store'])->name('broadcasts.store');
+
     // Class Session Management (Scheduling)
     Route::get('/sessions', [AdminController::class, 'manageSessions'])->name('sessions.index');
     Route::post('/sessions', [AdminController::class, 'storeSession'])->name('sessions.store');
     Route::post('/sessions/update/{id}', [AdminController::class, 'updateSession'])->name('sessions.update');
     Route::post('/sessions/{id}', [AdminController::class, 'deleteSession'])->name('sessions.destroy');
 
+    // Global Leave Management
+    Route::get('/leave-management', [App\Http\Controllers\AdminLeaveController::class, 'index'])->name('leave.index');
+    Route::post('/leave-management', [App\Http\Controllers\AdminLeaveController::class, 'store'])->name('leave.store');
+
     // Analytics & Audit
     Route::get('/analytics', [App\Http\Controllers\WebAnalyticsController::class, 'globalAnalytics'])->name('analytics');
+    Route::get('/analytics/export', [App\Http\Controllers\WebAnalyticsController::class, 'exportGlobalAnalytics'])->name('analytics.export');
     Route::get('/audit-logs', [App\Http\Controllers\AdminAuditLogController::class, 'index'])->name('audit.logs');
+    
+    // System Health
+    Route::get('/system-health', [App\Http\Controllers\AdminSystemController::class, 'health'])->name('system.health');
+    Route::get('/system-health/backup', [App\Http\Controllers\AdminSystemController::class, 'downloadBackup'])->name('system.backup');
+    Route::post('/system-health/rollover', [App\Http\Controllers\AdminSystemController::class, 'rolloverSemester'])->name('system.rollover');
 
     // Core System Deletions (Soft Deletes)
     Route::post('/courses/delete/{id}', [AdminController::class, 'deleteCourse'])->name('courses.destroy');
