@@ -27,12 +27,20 @@ class ClassSessionSeeder extends Seeder
         $now = Carbon::now();
         $lecturerSchedules = [];
 
-        // Generate sessions for the last 6 weeks and next 2 weeks
-        for ($weekOffset = -6; $weekOffset <= 2; $weekOffset++) {
-            $weekStart = $now->copy()->startOfWeek()->addWeeks($weekOffset);
+        // Get semester start date from settings
+        $semStartStr = \App\Models\SystemSetting::get('semester_start_date', '2026-03-09');
+        $semStart = Carbon::parse($semStartStr)->startOfDay();
+        
+        $totalWeeks = (int) \App\Models\SystemSetting::get('semester_total_weeks', 14);
+
+        // Generate sessions for exactly the semester duration (14 weeks)
+        for ($weekNum = 1; $weekNum <= $totalWeeks; $weekNum++) {
+            // Week starts on the semStart + weeks offset
+            $weekStart = $semStart->copy()->addWeeks($weekNum - 1);
 
             // 1. Generate LECTURES for each course
             foreach ($courses as $course) {
+                // Find lecturer from labs or default to first user
                 $lecturerId = $course->labs->first()?->lecturer_id ?? 1;
 
                 // Try to find a slot on Monday (Day 0)
@@ -125,6 +133,9 @@ class ClassSessionSeeder extends Seeder
         $is_completed = $isPast || ($isToday && $now->gt($end));
         $is_active = $isToday && $now->between($start, $end);
 
+        // ~5% chance of cancellation for past/upcoming sessions
+        $is_cancelled = (rand(1, 100) <= 5);
+
         $roomId = null;
         if ($mode === 'physical') {
             $roomId = $rooms[$roomIndex % $roomCount]->id;
@@ -140,10 +151,10 @@ class ClassSessionSeeder extends Seeder
             'end_time'         => $end,
             'mode'             => $mode,
             'checkin_method'   => $method,
-            'is_display'       => $is_active,
-            'is_cancelled'     => false,
-            'is_completed'     => $is_completed,
-            'announce_cancelled' => false,
+            'is_display'       => $is_active && !$is_cancelled,
+            'is_cancelled'     => $is_cancelled,
+            'is_completed'     => $is_completed && !$is_cancelled,
+            'announce_cancelled' => $is_cancelled,
         ]);
     }
 }

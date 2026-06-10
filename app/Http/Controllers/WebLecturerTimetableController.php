@@ -20,11 +20,16 @@ class WebLecturerTimetableController extends Controller
         $startOfWeek = $date->copy()->startOfWeek(Carbon::MONDAY);
         $endOfWeek = $date->copy()->endOfWeek(Carbon::SUNDAY);
 
-        $semesterStartDate = Carbon::parse(SystemSetting::get('semester_start_date', '2026-03-04'));
+        $semesterStartDate = Carbon::parse(SystemSetting::get('semester_start_date', '2026-03-09'));
         $totalWeeks = (int) SystemSetting::get('semester_total_weeks', 14);
-        $semesterEndDate = $semesterStartDate->copy()->addWeeks($totalWeeks)->endOfWeek(Carbon::SUNDAY);
+        $semesterEndDate = $semesterStartDate->copy()->addWeeks($totalWeeks)->subDay();
 
-        $currentWeek = (int) $semesterStartDate->diffInWeeks($startOfWeek) + 1;
+        // Calculate week number based on diffInWeeks
+        if ($startOfWeek->lt($semesterStartDate)) {
+            $currentWeek = 0;
+        } else {
+            $currentWeek = (int) $semesterStartDate->diffInWeeks($startOfWeek) + 1;
+        }
 
         $sessions = ClassSession::with(['course', 'room', 'lab'])
             ->where('lecturer_id', $lecturerId)
