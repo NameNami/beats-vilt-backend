@@ -12,6 +12,8 @@ use App\Models\SystemSetting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 
 class AdminController extends Controller
@@ -210,7 +212,7 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'course_id' => 'required|exists:courses,id',
-            'lab_id' => 'required|exists:labs,id',
+            'lab_id' => 'nullable|exists:labs,id',
             'lecturer_id' => 'nullable|exists:users,id',
             'room_id' => 'nullable|exists:rooms,id',
             'start_time' => 'required|date',
@@ -252,18 +254,31 @@ class AdminController extends Controller
         $conflicts = [];
 
         foreach ($sessionsToCreate as $slot) {
-            $conflict = ClassSession::where(function ($query) use ($validated) {
-                $query->where('room_id', $validated['room_id'])
-                      ->orWhere('lecturer_id', $validated['lecturer_id'])
-                      ->orWhere('lab_id', $validated['lab_id']);
-            })->where(function ($query) use ($slot) {
-                $query->whereBetween('start_time', [$slot['start'], $slot['end']])
-                      ->orWhereBetween('end_time', [$slot['start'], $slot['end']])
-                      ->orWhere(function ($q) use ($slot) {
-                          $q->where('start_time', '<=', $slot['start'])
-                            ->where('end_time', '>=', $slot['end']);
-                      });
-            })->first();
+            $conflict = null;
+            
+            // Only check for conflicts if we have a room, lecturer, or lab to check against
+            if (!empty($validated['room_id']) || !empty($validated['lecturer_id']) || !empty($validated['lab_id'])) {
+                $conflict = ClassSession::where(function ($query) use ($validated) {
+                    $query->where(function ($q) use ($validated) {
+                        if (!empty($validated['room_id'])) {
+                            $q->orWhere('room_id', $validated['room_id']);
+                        }
+                        if (!empty($validated['lecturer_id'])) {
+                            $q->orWhere('lecturer_id', $validated['lecturer_id']);
+                        }
+                        if (!empty($validated['lab_id'])) {
+                            $q->orWhere('lab_id', $validated['lab_id']);
+                        }
+                    });
+                })->where(function ($query) use ($slot) {
+                    $query->whereBetween('start_time', [$slot['start'], $slot['end']])
+                          ->orWhereBetween('end_time', [$slot['start'], $slot['end']])
+                          ->orWhere(function ($q) use ($slot) {
+                              $q->where('start_time', '<=', $slot['start'])
+                                ->where('end_time', '>=', $slot['end']);
+                          });
+                })->first();
+            }
 
             if ($conflict) {
                 $dateStr = Carbon::parse($slot['start'])->format('d M');
@@ -295,7 +310,7 @@ class AdminController extends Controller
         $session = ClassSession::findOrFail($id);
         $validated = $request->validate([
             'course_id' => 'required|exists:courses,id',
-            'lab_id' => 'required|exists:labs,id',
+            'lab_id' => 'nullable|exists:labs,id',
             'lecturer_id' => 'nullable|exists:users,id',
             'room_id' => 'nullable|exists:rooms,id',
             'start_time' => 'required|date',
@@ -304,19 +319,30 @@ class AdminController extends Controller
             'checkin_method' => 'required|in:ble,qr,manual',
         ]);
 
-        $conflict = ClassSession::where('id', '!=', $id)
-            ->where(function ($query) use ($validated) {
-                $query->where('room_id', $validated['room_id'])
-                      ->orWhere('lecturer_id', $validated['lecturer_id'])
-                      ->orWhere('lab_id', $validated['lab_id']);
-            })->where(function ($query) use ($validated) {
-                $query->whereBetween('start_time', [$validated['start_time'], $validated['end_time']])
-                      ->orWhereBetween('end_time', [$validated['start_time'], $validated['end_time']])
-                      ->orWhere(function ($q) use ($validated) {
-                          $q->where('start_time', '<=', $validated['start_time'])
-                            ->where('end_time', '>=', $validated['end_time']);
-                      });
-            })->first();
+        $conflict = null;
+        if (!empty($validated['room_id']) || !empty($validated['lecturer_id']) || !empty($validated['lab_id'])) {
+            $conflict = ClassSession::where('id', '!=', $id)
+                ->where(function ($query) use ($validated) {
+                    $query->where(function ($q) use ($validated) {
+                        if (!empty($validated['room_id'])) {
+                            $q->orWhere('room_id', $validated['room_id']);
+                        }
+                        if (!empty($validated['lecturer_id'])) {
+                            $q->orWhere('lecturer_id', $validated['lecturer_id']);
+                        }
+                        if (!empty($validated['lab_id'])) {
+                            $q->orWhere('lab_id', $validated['lab_id']);
+                        }
+                    });
+                })->where(function ($query) use ($validated) {
+                    $query->whereBetween('start_time', [$validated['start_time'], $validated['end_time']])
+                          ->orWhereBetween('end_time', [$validated['start_time'], $validated['end_time']])
+                          ->orWhere(function ($q) use ($validated) {
+                              $q->where('start_time', '<=', $validated['start_time'])
+                                ->where('end_time', '>=', $validated['end_time']);
+                          });
+                })->first();
+        }
 
         if ($conflict) {
             $conflictReason = [];
@@ -465,62 +491,111 @@ class AdminController extends Controller
         ]);
     }
 
-    /**
-     * Bulk Import Students via CSV
-     */
     public function importStudents(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,txt|max:2048', // Max 2MB CSV
+            'file' => 'required|file|mimes:csv,txt|max:2048',
         ]);
 
         $file = $request->file('file');
-
-        // Robust CSV reading: Use file() to handle line endings and empty lines
         $lines = file($file->getPathname(), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        if (!$lines) {
-            return back()->withErrors(['file' => 'The uploaded file is empty or invalid.']);
+        
+        if (!$lines || count($lines) <= 1) {
+            return back()->withErrors(['file' => 'The uploaded file is empty or contains no data.']);
         }
 
         $rows = array_map('str_getcsv', $lines);
+        $header = array_shift($rows); // Remove header
 
-        // Remove the header row
-        array_shift($rows);
+        $errors = [];
+        $validatedData = [];
+        $emailsInFile = [];
+        $idsInFile = [];
+        
+        // Pre-fetch programs to avoid DB overhead
+        $programmes = \App\Models\Programme::all()->pluck('id', 'code')->toArray();
 
-        $importedCount = 0;
-        // Pre-fetch all programmes to avoid repeated DB queries in the loop
-        $programmes = \App\Models\Programme::all()->pluck('id', 'code');
+        foreach ($rows as $index => $row) {
+            $lineNumber = $index + 2; // +1 for 0-indexing, +1 for header row
+            
+            // 1. Basic Column Count check
+            if (count($row) < 3) {
+                $errors[] = "Line {$lineNumber}: Missing required columns. Expected at least Name, Email, and Student ID.";
+                continue;
+            }
 
-        foreach ($rows as $row) {
-            // Ensure the row actually has enough columns (Name, Email, StudentID)
-            if (count($row) >= 3) {
-                $name = trim($row[0] ?? '');
-                $email = trim($row[1] ?? '');
-                $studentId = trim($row[2] ?? '');
-                $programmeCode = isset($row[3]) ? trim($row[3]) : null;
+            $data = [
+                'name' => trim($row[0] ?? ''),
+                'email' => trim($row[1] ?? ''),
+                'student_id' => trim($row[2] ?? ''),
+                'programme_code' => strtoupper(trim($row[3] ?? '')),
+            ];
 
-                if ($name && $email && $studentId) {
-                    $programmeId = $programmeCode ? ($programmes[strtoupper($programmeCode)] ?? null) : null;
+            // 2. Validate Row Data using Laravel's Validator
+            $validator = Validator::make($data, [
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|max:255|unique:users,email',
+                'student_id' => 'required|string|max:255|unique:users,student_id',
+            ], [
+                'email.unique' => "The email ':input' is already registered in the system.",
+                'student_id.unique' => "The Student ID ':input' is already registered in the system.",
+            ]);
 
-                    // UpdateOrCreate prevents duplicates! If email exists, it updates. If not, it creates.
-                    User::updateOrCreate(
-                        ['email' => $email],
-                        [
-                            'name' => $name,
-                            'username' => $studentId, // Username defaults to Student ID
-                            'student_id' => $studentId,
-                            'programme_id' => $programmeId,
-                            'role' => 'student',
-                            // Default password is their Student ID
-                            'password' => \Illuminate\Support\Facades\Hash::make($studentId)
-                        ]
-                    );
-                    $importedCount++;
+            if ($validator->fails()) {
+                foreach ($validator->errors()->all() as $msg) {
+                    $errors[] = "Line {$lineNumber}: {$msg}";
                 }
             }
+
+            // 3. Check for duplicates WITHIN the file
+            if (in_array($data['email'], $emailsInFile)) {
+                $errors[] = "Line {$lineNumber}: Duplicate email found within the file: " . $data['email'];
+            }
+            if (in_array($data['student_id'], $idsInFile)) {
+                $errors[] = "Line {$lineNumber}: Duplicate Student ID found within the file: " . $data['student_id'];
+            }
+
+            $emailsInFile[] = $data['email'];
+            $idsInFile[] = $data['student_id'];
+
+            // 4. Resolve Programme ID
+            if ($data['programme_code'] && !isset($programmes[$data['programme_code']])) {
+                $errors[] = "Line {$lineNumber}: Invalid Programme Code: " . $data['programme_code'];
+            }
+
+            $validatedData[] = array_merge($data, [
+                'programme_id' => $programmes[$data['programme_code']] ?? null
+            ]);
         }
 
-        return back()->with('success', "Successfully imported or updated {$importedCount} student accounts!");
+        // If any errors exist across the whole file, reject everything
+        if (!empty($errors)) {
+            // Limit errors to first 10 to avoid overwhelming the UI
+            $displayErrors = array_slice($errors, 0, 10);
+            if (count($errors) > 10) {
+                $displayErrors[] = "...and " . (count($errors) - 10) . " more errors.";
+            }
+            return back()->withErrors(['csv' => $displayErrors]);
+        }
+
+        // Only if ALL rows are valid, we perform the import
+        $importedCount = 0;
+        DB::transaction(function () use ($validatedData, &$importedCount) {
+            foreach ($validatedData as $user) {
+                User::create([
+                    'name' => $user['name'],
+                    'email' => $user['email'],
+                    'username' => $user['student_id'],
+                    'student_id' => $user['student_id'],
+                    'programme_id' => $user['programme_id'],
+                    'role' => 'student',
+                    'password' => Hash::make($user['student_id']),
+                ]);
+                $importedCount++;
+            }
+        });
+
+        return back()->with('success', "Successfully imported {$importedCount} student accounts!");
     }
 
     public function storeUser(Request $request)
