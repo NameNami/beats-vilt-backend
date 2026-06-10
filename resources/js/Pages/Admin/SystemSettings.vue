@@ -435,7 +435,7 @@ const profilePhotoUrl = computed(() => {
             <div class="bg-white rounded-2xl max-w-md w-full overflow-hidden shadow-2xl">
                 <div class="p-4 border-b border-gray-100 flex justify-between items-center">
                     <h3 class="font-semibold text-gray-900">Crop Profile Photo</h3>
-                    <button @click="showCropModal = false" class="p-1 hover:bg-gray-100 rounded-full text-gray-500">
+                    <button @click="showCropModal = false" class="p-1 hover:bg-gray-100 rounded-full text-gray-500 cursor-pointer">
                         <X class="w-5 h-5" />
                     </button>
                 </div>

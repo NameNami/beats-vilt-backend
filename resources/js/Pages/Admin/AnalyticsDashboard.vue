@@ -349,7 +349,7 @@ const exportGlobalReport = () => {
                         </div>
                     </div>
 
-                    <button v-if="form.course_id || form.programme_id || form.start_date || form.end_date" @click="resetFilters" class="text-sm font-bold text-slate-500 hover:text-slate-700 transition">Reset</button>
+                    <button v-if="form.course_id || form.programme_id || form.start_date || form.end_date" @click="resetFilters" class="text-sm font-bold text-slate-500 hover:text-slate-700 transition cursor-pointer">Reset</button>
                 </div>
             </div>
 

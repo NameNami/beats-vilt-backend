@@ -189,7 +189,7 @@
                         <Link
                             v-if="link.url"
                             :href="link.url"
-                            class="px-3 py-1 text-sm font-medium rounded-md transition-colors"
+                            class="px-3 py-1 text-sm font-medium rounded-md transition-colors cursor-pointer"
                             :class="link.active ? 'bg-orange-500 text-white ' : 'text-slate-600 hover:bg-slate-200'"
                             v-html="link.label"
                         />

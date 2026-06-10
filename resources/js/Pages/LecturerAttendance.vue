@@ -486,6 +486,10 @@ onUnmounted(() => {
                                     <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
                                     <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Passed</span>
                                 </div>
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Cancelled</span>
+                                </div>
                             </div>
                         </div>
                         <div class="space-y-3">
@@ -541,11 +545,16 @@ onUnmounted(() => {
                                                     session.status === 'completed' ? 'border-red-500 opacity-75 hover:opacity-100' :
                                                     session.status === 'active' ? 'border-orange-500 ring-1 ring-orange-100  shadow-orange-500/10' :
                                                     session.status === 'upcoming' ? 'border-blue-500' :
+                                                    session.status === 'cancelled' ? 'border-slate-300 opacity-60 grayscale hover:opacity-100 hover:grayscale-0' :
                                                     'border-slate-100 opacity-60 grayscale hover:opacity-100 hover:grayscale-0'
                                                 ]"
                                             >
                                                 <!-- Header: Week Only -->
-                                                <div class="flex justify-end items-start">
+                                                <div class="flex justify-between items-start">
+                                                    <span v-if="session.status === 'cancelled'" class="text-[9px] font-bold text-red-500 uppercase tracking-tight">
+                                                        Cancelled
+                                                    </span>
+                                                    <span v-else></span>
                                                     <span class="text-[10px] font-bold text-gray-500">
                                                         W{{ session.week }}
                                                     </span>
