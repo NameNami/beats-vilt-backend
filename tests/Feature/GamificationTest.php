@@ -2,18 +2,19 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
+use App\Models\AttendanceRecord;
+use App\Models\Badge;
 use App\Models\ClassSession;
 use App\Models\Course;
-use App\Models\Lab;
-use App\Models\AttendanceRecord;
 use App\Models\GamificationProfile;
 use App\Models\Level;
-use App\Models\Badge;
 use App\Models\QrToken;
+use App\Models\User;
+use App\Services\GamificationService;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 use Illuminate\Support\Str;
+use Tests\TestCase;
 
 class GamificationTest extends TestCase
 {
@@ -22,11 +23,11 @@ class GamificationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Setup Levels
         Level::updateOrCreate(['level' => '1'], ['xp_required' => 0]);
         Level::updateOrCreate(['level' => '2'], ['xp_required' => 100]);
-        
+
         // Setup Badges
         Badge::updateOrCreate(
             ['name' => 'First Steps'],
@@ -43,7 +44,7 @@ class GamificationTest extends TestCase
     {
         $course = Course::create(['code' => 'CS101', 'name' => 'Test Course', 'faculty' => 'FOC']);
         $course->lecturers()->attach($lecturer->id);
-        
+
         return ClassSession::create([
             'course_id' => $course->id,
             'lecturer_id' => $lecturer->id,
@@ -73,15 +74,15 @@ class GamificationTest extends TestCase
         ]);
 
         $response->assertStatus(200);
-        
+
         $profile = GamificationProfile::where('user_id', $student->id)->first();
         $this->assertNotNull($profile);
         $this->assertEquals(100, $profile->total_xp); // 'present' status awards 100 XP
         $this->assertEquals(1, $profile->current_streak);
-        
+
         // Check level up (100 XP is required for Level 2)
         $this->assertEquals(2, $profile->refresh()->level->level);
-        
+
         // Check badge awarding
         $this->assertTrue($student->badges()->where('name', 'First Steps')->exists());
     }
@@ -91,10 +92,10 @@ class GamificationTest extends TestCase
         $lecturer = User::factory()->create(['role' => 'lecturer']);
         $student = User::factory()->create(['role' => 'student']);
         $session = $this->createTestSession($lecturer);
-        
+
         // Fix "now" for this test
-        $today = \Carbon\Carbon::create(2026, 5, 20, 10, 0, 0);
-        \Carbon\Carbon::setTestNow($today);
+        $today = Carbon::create(2026, 5, 20, 10, 0, 0);
+        Carbon::setTestNow($today);
 
         $profile = GamificationProfile::create([
             'user_id' => $student->id,
@@ -112,12 +113,12 @@ class GamificationTest extends TestCase
             'checkin_method' => 'manual',
         ]);
 
-        $service = app(\App\Services\GamificationService::class);
+        $service = app(GamificationService::class);
         $service->awardAttendanceRewards($student, 'present');
 
         $this->assertEquals(2, $profile->refresh()->current_streak);
-        
-        \Carbon\Carbon::setTestNow(); // Reset
+
+        Carbon::setTestNow(); // Reset
     }
 
     public function test_streak_resets_on_missed_days()
@@ -125,10 +126,10 @@ class GamificationTest extends TestCase
         $lecturer = User::factory()->create(['role' => 'lecturer']);
         $student = User::factory()->create(['role' => 'student']);
         $session = $this->createTestSession($lecturer);
-        
+
         // Fix "now" for this test
-        $today = \Carbon\Carbon::create(2026, 5, 20, 10, 0, 0);
-        \Carbon\Carbon::setTestNow($today);
+        $today = Carbon::create(2026, 5, 20, 10, 0, 0);
+        Carbon::setTestNow($today);
 
         $profile = GamificationProfile::create([
             'user_id' => $student->id,
@@ -146,12 +147,12 @@ class GamificationTest extends TestCase
             'checkin_method' => 'manual',
         ]);
 
-        $service = app(\App\Services\GamificationService::class);
+        $service = app(GamificationService::class);
         $service->awardAttendanceRewards($student, 'present');
 
         $this->assertEquals(1, $profile->refresh()->current_streak);
-        
-        \Carbon\Carbon::setTestNow(); // Reset
+
+        Carbon::setTestNow(); // Reset
     }
 
     public function test_qr_checkin_updates_existing_absent_record()

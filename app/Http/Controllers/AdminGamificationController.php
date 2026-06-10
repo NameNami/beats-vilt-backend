@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Badge;
-use App\Models\Reward;
 use App\Models\Redemption;
+use App\Models\Reward;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -16,7 +16,7 @@ class AdminGamificationController extends Controller
     public function manageBadges()
     {
         return Inertia::render('Admin/ManageBadges', [
-            'badges' => Badge::all()
+            'badges' => Badge::all(),
         ]);
     }
 
@@ -26,7 +26,7 @@ class AdminGamificationController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'icon_path' => 'nullable|string',
-            'type' => 'required|string',
+            'type' => 'required|in:achievement,streak,xp',
             'requirement_type' => 'required|in:present_checkins,on_time_checkins,streak_count,total_xp',
             'requirement_value' => 'required|integer|min:1',
         ]);
@@ -43,7 +43,7 @@ class AdminGamificationController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'icon_path' => 'nullable|string',
-            'type' => 'required|string',
+            'type' => 'required|in:achievement,streak,xp',
             'requirement_type' => 'required|in:present_checkins,on_time_checkins,streak_count,total_xp',
             'requirement_value' => 'required|integer|min:1',
         ]);
@@ -56,6 +56,7 @@ class AdminGamificationController extends Controller
     public function deleteBadge($id)
     {
         Badge::findOrFail($id)->delete();
+
         return back()->with('success', 'Badge deleted successfully.');
     }
 
@@ -66,7 +67,7 @@ class AdminGamificationController extends Controller
     {
         return Inertia::render('Admin/ManageRedemptions', [
             'rewards' => Reward::all(),
-            'redemptions' => Redemption::with(['user', 'reward'])->orderBy('created_at', 'desc')->get()
+            'redemptions' => Redemption::with(['user', 'reward'])->orderBy('created_at', 'desc')->get(),
         ]);
     }
 
@@ -102,6 +103,7 @@ class AdminGamificationController extends Controller
     public function deleteReward($id)
     {
         Reward::findOrFail($id)->delete();
+
         return back()->with('success', 'Reward deleted successfully.');
     }
 

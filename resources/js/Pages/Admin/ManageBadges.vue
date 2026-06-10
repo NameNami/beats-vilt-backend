@@ -21,16 +21,23 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Badge Name</label>
                         <input type="text" v-model="form.name" placeholder="e.g. Present Student" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5" required>
+                        <p v-if="form.errors.name" class="text-rose-500 text-[10px] mt-1 font-bold">{{ form.errors.name }}</p>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Description</label>
                         <textarea v-model="form.description" placeholder="Awarded for 10 present check-ins" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5" rows="3" required></textarea>
+                        <p v-if="form.errors.description" class="text-rose-500 text-[10px] mt-1 font-bold">{{ form.errors.description }}</p>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Badge Type</label>
-                        <input type="text" v-model="form.type" placeholder="e.g. Achievement" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5" required>
+                        <select v-model="form.type" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5 font-medium" required>
+                            <option value="attendance">Attendance</option>
+                            <option value="streak">Streak</option>
+                            <option value="xp">XP</option>
+                        </select>
+                        <p v-if="form.errors.type" class="text-rose-500 text-[10px] mt-1 font-bold">{{ form.errors.type }}</p>
                     </div>
 
                     <div class="grid grid-cols-1 gap-4">
@@ -42,10 +49,12 @@
                                 <option value="streak_count">Streak Count</option>
                                 <option value="total_xp">Total XP</option>
                             </select>
+                            <p v-if="form.errors.requirement_type" class="text-rose-500 text-[10px] mt-1 font-bold">{{ form.errors.requirement_type }}</p>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Requirement Value</label>
                             <input type="number" v-model="form.requirement_value" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5" required min="1">
+                            <p v-if="form.errors.requirement_value" class="text-rose-500 text-[10px] mt-1 font-bold">{{ form.errors.requirement_value }}</p>
                         </div>
                     </div>
 
@@ -133,7 +142,7 @@ const form = useForm({
     id: null,
     name: '',
     description: '',
-    type: 'Achievement',
+    type: 'achievement',
     requirement_type: 'present_checkins',
     requirement_value: 1,
     icon_path: null,
@@ -192,3 +201,4 @@ const formatRequirement = (type) => {
     return types[type] || type;
 };
 </script>
+

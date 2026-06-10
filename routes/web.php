@@ -1,19 +1,24 @@
 <?php
 
-use App\Http\Controllers\PasswordResetController;
-use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-use App\Http\Controllers\WebAuthController;
-use App\Http\Controllers\WebAttendanceController;
-use App\Http\Controllers\WebLecturerDashboardController;
-use App\Http\Controllers\WebLecturerReport;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\WebLecturerTimetableController;
-use App\Http\Controllers\WebLecturerLeave;
-use App\Http\Middleware\CheckRoleWeb;
-use App\Http\Controllers\WebLecturerSettingsController;
-use App\Http\Controllers\LecturerController;
+use App\Http\Controllers\AdminAuditLogController;
+use App\Http\Controllers\AdminBleDeviceController;
+use App\Http\Controllers\AdminBroadcastController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminGamificationController;
+use App\Http\Controllers\AdminLeaveController;
+use App\Http\Controllers\AdminSettingsController;
+use App\Http\Controllers\AdminSystemController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\WebAnalyticsController;
+use App\Http\Controllers\WebAttendanceController;
+use App\Http\Controllers\WebAuthController;
+use App\Http\Controllers\WebLecturerDashboardController;
+use App\Http\Controllers\WebLecturerLeave;
+use App\Http\Controllers\WebLecturerReport;
+use App\Http\Controllers\WebLecturerSettingsController;
+use App\Http\Controllers\WebLecturerTimetableController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -71,8 +76,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/users/{id}', [AdminController::class, 'deleteUser'])->name('users.destroy');
 
     // Broadcast Announcements
-    Route::get('/broadcasts', [App\Http\Controllers\AdminBroadcastController::class, 'index'])->name('broadcasts.index');
-    Route::post('/broadcasts', [App\Http\Controllers\AdminBroadcastController::class, 'store'])->name('broadcasts.store');
+    Route::get('/broadcasts', [AdminBroadcastController::class, 'index'])->name('broadcasts.index');
+    Route::post('/broadcasts', [AdminBroadcastController::class, 'store'])->name('broadcasts.store');
 
     // Class Session Management (Scheduling)
     Route::get('/sessions', [AdminController::class, 'manageSessions'])->name('sessions.index');
@@ -81,49 +86,48 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/sessions/{id}', [AdminController::class, 'deleteSession'])->name('sessions.destroy');
 
     // Global Leave Management
-    Route::get('/leave-management', [App\Http\Controllers\AdminLeaveController::class, 'index'])->name('leave.index');
-    Route::post('/leave-management', [App\Http\Controllers\AdminLeaveController::class, 'store'])->name('leave.store');
+    Route::get('/leave-management', [AdminLeaveController::class, 'index'])->name('leave.index');
+    Route::post('/leave-management', [AdminLeaveController::class, 'store'])->name('leave.store');
 
     // Analytics & Audit
-    Route::get('/analytics', [App\Http\Controllers\WebAnalyticsController::class, 'globalAnalytics'])->name('analytics');
-    Route::get('/analytics/export', [App\Http\Controllers\WebAnalyticsController::class, 'exportGlobalAnalytics'])->name('analytics.export');
-    Route::get('/audit-logs', [App\Http\Controllers\AdminAuditLogController::class, 'index'])->name('audit.logs');
-    
+    Route::get('/analytics', [WebAnalyticsController::class, 'globalAnalytics'])->name('analytics');
+    Route::get('/analytics/export', [WebAnalyticsController::class, 'exportGlobalAnalytics'])->name('analytics.export');
+    Route::get('/audit-logs', [AdminAuditLogController::class, 'index'])->name('audit.logs');
+
     // System Health
-    Route::get('/system-health', [App\Http\Controllers\AdminSystemController::class, 'health'])->name('system.health');
-    Route::get('/system-health/backup', [App\Http\Controllers\AdminSystemController::class, 'downloadBackup'])->name('system.backup');
-    Route::post('/system-health/rollover', [App\Http\Controllers\AdminSystemController::class, 'rolloverSemester'])->name('system.rollover');
+    Route::get('/system-health', [AdminSystemController::class, 'health'])->name('system.health');
+    Route::get('/system-health/backup', [AdminSystemController::class, 'downloadBackup'])->name('system.backup');
+    Route::post('/system-health/rollover', [AdminSystemController::class, 'rolloverSemester'])->name('system.rollover');
 
     // Core System Deletions (Soft Deletes)
     Route::post('/courses/delete/{id}', [AdminController::class, 'deleteCourse'])->name('courses.destroy');
     Route::post('/labs/delete/{id}', [AdminController::class, 'deleteLab'])->name('labs.destroy');
 
-    Route::get('/settings', [App\Http\Controllers\AdminSettingsController::class, 'index'])->name('settings');
-    Route::post('/settings', [App\Http\Controllers\AdminSettingsController::class, 'update'])->name('settings.update');
-    Route::post('/settings/profile', [App\Http\Controllers\AdminSettingsController::class, 'updateProfile'])->name('settings.profile');
-    Route::post('/settings/password', [App\Http\Controllers\AdminSettingsController::class, 'updatePassword'])->name('settings.password');
-    Route::post('/settings/photo', [App\Http\Controllers\AdminSettingsController::class, 'updatePhoto'])->name('settings.photo');
-    Route::delete('/settings/photo', [App\Http\Controllers\AdminSettingsController::class, 'deletePhoto'])->name('settings.photo.delete');
+    Route::get('/settings', [AdminSettingsController::class, 'index'])->name('settings');
+    Route::post('/settings', [AdminSettingsController::class, 'update'])->name('settings.update');
+    Route::post('/settings/profile', [AdminSettingsController::class, 'updateProfile'])->name('settings.profile');
+    Route::post('/settings/password', [AdminSettingsController::class, 'updatePassword'])->name('settings.password');
+    Route::post('/settings/photo', [AdminSettingsController::class, 'updatePhoto'])->name('settings.photo');
+    Route::delete('/settings/photo', [AdminSettingsController::class, 'deletePhoto'])->name('settings.photo.delete');
 
     // BLE Device Management
-    Route::get('/ble-devices', [App\Http\Controllers\AdminBleDeviceController::class, 'index'])->name('ble-devices.index');
-    Route::put('/ble-devices/{beacon}', [App\Http\Controllers\AdminBleDeviceController::class, 'update'])->name('ble-devices.update');
-    Route::put('/ble-devices/{beacon}/unassign', [App\Http\Controllers\AdminBleDeviceController::class, 'unassign'])->name('ble-devices.unassign');
-    Route::post('/ble-devices/scan', [App\Http\Controllers\AdminBleDeviceController::class, 'scan'])->name('ble-devices.scan');
+    Route::get('/ble-devices', [AdminBleDeviceController::class, 'index'])->name('ble-devices.index');
+    Route::put('/ble-devices/{beacon}', [AdminBleDeviceController::class, 'update'])->name('ble-devices.update');
+    Route::put('/ble-devices/{beacon}/unassign', [AdminBleDeviceController::class, 'unassign'])->name('ble-devices.unassign');
+    Route::post('/ble-devices/scan', [AdminBleDeviceController::class, 'scan'])->name('ble-devices.scan');
 
     // Gamification Management
-    Route::get('/badges', [App\Http\Controllers\AdminGamificationController::class, 'manageBadges'])->name('badges.index');
-    Route::post('/badges', [App\Http\Controllers\AdminGamificationController::class, 'storeBadge'])->name('badges.store');
-    Route::post('/badges/update/{id}', [App\Http\Controllers\AdminGamificationController::class, 'updateBadge'])->name('badges.update');
-    Route::post('/badges/delete/{id}', [App\Http\Controllers\AdminGamificationController::class, 'deleteBadge'])->name('badges.destroy');
+    Route::get('/badges', [AdminGamificationController::class, 'manageBadges'])->name('badges.index');
+    Route::post('/badges', [AdminGamificationController::class, 'storeBadge'])->name('badges.store');
+    Route::post('/badges/update/{id}', [AdminGamificationController::class, 'updateBadge'])->name('badges.update');
+    Route::post('/badges/delete/{id}', [AdminGamificationController::class, 'deleteBadge'])->name('badges.destroy');
 
-    Route::get('/redemptions', [App\Http\Controllers\AdminGamificationController::class, 'manageRedemptions'])->name('redemptions.index');
-    Route::post('/rewards', [App\Http\Controllers\AdminGamificationController::class, 'storeReward'])->name('rewards.store');
-    Route::post('/rewards/update/{id}', [App\Http\Controllers\AdminGamificationController::class, 'updateReward'])->name('rewards.update');
-    Route::post('/rewards/delete/{id}', [App\Http\Controllers\AdminGamificationController::class, 'deleteReward'])->name('rewards.destroy');
-    Route::post('/redemptions/status/{id}', [App\Http\Controllers\AdminGamificationController::class, 'updateRedemptionStatus'])->name('redemptions.update-status');
+    Route::get('/redemptions', [AdminGamificationController::class, 'manageRedemptions'])->name('redemptions.index');
+    Route::post('/rewards', [AdminGamificationController::class, 'storeReward'])->name('rewards.store');
+    Route::post('/rewards/update/{id}', [AdminGamificationController::class, 'updateReward'])->name('rewards.update');
+    Route::post('/rewards/delete/{id}', [AdminGamificationController::class, 'deleteReward'])->name('rewards.destroy');
+    Route::post('/redemptions/status/{id}', [AdminGamificationController::class, 'updateRedemptionStatus'])->name('redemptions.update-status');
 });
-
 
 Route::middleware(['auth', 'role:lecturer,admin'])->group(function () {
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
@@ -131,9 +135,9 @@ Route::middleware(['auth', 'role:lecturer,admin'])->group(function () {
 });
 
 Route::middleware(['auth', 'role:lecturer'])->group(function () {
-    Route::get('lecturer/dashboard',[WebLecturerDashboardController::class,'lecturerDashboard'])->name('lecturer.dashboard');
+    Route::get('lecturer/dashboard', [WebLecturerDashboardController::class, 'lecturerDashboard'])->name('lecturer.dashboard');
     Route::post('lecturer/sessions/{session}/toggle-cancel', [WebLecturerDashboardController::class, 'toggleCancel'])->name('lecturer.sessions.toggle-cancel');
-    Route::get('lecturer/timetable',[WebLecturerTimetableController::class,'lecturerTimetable'])->name('lecturer.timetable');
+    Route::get('lecturer/timetable', [WebLecturerTimetableController::class, 'lecturerTimetable'])->name('lecturer.timetable');
     Route::get('lecturer/leave', [WebLecturerLeave::class, 'index'])->name('lecturer.leave');
     Route::post('lecturer/leave/{application}/status', [WebLecturerLeave::class, 'updateStatus'])->name('lecturer.leave.status');
     Route::get('lecturer/attendance', [WebAttendanceController::class, 'index'])->name('lecturer.attendance');
@@ -153,4 +157,3 @@ Route::middleware(['auth', 'role:lecturer'])->group(function () {
     Route::post('lecturer/settings/photo', [WebLecturerSettingsController::class, 'updatePhoto'])->name('lecturer.settings.photo');
     Route::delete('lecturer/settings/photo', [WebLecturerSettingsController::class, 'deletePhoto'])->name('lecturer.settings.photo.delete');
 });
-

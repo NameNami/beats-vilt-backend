@@ -15,13 +15,11 @@ class CheckRoleApi
      */
     public function handle(Request $request, Closure $next, ...$Role): Response
     {
-        if(! $request->user())
-        {
+        if (! $request->user()) {
             redirect()->route('login');
         }
 
-        if (!in_array($request->user()->role, $Role))
-        {
+        if (! in_array($request->user()->role, $Role)) {
             abort(403, 'Unauthorized');
         }
 

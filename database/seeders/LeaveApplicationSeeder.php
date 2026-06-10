@@ -25,7 +25,7 @@ class LeaveApplicationSeeder extends Seeder
         // Create some pending leave applications
         foreach ($students->random(min(15, $students->count())) as $student) {
             $session = $sessions->random();
-            
+
             // Check if application already exists (unique constraint)
             if (LeaveApplication::where('user_id', $student->id)->where('session_id', $session->id)->exists()) {
                 continue;

@@ -15,13 +15,11 @@ class CheckRoleWeb
      */
     public function handle(Request $request, Closure $next, ...$Role): Response
     {
-        if(! $request->user())
-        {
+        if (! $request->user()) {
             abort(401, 'Unauthenticated');
         }
 
-        if (!in_array($request->user()->role, $Role))
-        {
+        if (! in_array($request->user()->role, $Role)) {
             abort(403, 'Unauthorized');
         }
 

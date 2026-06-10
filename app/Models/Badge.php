@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-
 use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -23,6 +22,7 @@ class Badge extends Model
     {
         return ['requirement_value' => 'integer'];
     }
+
     public function users()
     {
         return $this->belongsToMany(User::class, 'user_badges')

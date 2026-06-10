@@ -2,12 +2,12 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
-use App\Models\GamificationProfile;
 use App\Models\AttendanceRecord;
+use App\Models\GamificationProfile;
 use App\Models\Level;
+use App\Models\User;
 use App\Services\AttendanceServices;
+use Illuminate\Database\Seeder;
 
 class GamificationSeeder extends Seeder
 {
@@ -16,7 +16,7 @@ class GamificationSeeder extends Seeder
      */
     public function run(): void
     {
-        $attendanceService = new AttendanceServices();
+        $attendanceService = new AttendanceServices;
         $levels = Level::orderBy('xp_required', 'desc')->get();
 
         // Create a gamification profile for every user
@@ -24,7 +24,7 @@ class GamificationSeeder extends Seeder
         foreach ($users as $user) {
             $totalXp = 0;
             $attendanceRecords = AttendanceRecord::where('user_id', $user->id)->get();
-            
+
             foreach ($attendanceRecords as $record) {
                 $totalXp += $attendanceService->calculateXp($record->status);
             }
@@ -41,9 +41,9 @@ class GamificationSeeder extends Seeder
             GamificationProfile::updateOrCreate(
                 ['user_id' => $user->id],
                 [
-                    'level_id'       => $levelId,
-                    'total_xp'       => $totalXp,
-                    'total_points'   => $totalXp, // Points match XP for now
+                    'level_id' => $levelId,
+                    'total_xp' => $totalXp,
+                    'total_points' => $totalXp, // Points match XP for now
                     'current_streak' => rand(1, 5), // Randomize streak for variety
                 ]
             );

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Beacon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class BeaconHeartbeatController extends Controller
 {
@@ -16,10 +17,10 @@ class BeaconHeartbeatController extends Controller
 
         $beacon = Beacon::where('mac_address', $request->mac_address)->first();
 
-        if (!$beacon) {
+        if (! $beacon) {
             $beacon = Beacon::create([
                 'mac_address' => $request->mac_address,
-                'uuid' => (string) \Illuminate\Support\Str::uuid(),
+                'uuid' => (string) Str::uuid(),
                 'status' => 'unassigned',
                 'last_seen' => now(),
             ]);

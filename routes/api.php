@@ -1,14 +1,12 @@
 <?php
 
+use App\Http\Controllers\Api\AttendanceController;
+use App\Http\Controllers\Api\BeaconHeartbeatController;
 use App\Http\Controllers\Api\StudentAuthController;
+use App\Http\Controllers\Api\StudentDataController;
+use App\Http\Middleware\CheckRoleApi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\BeaconHeartbeatController;
-use App\Http\Controllers\Api\AttendanceController;
-use App\Http\Controllers\Api\StudentDataController;
-use function Pest\Laravel\post;
-use App\Http\Middleware\CheckRoleWeb;
-use App\Http\Middleware\CheckRoleApi;
 
 // Student Auth (Login & Forgot Password)
 Route::post('/student/login', [StudentAuthController::class, 'login'])->name('api.student.login');
@@ -38,21 +36,17 @@ Route::middleware(['auth:sanctum', CheckRoleApi::class.':student'])->group(funct
     Route::get('/student/notifications', [StudentDataController::class, 'getNotifications'])->name('api.student.notifications');
     Route::post('/student/notifications/{notification}/read', [StudentDataController::class, 'markNotificationAsRead'])->name('api.student.notifications.read');
     Route::post('/student/notifications/mark-all-read', [StudentDataController::class, 'markAllNotificationsAsRead'])->name('api.student.notifications.mark-all-read');
-    
+
     Route::get('/student/leaderboard', [StudentDataController::class, 'getLeaderboard'])->name('api.student.leaderboard');
-    
+
     Route::get('/student/rewards', [StudentDataController::class, 'getRewards'])->name('api.student.rewards');
     Route::post('/student/rewards/redeem', [StudentDataController::class, 'redeemReward'])->name('api.student.rewards.redeem');
     Route::get('/student/redemptions', [StudentDataController::class, 'getRedemptions'])->name('api.student.redemptions');
-    
+
     Route::get('/student/leaves', [StudentDataController::class, 'getLeaveApplications'])->name('api.student.leaves');
 
-
     Route::post('/student/leaves', [StudentDataController::class, 'submitLeave'])->name('api.student.leaves.submit');
-    
+
     // Beacons
     Route::get('/student/rooms/{roomId}/beacons', [StudentDataController::class, 'getRoomBeacons'])->name('api.student.room.beacons');
 });
-
-
-

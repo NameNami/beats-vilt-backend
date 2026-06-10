@@ -2,16 +2,14 @@
 
 namespace App\Models;
 
-
 use App\Traits\Auditable;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ClassSession extends Model
 {
     use Auditable;
-
     use HasFactory, SoftDeletes;
 
     protected $guarded = [];
@@ -21,8 +19,8 @@ class ClassSession extends Model
         return [
             'start_time' => 'datetime',
             'end_time' => 'datetime',
-            'is_display'         => 'boolean',
-            'is_cancelled'       => 'boolean',
+            'is_display' => 'boolean',
+            'is_cancelled' => 'boolean',
             'announce_cancelled' => 'boolean',
         ];
     }
@@ -31,30 +29,37 @@ class ClassSession extends Model
     {
         return $this->belongsTo(Course::class);
     }
+
     public function lab()
     {
         return $this->belongsTo(Lab::class);
     }
+
     public function lecturer()
     {
         return $this->belongsTo(User::class, 'lecturer_id');
     }
+
     public function room()
     {
         return $this->belongsTo(Room::class);
     }
+
     public function attendanceRecords()
     {
         return $this->hasMany(AttendanceRecord::class, 'session_id');
     }
+
     public function leaveApplications()
     {
         return $this->hasMany(LeaveApplication::class, 'session_id');
     }
+
     public function qrTokens()
     {
         return $this->hasMany(QrToken::class, 'session_id');
     }
+
     public function activeQrToken()
     {
         return $this->hasOne(QrToken::class, 'session_id')

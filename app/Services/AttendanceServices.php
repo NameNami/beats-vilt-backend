@@ -2,19 +2,16 @@
 
 namespace App\Services;
 
-use Carbon\Carbon;
-use App\Models\ClassSession;
 use App\Models\AttendanceRecord;
+use App\Models\ClassSession;
 use App\Models\CourseEnrollment;
 use App\Models\QrToken;
 use App\Models\User;
-use phpDocumentor\Reflection\Types\Array_;
-use phpDocumentor\Reflection\Types\Boolean;
+use Carbon\Carbon;
 
 class AttendanceServices
 {
     public function classifyArrival(ClassSession $session, string $checkInTimestamp, string $method = 'qr'): string
-    //public function classifyArrival(ClassSession $session, string $checkInTimestamp): String
     {
         if (strtolower($session->mode) === 'online' || $method === 'manual') {
             return 'present';
@@ -22,19 +19,17 @@ class AttendanceServices
 
         $checkInTime = Carbon::createFromTimestamp($checkInTimestamp);
         $start = $session->start_time;
-        //$end = $session->end_time;
+        // $end = $session->end_time;
         $onTimeThreshold = $session->start_time->copy()->addMinutes(10); // TODO: make this configurable using settings
 
         // check if the timestamp is within the past 3 minutes and the future 3 minutes to stop manipulated timestamps
         $pastThreshold = now()->subMinutes(3);
         $futureBuffer = now()->addMinutes(3);
-        if (! $checkInTime->between($pastThreshold, $futureBuffer))
-        {
+        if (! $checkInTime->between($pastThreshold, $futureBuffer)) {
             abort(400, 'Invalid timestamp');
         }
 
-        if ($checkInTime->lt($onTimeThreshold)) // if timestamp checkin is under the on time threshold then its on time
-        {
+        if ($checkInTime->lt($onTimeThreshold)) { // if timestamp checkin is under the on time threshold then its on time
             return 'on-time';
         }
 
@@ -58,33 +53,28 @@ class AttendanceServices
 
         // check if qr token is valid (not expired and within the token table)
         $qrToken = QrToken::where('token', $qrToken)->first();
-        if (! $qrToken)
-        {
+        if (! $qrToken) {
             return ['status' => false, 'message' => 'Invalid QR token', 'code' => 403];
         }
 
-        if ($qrToken->session_id != $session->id)
-        {
+        if ($qrToken->session_id != $session->id) {
             return ['status' => false, 'message' => 'Invalid QR token', 'code' => 403];
         }
 
         // check the qr token expiration
         $expiredAt = Carbon::parse($qrToken->expires_at);
         $checkInTime = Carbon::createFromTimestamp($checkInTimestamp);
-        if ($expiredAt->lte($checkInTime))
-        {
+        if ($expiredAt->lte($checkInTime)) {
             return ['status' => false, 'message' => 'QR token has expired', 'code' => 410];
         }
 
         // check if the class is cancelled
-        if ($session->is_cancelled)
-        {
+        if ($session->is_cancelled) {
             return ['status' => false, 'message' => 'Class is cancelled', 'code' => 403];
         }
 
         // check if lecturer is displaying the qr code
-        if (! $session->is_display)
-        {
+        if (! $session->is_display) {
             return ['status' => false, 'message' => 'QR code is not displayed', 'code' => 403];
         }
 
@@ -124,8 +114,7 @@ class AttendanceServices
 
             // gather all absent student to insert into attendance record
             $recordsToInsert = [];
-            foreach ($absentStudentIds as $absentStudentId)
-            {
+            foreach ($absentStudentIds as $absentStudentId) {
                 $recordsToInsert[] = [
                     'user_id' => $absentStudentId,
                     'session_id' => $endedClass->id,
@@ -133,13 +122,12 @@ class AttendanceServices
                     'status' => 'absent',
                     'checkin_method' => $endedClass->checkin_method,
                     'created_at' => now(),
-                    'updated_at' => now()
+                    'updated_at' => now(),
                 ];
             }
 
             // check if there is any absent student to insert and then insert in bulk
-            if (!empty($recordsToInsert))
-            {
+            if (! empty($recordsToInsert)) {
                 AttendanceRecord::insert($recordsToInsert);
             }
 

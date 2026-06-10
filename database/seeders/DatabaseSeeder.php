@@ -5,21 +5,6 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Database\Seeders\AttendanceSeeder;
-use Database\Seeders\LeaveApplicationSeeder;
-use Database\Seeders\BadgeSeeder;
-use Database\Seeders\BeaconSeeder;
-use Database\Seeders\ClassSessionSeeder;
-use Database\Seeders\CourseEnrollmentSeeder;
-use Database\Seeders\CourseSeeder;
-use Database\Seeders\GamificationSeeder;
-use Database\Seeders\LabSeeder;
-use Database\Seeders\LevelSeeder;
-use Database\Seeders\ProgrammeSeeder;
-use Database\Seeders\RewardSeeder;
-use Database\Seeders\RoomSeeder;
-use Database\Seeders\SystemSettingSeeder;
-use Database\Seeders\UserSeeder;
 
 class DatabaseSeeder extends Seeder
 {

@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\SystemSetting;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
+use Inertia\Inertia;
 
 class AdminSettingsController extends Controller
 {
@@ -77,7 +78,7 @@ class AdminSettingsController extends Controller
         $user = auth()->user();
 
         $validated = $request->validate([
-            'username' => ['required', 'string', 'max:255', 'unique:users,username,' . $user->id],
+            'username' => ['required', 'string', 'max:255', 'unique:users,username,'.$user->id],
             'name' => ['required', 'string', 'max:255'],
         ]);
 
@@ -106,7 +107,7 @@ class AdminSettingsController extends Controller
             'photo' => ['required', 'image', 'max:2048'], // Max 2MB
         ]);
 
-        $user = \App\Models\User::find(auth()->id());
+        $user = User::find(auth()->id());
 
         if ($user->profile_photo_path) {
             Storage::disk('public')->delete($user->profile_photo_path);

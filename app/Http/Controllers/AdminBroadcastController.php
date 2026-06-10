@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\AuditLog;
 use App\Models\Course;
 use App\Models\Notification;
-use App\Models\AuditLog;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class AdminBroadcastController extends Controller
 {
@@ -23,7 +23,7 @@ class AdminBroadcastController extends Controller
 
         return Inertia::render('Admin/Broadcasts', [
             'pastBroadcasts' => $pastBroadcasts,
-            'faculties' => Course::select('faculty')->whereNotNull('faculty')->distinct()->pluck('faculty')
+            'faculties' => Course::select('faculty')->whereNotNull('faculty')->distinct()->pluck('faculty'),
         ]);
     }
 
@@ -33,7 +33,7 @@ class AdminBroadcastController extends Controller
             'title' => 'required|string|max:255',
             'body' => 'required|string',
             'target' => 'required|in:all_students,all_lecturers,all_users,specific_faculty',
-            'faculty' => 'required_if:target,specific_faculty|string|nullable'
+            'faculty' => 'required_if:target,specific_faculty|string|nullable',
         ]);
 
         $query = User::query();
@@ -43,13 +43,13 @@ class AdminBroadcastController extends Controller
         } elseif ($validated['target'] === 'all_lecturers') {
             $query->where('role', 'lecturer');
         } elseif ($validated['target'] === 'specific_faculty') {
-            $query->whereHas('courseEnrollments.course', function($q) use ($validated) {
+            $query->whereHas('courseEnrollments.course', function ($q) use ($validated) {
                 $q->where('faculty', $validated['faculty']);
             });
         }
 
         $users = $query->get();
-        
+
         if ($users->isEmpty()) {
             return back()->withErrors(['target' => 'No users found matching the selected criteria.']);
         }
@@ -85,10 +85,10 @@ class AdminBroadcastController extends Controller
                 'body' => $validated['body'],
                 'target' => $validated['target'],
                 'faculty' => $validated['faculty'],
-                'recipient_count' => count($users)
-            ]
+                'recipient_count' => count($users),
+            ],
         ]);
 
-        return back()->with('success', 'Broadcast sent successfully to ' . count($users) . ' recipients.');
+        return back()->with('success', 'Broadcast sent successfully to '.count($users).' recipients.');
     }
 }

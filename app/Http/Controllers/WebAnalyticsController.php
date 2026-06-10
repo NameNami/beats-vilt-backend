@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CourseEnrollment;
 use App\Models\AttendanceRecord;
 use App\Models\ClassSession;
-use App\Models\User;
 use App\Models\Course;
+use App\Models\CourseEnrollment;
 use App\Models\Programme;
 use App\Models\SystemSetting;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class WebAnalyticsController extends Controller
 {
@@ -74,7 +74,7 @@ class WebAnalyticsController extends Controller
                         'student_id' => $enrollment->user->student_id,
                         'course' => $enrollment->course->code,
                         'percentage' => $attendancePercentage,
-                        'missed' => $courseSessionsCount - $attendedCount
+                        'missed' => $courseSessionsCount - $attendedCount,
                     ];
                 }
             }
@@ -84,7 +84,7 @@ class WebAnalyticsController extends Controller
             'courses' => $courses,
             'totalSessions' => $totalSessions,
             'arrivalStats' => $arrivalStats,
-            'atRiskStudents' => collect($atRiskStudents)->sortBy('percentage')->values()->all()
+            'atRiskStudents' => collect($atRiskStudents)->sortBy('percentage')->values()->all(),
         ]);
     }
 
@@ -121,11 +121,12 @@ class WebAnalyticsController extends Controller
 
             $weekSessions = ClassSession::where('is_completed', true)
                 ->whereBetween('start_time', [$weekStart, $weekEnd])
-                ->when($courseId, fn($q) => $q->where('course_id', $courseId))
+                ->when($courseId, fn ($q) => $q->where('course_id', $courseId))
                 ->get();
 
             if ($weekSessions->isEmpty()) {
                 $attendanceTrend[] = ['week' => "W$i", 'rate' => 0];
+
                 continue;
             }
 
@@ -135,14 +136,14 @@ class WebAnalyticsController extends Controller
             foreach ($weekSessions as $session) {
                 // Expected students for this specific session
                 $expected = CourseEnrollment::where('course_id', $session->course_id)
-                    ->when($session->lab_id, fn($q) => $q->where('lab_id', $session->lab_id))
+                    ->when($session->lab_id, fn ($q) => $q->where('lab_id', $session->lab_id))
                     ->where('role', 'student')
                     ->count();
-                
+
                 $totalExpected += $expected;
 
                 $presentCount += AttendanceRecord::where('session_id', $session->id)
-                    ->whereIn('status', ["on-time", "late", "present", "leave"])
+                    ->whereIn('status', ['on-time', 'late', 'present', 'leave'])
                     ->count();
             }
 
@@ -173,9 +174,9 @@ class WebAnalyticsController extends Controller
         $startDateStr = SystemSetting::get('semester_start_date', '2026-03-04');
         $startDate = Carbon::parse($startDateStr)->startOfDay();
         $totalWeeks = (int) SystemSetting::get('semester_total_weeks', 14);
-        
+
         $now = now()->startOfDay();
-        
+
         if ($now->lt($startDate)) {
             $currentWeek = 0;
         } else {
@@ -183,14 +184,16 @@ class WebAnalyticsController extends Controller
             $currentWeek = (int) ($startDate->diffInDays($now) / 7) + 1;
         }
 
-        if ($currentWeek > $totalWeeks) $currentWeek = $totalWeeks;
+        if ($currentWeek > $totalWeeks) {
+            $currentWeek = $totalWeeks;
+        }
 
         return [
             'semester' => SystemSetting::get('semester', '2025/2026-1'),
             'start_date' => $startDate->format('d M Y'),
             'total_weeks' => $totalWeeks,
             'current_week' => $currentWeek,
-            'end_date' => $startDate->copy()->addWeeks($totalWeeks)->format('d M Y')
+            'end_date' => $startDate->copy()->addWeeks($totalWeeks)->format('d M Y'),
         ];
     }
 
@@ -219,7 +222,7 @@ class WebAnalyticsController extends Controller
         $studentQuery = User::where('role', 'student');
 
         if ($courseId) {
-            $studentQuery->whereHas('courseEnrollments', function($q) use ($courseId) {
+            $studentQuery->whereHas('courseEnrollments', function ($q) use ($courseId) {
                 $q->where('course_id', $courseId);
             });
         }
@@ -232,7 +235,7 @@ class WebAnalyticsController extends Controller
 
         $allStudentsData = [];
         $atRiskStudents = [];
-        
+
         $totalPresent = 0;
         $totalAbsent = 0;
         $totalLeave = 0;
@@ -241,24 +244,26 @@ class WebAnalyticsController extends Controller
 
         foreach ($students as $student) {
             $enrollments = $student->courseEnrollments;
-            
+
             if ($courseId) {
-                 $enrollments = $enrollments->filter(fn($e) => $e->course_id == $courseId);
+                $enrollments = $enrollments->filter(fn ($e) => $e->course_id == $courseId);
             }
 
             foreach ($enrollments as $enrollment) {
                 $studentPastSessionIds = ClassSession::where('course_id', $enrollment->course_id)
                     ->where('is_completed', true)
-                    ->where(function($q) use ($enrollment) {
+                    ->where(function ($q) use ($enrollment) {
                         $q->whereNull('lab_id')
-                          ->orWhere('lab_id', $enrollment->lab_id);
+                            ->orWhere('lab_id', $enrollment->lab_id);
                     })
-                    ->when($startDate, fn($q) => $q->whereDate('start_time', '>=', $startDate))
-                    ->when($endDate, fn($q) => $q->whereDate('start_time', '<=', $endDate))
+                    ->when($startDate, fn ($q) => $q->whereDate('start_time', '>=', $startDate))
+                    ->when($endDate, fn ($q) => $q->whereDate('start_time', '<=', $endDate))
                     ->pluck('id');
 
                 $total = $studentPastSessionIds->count();
-                if ($total === 0) continue;
+                if ($total === 0) {
+                    continue;
+                }
 
                 $records = AttendanceRecord::whereIn('session_id', $studentPastSessionIds)
                     ->where('user_id', $student->id)
@@ -267,7 +272,7 @@ class WebAnalyticsController extends Controller
                 $present = $records->whereIn('status', ['on-time', 'late', 'present', 'leave'])->count();
                 $leave = $records->where('status', 'leave')->count();
                 $absent = $total - $present;
-                
+
                 // For breakdowns
                 $onTime = $records->whereIn('status', ['on-time', 'present'])->count();
                 $late = $records->where('status', 'late')->count();
@@ -294,7 +299,7 @@ class WebAnalyticsController extends Controller
                     'late' => $late,
                     'total' => $total,
                     'rate' => $rate,
-                    'is_at_risk' => $isAtRisk
+                    'is_at_risk' => $isAtRisk,
                 ];
 
                 $allStudentsData[] = $studentEntry;
@@ -317,11 +322,11 @@ class WebAnalyticsController extends Controller
                     'late' => $totalLate,
                     'absent' => $totalAbsent,
                     'leave' => $totalLeave,
-                    'total' => $grandTotal
-                ]
+                    'total' => $grandTotal,
+                ],
             ],
             'atRiskStudents' => $atRiskStudents,
-            'allStudents' => $allStudentsData
+            'allStudents' => $allStudentsData,
         ];
     }
 
@@ -333,15 +338,15 @@ class WebAnalyticsController extends Controller
         $endDate = $request->input('end_date');
 
         $data = $this->getReportData($courseId, $programmeId, $startDate, $endDate);
-        
-        $fileName = 'global_compliance_report_' . date('Y-m-d_His') . '.csv';
+
+        $fileName = 'global_compliance_report_'.date('Y-m-d_His').'.csv';
 
         $headers = [
-            "Content-type"        => "text/csv",
-            "Content-Disposition" => "attachment; filename=$fileName",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
+            'Content-type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=$fileName",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
         ];
 
         $columns = [
@@ -355,10 +360,10 @@ class WebAnalyticsController extends Controller
             'Approved Leave',
             'Total Expected Sessions',
             'Attendance Rate (%)',
-            'Compliance Status'
+            'Compliance Status',
         ];
 
-        $callback = function() use($data, $columns) {
+        $callback = function () use ($data, $columns) {
             $file = fopen('php://output', 'w');
             fputcsv($file, $columns);
 
@@ -374,7 +379,7 @@ class WebAnalyticsController extends Controller
                     $student['leave'],
                     $student['total'],
                     $student['rate'],
-                    $student['is_at_risk'] ? 'AT-RISK' : 'COMPLIANT'
+                    $student['is_at_risk'] ? 'AT-RISK' : 'COMPLIANT',
                 ];
                 fputcsv($file, $row);
             }

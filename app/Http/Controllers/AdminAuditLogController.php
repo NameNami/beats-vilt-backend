@@ -17,10 +17,10 @@ class AdminAuditLogController extends Controller
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('model_type', 'like', "%{$searchTerm}%")
-                  ->orWhereHas('user', function ($uq) use ($searchTerm) {
-                      $uq->where('name', 'like', "%{$searchTerm}%")
-                         ->orWhere('email', 'like', "%{$searchTerm}%");
-                  });
+                    ->orWhereHas('user', function ($uq) use ($searchTerm) {
+                        $uq->where('name', 'like', "%{$searchTerm}%")
+                            ->orWhere('email', 'like', "%{$searchTerm}%");
+                    });
             });
         }
 
@@ -56,7 +56,7 @@ class AdminAuditLogController extends Controller
 
         return Inertia::render('Admin/AuditLogs', [
             'logs' => $logs,
-            'filters' => $request->only(['search', 'action', 'date_range', 'sort', 'direction'])
+            'filters' => $request->only(['search', 'action', 'date_range', 'sort', 'direction']),
         ]);
     }
 }

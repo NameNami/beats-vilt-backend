@@ -19,7 +19,7 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         // Check if user exists and password is correct, AND ensure they are a student
-        if (!$user || !Hash::check($request->password, $user->password) || $user->role !== 'student') {
+        if (! $user || ! Hash::check($request->password, $user->password) || $user->role !== 'student') {
             return response()->json(['message' => 'Invalid credentials or unauthorized.'], 401);
         }
 
@@ -29,7 +29,7 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Login successful',
             'user' => $user,
-            'token' => $token
+            'token' => $token,
         ], 200);
     }
 
@@ -37,6 +37,7 @@ class AuthController extends Controller
     {
         // Destroy the token
         $request->user()->currentAccessToken()->delete();
+
         return response()->json(['message' => 'Successfully logged out.'], 200);
     }
 }
