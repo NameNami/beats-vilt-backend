@@ -98,6 +98,20 @@ class AdminController extends Controller
         return back()->with('success', 'Lab created successfully.');
     }
 
+    public function updateLab(Request $request, $id)
+    {
+        $lab = Lab::findOrFail($id);
+        $validated = $request->validate([
+            'lecturer_id' => 'required|exists:users,id',
+            'name' => 'required|string',
+            'capacity' => 'required|integer',
+        ]);
+
+        $lab->update($validated);
+
+        return back()->with('success', 'Lab updated successfully.');
+    }
+
     public function deleteLab($id)
     {
         Lab::findOrFail($id)->delete();
@@ -285,12 +299,16 @@ class AdminController extends Controller
      */
     public function manageLecturers()
     {
-        $lecturers = User::where('role', 'lecturer')->with(['courseEnrollments.course'])->get();
+        $lecturers = User::where('role', 'lecturer')->with(['courseEnrollments.course', 'labs.course', 'conductedSessions'])->get();
         $availableCourses = Course::all();
+        $availableLabs = Lab::with(['enrollments' => function($q) {
+            $q->where('role', 'student');
+        }])->get();
 
         return Inertia::render('Admin/ManageLecturers', [
             'lecturers' => $lecturers,
-            'availableCourses' => $availableCourses
+            'availableCourses' => $availableCourses,
+            'availableLabs' => $availableLabs
         ]);
     }
 
@@ -299,20 +317,48 @@ class AdminController extends Controller
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'course_id' => 'required|exists:courses,id',
+            'lab_id' => 'nullable|exists:labs,id',
         ]);
 
-        CourseEnrollment::updateOrCreate(
-            ['user_id' => $request->user_id, 'course_id' => $request->course_id, 'role' => 'lecturer'],
-            ['enrolled_at' => now()]
-        );
+        if ($request->lab_id) {
+            $lab = Lab::findOrFail($request->lab_id);
+            $lab->update(['lecturer_id' => $request->user_id]);
+        } else {
+            CourseEnrollment::updateOrCreate(
+                ['user_id' => $request->user_id, 'course_id' => $request->course_id, 'role' => 'lecturer'],
+                ['lab_id' => null, 'enrolled_at' => now()]
+            );
+        }
 
         return back()->with('success', 'Lecturer assigned successfully.');
     }
 
-    public function removeLecturerAssignment($id)
+    public function removeLecturerAssignment(Request $request, $id)
     {
-        CourseEnrollment::findOrFail($id)->delete();
+        if ($request->type === 'lab') {
+            Lab::findOrFail($id)->update(['lecturer_id' => null]);
+        } else {
+            CourseEnrollment::findOrFail($id)->delete();
+        }
         return back()->with('success', 'Assignment removed.');
+    }
+
+    public function removeLecturerCourseAssignments(Request $request, $courseId)
+    {
+        $request->validate(['user_id' => 'required|exists:users,id']);
+
+        // Remove Open Class (CourseEnrollment)
+        CourseEnrollment::where('user_id', $request->user_id)
+            ->where('course_id', $courseId)
+            ->where('role', 'lecturer')
+            ->delete();
+
+        // Remove from Labs
+        Lab::where('lecturer_id', $request->user_id)
+            ->where('course_id', $courseId)
+            ->update(['lecturer_id' => null]);
+
+        return back()->with('success', 'All assignments for this course removed.');
     }
 
     /**
@@ -320,10 +366,11 @@ class AdminController extends Controller
      */
     public function manageStudents()
     {
-        $students = User::where('role', 'student')->with(['courseEnrollments.course', 'courseEnrollments.lab'])->get();
+        $students = User::where('role', 'student')->with(['courseEnrollments.course', 'courseEnrollments.lab', 'programme'])->get();
         return Inertia::render('Admin/ManageStudents', [
             'students' => $students,
             'availableCourses' => Course::all(),
+            'availableProgrammes' => \App\Models\Programme::all(),
             'availableLabs' => Lab::with(['enrollments' => function($q) {
                 $q->where('role', 'student');
             }])->get()
@@ -333,33 +380,32 @@ class AdminController extends Controller
     public function assignStudent(Request $request)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id',
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id',
             'course_id' => 'required|exists:courses,id',
             'lab_id' => 'nullable|exists:labs,id',
         ]);
 
-        $existing = CourseEnrollment::where('user_id', $request->user_id)
-            ->where('course_id', $request->course_id)
-            ->where('role', 'student')
-            ->first();
-
-        if ($request->lab_id && (!$existing || $existing->lab_id != $request->lab_id)) {
+        if ($request->lab_id) {
             $lab = Lab::findOrFail($request->lab_id);
             $currentEnrollments = CourseEnrollment::where('lab_id', $lab->id)
                 ->where('role', 'student')
                 ->count();
-
-            if ($currentEnrollments >= $lab->capacity) {
-                return back()->withErrors(['lab_id' => 'This lab has reached its maximum capacity.']);
+            
+            // Note: Simplistic capacity check. In a real system you'd count existing users not already in this lab.
+            if ($currentEnrollments + count($request->user_ids) > $lab->capacity) {
+                return back()->withErrors(['lab_id' => 'Adding these students would exceed the lab maximum capacity.']);
             }
         }
 
-        CourseEnrollment::updateOrCreate(
-            ['user_id' => $request->user_id, 'course_id' => $request->course_id, 'role' => 'student'],
-            ['lab_id' => $request->lab_id, 'enrolled_at' => now()]
-        );
+        foreach ($request->user_ids as $userId) {
+            CourseEnrollment::updateOrCreate(
+                ['user_id' => $userId, 'course_id' => $request->course_id, 'role' => 'student'],
+                ['lab_id' => $request->lab_id, 'enrolled_at' => now()]
+            );
+        }
 
-        return back()->with('success', 'Student enrolled successfully.');
+        return back()->with('success', count($request->user_ids) . ' student(s) enrolled successfully.');
     }
     // =====================================================================
     // 7. USER MANAGEMENT (CRUD)

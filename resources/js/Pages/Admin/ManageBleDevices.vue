@@ -9,8 +9,8 @@
                         <h3 class="text-xl font-black text-slate-900">Beacon Configuration</h3>
                         <p class="text-xs font-mono text-gray-500 mt-1">{{ form.mac_address }}</p>
                     </div>
-                    <button @click="showEditModal = false" class="text-gray-400 hover:text-gray-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <button @click="showEditModal = false" class="text-gray-400 hover:text-gray-600 cursor-pointer">
+                        <X class="w-6 h-6" />
                     </button>
                 </div>
                 <form @submit.prevent="submitEdit" class="p-6 space-y-5">
@@ -52,19 +52,13 @@
 
         <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-8">
             <div>
-                <h1 class="text-2xl font-semibold mb-2 text-gray-900">BLE Device Ecosystem</h1>
+                <h1 class="text-2xl font-semibold mb-2 text-gray-900">BLE Beacons</h1>
                 <p class="text-slate-600 text-sm font-medium">Real-time monitoring of campus Bluetooth proximity assets.</p>
-            </div>
-            <div class="flex gap-3">
-                <button @click="initiateScan" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold  transition flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                    Scan for Devices
-                </button>
             </div>
         </div>
 
         <div v-if="$page.props.flash?.success" class="mb-6 p-4 bg-teal-50 text-teal-800 rounded-xl border border-teal-100 font-medium flex items-center gap-2 ">
-            <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <CheckCircle class="w-5 h-5 text-teal-600" />
             {{ $page.props.flash.success }}
         </div>
 
@@ -94,11 +88,10 @@
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100">
-                                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A10.003 10.003 0 0012 3v8h8V3a10.003 10.003 0 00-10.354 10.612"></path></svg>
+                                        <Radio class="w-5 h-5 text-slate-400" />
                                     </div>
                                     <div>
-                                        <p class="font-bold text-slate-900 text-sm">{{ beacon.name }}</p>
-                                        <p class="text-[11px] font-mono text-gray-500 mt-0.5">{{ beacon.mac_address }}</p>
+                                        <p class="font-medium text-slate-900 text-sm">{{ beacon.mac_address }}</p>
                                     </div>
                                 </div>
                             </td>
@@ -127,25 +120,17 @@
                             <td class="px-6 py-4">
                                 <div class="flex flex-col gap-1.5">
                                     <div class="flex items-center gap-2">
-                                        <div class="flex items-end gap-0.5 h-3">
-                                            <div class="w-1 bg-amber-500 rounded-full" :class="beacon.rssi_threshold >= -80 ? 'h-1' : 'h-1 opacity-20'"></div>
-                                            <div class="w-1 bg-amber-500 rounded-full" :class="beacon.rssi_threshold >= -70 ? 'h-2' : 'h-2 opacity-20'"></div>
-                                            <div class="w-1 bg-amber-500 rounded-full" :class="beacon.rssi_threshold >= -60 ? 'h-3' : 'h-3 opacity-20'"></div>
-                                        </div>
                                         <span class="text-xs font-bold text-slate-700">{{ beacon.rssi_threshold }} <span class="text-[10px] text-gray-400">dBm</span></span>
                                     </div>
-                                    <span v-if="beacon.rssi_threshold >= -60" class="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Close Range</span>
-                                    <span v-else-if="beacon.rssi_threshold >= -75" class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Medium Range</span>
-                                    <span v-else class="text-[9px] font-bold text-slate-300 uppercase tracking-tighter">Wide Range</span>
                                 </div>
                             </td>
 
                             <td class="px-6 py-4 text-right space-x-2">
-                                <button @click="openEditModal(beacon)" class="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition" title="Edit Beacon">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                <button @click="openEditModal(beacon)" class="p-2 text-slate-400 cursor-pointer hover:text-sky-600  rounded-lg transition" title="Edit Beacon">
+                                    <Pencil class="w-5 h-5 inline" />
                                 </button>
-                                <button v-if="beacon.room_id" @click="unassignRoom(beacon)" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Unassign Room">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                <button v-if="beacon.room_id" @click="unassignRoom(beacon)" class="p-2 cursor-pointer text-slate-400 hover:text-rose-600  rounded-lg transition" title="Unassign Room">
+                                    <Link2Off class="w-5 h-5 inline" />
                                 </button>
                             </td>
                         </tr>
@@ -164,6 +149,7 @@
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { X, CheckCircle, RefreshCw, Radio, Pencil, Link2Off } from 'lucide-vue-next';
 
 const props = defineProps({
     beacons: Array,
@@ -180,7 +166,7 @@ onMounted(() => {
             preserveScroll: true,
             preserveState: true
         });
-    }, 5000);
+    }, 3000);
 });
 
 onUnmounted(() => {

@@ -8,28 +8,40 @@
             </div>
         </div>
 
+        <div v-if="$page.props.flash?.success" class="mb-6 p-4 bg-teal-50 text-teal-800 rounded-xl border border-teal-100 font-medium flex items-center gap-2 ">
+            <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            {{ $page.props.flash.success }}
+        </div>
+        <div v-if="Object.keys(form.errors).length > 0 || Object.keys(labForm.errors).length > 0" class="mb-6 p-4 bg-rose-50 text-rose-800 rounded-xl border border-rose-100 ">
+            <p class="font-medium flex items-center gap-2"><svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Please check the form for errors.</p>
+            <ul class="list-disc pl-8 mt-2 text-sm">
+                <li v-for="(error, key) in form.errors" :key="'course-'+key">{{ error }}</li>
+                <li v-for="(error, key) in labForm.errors" :key="'lab-'+key">{{ error }}</li>
+            </ul>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
             <div class="bg-white p-6 rounded-2xl  border border-gray-100 col-span-1 h-fit">
                 <h2 class="text-lg font-bold text-slate-900 mb-5 border-b border-slate-100 pb-3 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477-4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                     {{ isEditing ? 'Edit Course' : 'Create New Course' }}
                 </h2>
 
                 <form @submit.prevent="submitCourse" class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Course Code</label>
-                        <input type="text" v-model="form.code" placeholder="e.g. IPD39806" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5 uppercase" required>
+                        <input type="text" v-model="form.code" placeholder="e.g. IPD39806" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5 uppercase cursor-pointer" required>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Course Name</label>
-                        <input type="text" v-model="form.name" placeholder="e.g. Final Year Project" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5" required>
+                        <input type="text" v-model="form.name" placeholder="e.g. Final Year Project" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5 cursor-pointer" required>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Department / Faculty</label>
-                        <select v-model="form.faculty" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-amber-600 focus:border-amber-600 text-sm py-2.5 font-medium" required>
+                        <select v-model="form.faculty" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg  focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5 font-medium cursor-pointer" required>
                             <option value="IT">Information Technology (MIIT)</option>
                             <option value="BUSINESS">Business & Management</option>
                             <option value="ENGINEERING">Engineering</option>
@@ -37,10 +49,10 @@
                     </div>
 
                     <div class="flex justify-end gap-2 pt-4 border-t border-gray-100 mt-4">
-                        <button v-if="isEditing" type="button" @click="cancelEdit" class="bg-gray-100 hover:bg-gray-200 text-slate-700 px-4 py-2 rounded-lg font-bold transition">
+                        <button v-if="isEditing" type="button" @click="cancelEdit" class="bg-gray-100 hover:bg-gray-200 text-slate-700 px-4 py-2 rounded-lg font-bold transition cursor-pointer">
                             Cancel
                         </button>
-                        <button type="submit" :disabled="form.processing" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-lg font-bold transition disabled:opacity-50 w-full ">
+                        <button type="submit" :disabled="form.processing" class="bg-orange-400 hover:bg-orange-500 text-white px-6 py-2.5 rounded-lg font-medium transition disabled:opacity-50 w-full cursor-pointer">
                             {{ isEditing ? 'Update Course' : 'Save Course' }}
                         </button>
                     </div>
@@ -53,26 +65,29 @@
                         Manage Labs
                     </h2>
 
-                    <form @submit.prevent="submitLab" class="space-y-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <form @submit.prevent="submitLab" class="space-y-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-100 relative">
+                        <button v-if="isEditingLab" type="button" @click="cancelEditLab" class="absolute top-2 right-2 text-slate-400 hover:text-rose-600 transition cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Lab Name</label>
-                            <input type="text" v-model="labForm.name" placeholder="e.g. L01" class="w-full bg-white border-gray-200 rounded-lg text-sm py-2" required>
+                            <input type="text" v-model="labForm.name" placeholder="e.g. L01" class="w-full bg-white border-gray-200 rounded-lg text-sm py-2 cursor-pointer" required>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Capacity</label>
-                                <input type="number" v-model="labForm.capacity" class="w-full bg-white border-gray-200 rounded-lg text-sm py-2" required>
+                                <input type="number" v-model="labForm.capacity" class="w-full bg-white border-gray-200 rounded-lg text-sm py-2 cursor-pointer" required>
                             </div>
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Lecturer</label>
-                                <select v-model="labForm.lecturer_id" class="w-full bg-white border-gray-200 rounded-lg text-sm py-2" required>
+                                <select v-model="labForm.lecturer_id" class="w-full bg-white border-gray-200 rounded-lg text-sm py-2 cursor-pointer" required>
                                     <option value="">Select...</option>
                                     <option v-for="l in lecturers" :key="l.id" :value="l.id">{{ l.name }}</option>
                                 </select>
                             </div>
                         </div>
-                        <button type="submit" :disabled="labForm.processing" class="w-full bg-teal-700 hover:bg-teal-800 text-white py-2 rounded-lg font-bold text-xs transition">
-                            + Add Lab Group
+                        <button type="submit" :disabled="labForm.processing" class="w-full bg-teal-700 hover:bg-teal-800 text-white py-2 rounded-lg font-medium text-xs transition cursor-pointer">
+                            {{ isEditingLab ? 'Update Lab Group' : '+ Add Lab Group' }}
                         </button>
                     </form>
 
@@ -90,9 +105,14 @@
                                     ID: {{ lab.id }}
                                 </p>
                             </div>
-                            <button @click="deleteLab(lab.id)" class="text-slate-300 hover:text-rose-600 transition">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                            </button>
+                            <div class="flex gap-2">
+                                <button @click="editLab(lab)" class="text-slate-300 hover:text-orange-600 transition cursor-pointer">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                </button>
+                                <button @click="deleteLab(lab.id)" class="text-slate-300 hover:text-rose-600 transition cursor-pointer">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -115,12 +135,9 @@
                     <tr v-for="course in courses" :key="course.id" class="hover:bg-gray-50/50 transition">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-lg bg-[#fffbf5] text-amber-700 flex items-center justify-center font-black text-xs border border-amber-100">
-                                    {{ course.code }}
-                                </div>
                                 <div>
-                                    <p class="font-bold text-slate-900">{{ course.name }}</p>
-                                    <p class="text-[11px] text-gray-500 font-medium">Course ID: {{ course.id }} &bull; <span class="text-orange-600 font-bold">{{ course.enrollments?.length || 0 }} Students</span></p>
+                                    <p class="font-medium text-slate-900">{{ course.name }}</p>
+                                    <p class="text-[11px] text-gray-500 font-medium">{{ course.code }} &bull; {{ course.enrollments?.length || 0 }} Students</p>
                                 </div>
                             </div>
                         </td>
@@ -131,8 +148,8 @@
                             <span class="px-2 py-1 bg-slate-100 text-slate-600 rounded text-[10px] font-black uppercase">{{ course.labs?.length || 0 }} Labs</span>
                         </td>
                         <td class="px-6 py-4 text-right space-x-3">
-                            <button @click="editCourse(course)" class="text-slate-400 hover:text-orange-600 transition"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
-                            <button @click="deleteCourse(course.id)" class="text-slate-400 hover:text-rose-600 transition"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                            <button @click="editCourse(course)" class="text-slate-400 hover:text-orange-600 transition cursor-pointer"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                            <button @click="deleteCourse(course.id)" class="text-slate-400 hover:text-rose-600 transition cursor-pointer"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                         </td>
                     </tr>
                     <tr v-if="!courses || courses.length === 0">
@@ -156,6 +173,7 @@ const props = defineProps({
 });
 
 const isEditing = ref(false);
+const isEditingLab = ref(false);
 
 const form = useForm({
     id: null,
@@ -165,6 +183,7 @@ const form = useForm({
 });
 
 const labForm = useForm({
+    id: null,
     course_id: '',
     lecturer_id: '',
     name: '',
@@ -196,11 +215,37 @@ const submitLab = () => {
         alert("Error: Please select a course first.");
         return;
     }
+
+    if (isEditingLab.value) {
+        labForm.post(`/admin/labs/update/${labForm.id}`, {
+            preserveScroll: true,
+            onSuccess: () => cancelEditLab()
+        });
+    } else {
+        labForm.course_id = form.id;
+        labForm.post(route('admin.labs.store'), {
+            preserveScroll: true,
+            onSuccess: () => cancelEditLab()
+        });
+    }
+};
+
+const editLab = (lab) => {
+    isEditingLab.value = true;
+    labForm.id = lab.id;
+    labForm.course_id = lab.course_id;
+    labForm.lecturer_id = lab.lecturer_id;
+    labForm.name = lab.name;
+    labForm.capacity = lab.capacity;
+    labForm.clearErrors();
+};
+
+const cancelEditLab = () => {
+    isEditingLab.value = false;
+    labForm.id = null;
     labForm.course_id = form.id;
-    labForm.post(route('admin.labs.store'), {
-        preserveScroll: true,
-        onSuccess: () => labForm.reset('name', 'capacity', 'lecturer_id')
-    });
+    labForm.reset('name', 'capacity', 'lecturer_id');
+    labForm.clearErrors();
 };
 
 const deleteLab = (id) => {
@@ -220,10 +265,12 @@ const editCourse = (course) => {
     form.name = course.name;
     form.faculty = course.faculty || 'IT';
     form.clearErrors();
+    cancelEditLab();
 };
 
 const cancelEdit = () => {
     resetForm();
+    cancelEditLab();
 };
 
 const deleteCourse = (id) => {

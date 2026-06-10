@@ -13,7 +13,7 @@
                 <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 {{ $page.props.flash.success }}
             </div>
-            
+
             <div v-if="$page.props.errors?.message" class="p-4 bg-red-50 text-red-800 rounded-xl border border-red-100 font-bold flex items-center gap-3">
                 <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                 {{ $page.props.errors.message }}
@@ -22,7 +22,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Apply Leave Card -->
                 <div class="lg:col-span-1">
-                    <form @submit.prevent="submitLeave" class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm sticky top-6">
+                    <form @submit.prevent="submitLeave" class="bg-white rounded-2xl border border-slate-200 overflow-hidden  sticky top-6">
                         <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
                             <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                                 <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
@@ -39,7 +39,7 @@
                                     </button>
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Select Student</label>
                                 <select v-model="form.user_id" class="w-full bg-[#f8fafc] border-slate-200 rounded-xl focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5 font-medium">
@@ -92,14 +92,14 @@
 
                 <!-- History Log -->
                 <div class="lg:col-span-2">
-                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden ">
                         <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
                             <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                                 <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                                 Recent Overrides
                             </h2>
                         </div>
-                        
+
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
@@ -179,7 +179,7 @@ const submitLeave = () => {
     if (!confirm('Are you sure? This will forcefully override the attendance records for all scheduled classes within this date range.')) {
         return;
     }
-    
+
     form.post(route('admin.leave.store'), {
         preserveScroll: true,
         onSuccess: () => {

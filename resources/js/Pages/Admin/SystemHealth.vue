@@ -16,7 +16,7 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Status Card -->
-                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden ">
                     <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
                         <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                             <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -59,7 +59,7 @@
                 </div>
 
                 <!-- Backup Card -->
-                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden ">
                     <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
                         <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                             <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
@@ -86,7 +86,7 @@
                 </div>
 
                 <!-- Semester Rollover Card -->
-                <div class="lg:col-span-2 bg-white rounded-2xl border border-rose-200 overflow-hidden shadow-sm">
+                <div class="lg:col-span-2 bg-white rounded-2xl border border-rose-200 overflow-hidden ">
                     <div class="px-6 py-4 border-b border-rose-100 bg-rose-50/50">
                         <h2 class="text-lg font-bold text-rose-800 flex items-center gap-2">
                             <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
@@ -97,7 +97,7 @@
                         <p class="text-sm text-slate-600 mb-6 leading-relaxed">
                             This action will move all current Class Sessions, Student Enrollments, Leave Applications, and Attendance Records into dedicated Archive tables. It will then wipe the active tables and reset all student gamification streaks to prepare the system for a fresh semester.
                         </p>
-                        
+
                         <form @submit.prevent="submitRollover" class="bg-rose-50 p-6 rounded-xl border border-rose-100 space-y-5">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
@@ -109,13 +109,13 @@
                                     <input v-model="form.new_start_date" type="date" class="w-full bg-white border-rose-200 rounded-xl focus:ring-rose-500 focus:border-rose-500 text-sm py-2.5">
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Confirmation</label>
                                 <p class="text-xs text-rose-600 mb-2 font-medium">Type <strong>CONFIRM</strong> to verify this destructive action.</p>
                                 <input v-model="form.confirmation" type="text" class="w-full bg-white border-rose-200 rounded-xl focus:ring-rose-500 focus:border-rose-500 text-sm py-2.5 uppercase text-rose-600 font-bold tracking-widest text-center" placeholder="CONFIRM">
                             </div>
-                            
+
                             <button type="submit" :disabled="form.processing || form.confirmation !== 'CONFIRM'" class="w-full bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 rounded-xl font-bold transition disabled:opacity-50 flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                 {{ form.processing ? 'Archiving Data...' : 'Execute Semester Rollover' }}
@@ -142,7 +142,7 @@ const isDownloading = ref(false);
 const downloadBackup = () => {
     isDownloading.value = true;
     window.location.href = route('admin.system.backup');
-    
+
     // Re-enable button after a generous timeout since download doesn't trigger a JS callback
     setTimeout(() => {
         isDownloading.value = false;
@@ -157,7 +157,7 @@ const form = useForm({
 
 const submitRollover = () => {
     if (form.confirmation !== 'CONFIRM') return;
-    
+
     if (confirm('FINAL WARNING: This will permanently archive current data and clear active tables. This cannot be undone. Are you sure?')) {
         form.post(route('admin.system.rollover'), {
             preserveScroll: true,

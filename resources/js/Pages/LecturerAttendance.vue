@@ -30,7 +30,11 @@ const props = defineProps({
     atRiskStudents: Array,
     uniqueSubjects: Array,
     threshold: Number,
-    totalUniqueStudents: Number
+    totalUniqueStudents: Number,
+    qrRotationSeconds: {
+        type: Number,
+        default: 15
+    }
 });
 
 // --- State ---
@@ -52,6 +56,7 @@ const sessionStats = ref({
     total: 0
 });
 const pollingInterval = ref(null);
+const qrInterval = ref(null);
 const isProcessing = ref(false);
 const isQrGenerated = ref(false);
 
@@ -185,6 +190,17 @@ const openAttendanceWindow = async (session) => {
     await fetchSessionDetails(session.id);
     showModal.value = true;
 
+    // Check if QR was already active
+    if (selectedSessionData.value?.qr_token) {
+        isQrGenerated.value = true;
+        if (!qrInterval.value) {
+            qrInterval.value = setInterval(async () => {
+                const rotationResponse = await axios.post(route('lecturer.sessions.generate-qr', selectedSessionData.value.id));
+                selectedSessionData.value.qr_token = rotationResponse.data.token;
+            }, props.qrRotationSeconds * 1000);
+        }
+    }
+
     // Set is_display to true
     await axios.post(route('lecturer.sessions.toggle-display', session.id), { is_display: true });
 
@@ -202,6 +218,7 @@ const closeAttendanceWindow = async () => {
 
     showModal.value = false;
     if (pollingInterval.value) clearInterval(pollingInterval.value);
+    if (qrInterval.value) clearInterval(qrInterval.value);
     selectedSessionData.value = null;
     studentsList.value = [];
     searchQuery.value = '';
@@ -215,6 +232,14 @@ const generateQr = async () => {
         const response = await axios.post(route('lecturer.sessions.generate-qr', selectedSessionData.value.id));
         selectedSessionData.value.qr_token = response.data.token;
         isQrGenerated.value = true;
+
+        // Dynamic QR Rotation
+        if (!qrInterval.value) {
+            qrInterval.value = setInterval(async () => {
+                const rotationResponse = await axios.post(route('lecturer.sessions.generate-qr', selectedSessionData.value.id));
+                selectedSessionData.value.qr_token = rotationResponse.data.token;
+            }, props.qrRotationSeconds * 1000);
+        }
     } catch (error) {
         console.error('Error generating QR token:', error);
     }

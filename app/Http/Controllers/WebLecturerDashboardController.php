@@ -166,6 +166,7 @@ class WebLecturerDashboardController extends Controller
             'pendingLeaveCount' => (string)$pendingLeaveCount,
             'atRiskStudentCount' => (string)$atRiskStudentCount,
             'scheduleItems' => $scheduleItems,
+            'qrRotationSeconds' => (int) SystemSetting::get('qr_rotation_seconds', 15)
         ]);
     }
 

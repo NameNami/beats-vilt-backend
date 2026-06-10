@@ -156,7 +156,8 @@ class WebAttendanceController extends Controller
             'atRiskStudents' => $atRiskStudentList,
             'uniqueSubjects' => $uniqueSubjects,
             'threshold' => $thresholdValue,
-            'totalUniqueStudents' => $uniqueStudentsCount
+            'totalUniqueStudents' => $uniqueStudentsCount,
+            'qrRotationSeconds' => (int) SystemSetting::get('qr_rotation_seconds', 15)
         ]);
     }
 
@@ -259,25 +260,13 @@ class WebAttendanceController extends Controller
 
     public function generateQr(ClassSession $session)
     {
-        $now = now();
-        $expiresAt = null;
-
-        if ($now->lt($session->end_time)) {
-            // During class: Check for existing active token
-            $existingToken = $session->activeQrToken;
-            if ($existingToken && $existingToken->expires_at->eq($session->end_time)) {
-                return response()->json(['token' => $existingToken->token]);
-            }
-            $expiresAt = $session->end_time;
-        } else {
-            // After class: 15-minute rolling expiration
-            $expiresAt = $now->addMinutes(15);
-        }
-
+        $rotationSeconds = (int) SystemSetting::get('qr_rotation_seconds', 15);
+        $gracePeriod = 5; // 5 seconds grace period
+        
         $token = QrToken::create([
             'session_id' => $session->id,
-            'token' => Str::random(64),
-            'expires_at' => $expiresAt,
+            'token' => \Illuminate\Support\Str::random(64),
+            'expires_at' => now()->addSeconds($rotationSeconds + $gracePeriod),
         ]);
 
         return response()->json(['token' => $token->token]);

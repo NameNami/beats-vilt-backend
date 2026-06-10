@@ -1,5 +1,6 @@
 <template>
     <AdminLayout>
+        <Head title="System Audit Logs" />
         <div class="flex justify-between items-end mb-8">
             <div>
                 <h1 class="text-2xl font-semibold mb-2 text-gray-900">System Audit Logs</h1>
@@ -7,74 +8,117 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6 p-4">
-            <div class="flex flex-col md:flex-row gap-4 items-end">
-                <div class="flex-1 w-full relative">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Search User or Model</label>
-                    <div class="relative">
-                        <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        <input 
-                            type="text" 
-                            v-model="filters.search"
-                            @input="debouncedSearch"
-                            placeholder="Search by name, email or model type..." 
-                            class="w-full pl-10 pr-4 py-2.5 bg-[#f8fafc] border-gray-200 rounded-lg focus:ring-orange-500 focus:border-orange-500 text-sm"
-                        >
+        <!-- Compact Inline Filters -->
+        <div class="bg-white rounded-2xl border border-slate-300 p-3 mb-6">
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="flex items-center gap-2 ml-1">
+                    <Filter class="w-4 h-4 text-slate-500" />
+                </div>
+
+                <!-- Action Dropdown -->
+                <div class="relative w-full sm:w-auto" ref="actionDropdownRef">
+                    <button
+                        @click="isActionDropdownOpen = !isActionDropdownOpen"
+                        class="w-full sm:min-w-[160px] inline-flex items-center justify-between text-slate-800 bg-white border border-orange-500 focus:ring-4 focus:ring-orange-500/20 font-medium rounded-xl text-sm px-5 py-2.5 transition-all outline-none cursor-pointer h-[42px]"
+                        type="button"
+                    >
+                        <span class="truncate">{{ selectedActionLabel }}</span>
+                        <ChevronDown class="w-4 h-4 ms-2 -me-1 text-slate-400 transition-transform duration-200" :class="{'rotate-180': isActionDropdownOpen}" />
+                    </button>
+
+                    <div v-if="isActionDropdownOpen" class="absolute left-0 top-full mt-2 z-30 bg-white border border-slate-300 rounded-xl w-48 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                        <ul class="p-1.5 text-sm text-slate-700 font-medium max-h-60 overflow-y-auto space-y-1">
+                            <li>
+                                <button @click="filters.action = ''; applyFilters(); isActionDropdownOpen = false"
+                                    class="flex items-center w-full p-2.5 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors text-left cursor-pointer"
+                                    :class="{'text-orange-400 bg-orange-50/50': !filters.action}">
+                                    All Actions
+                                </button>
+                            </li>
+                            <li v-for="act in ['created', 'updated', 'deleted']" :key="act">
+                                <button @click="filters.action = act; applyFilters(); isActionDropdownOpen = false"
+                                    class="flex items-center w-full p-2.5 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors text-left cursor-pointer"
+                                    :class="{'text-orange-400 bg-orange-50/50': filters.action === act}">
+                                    {{ act.charAt(0).toUpperCase() + act.slice(1) }}
+                                </button>
+                            </li>
+                        </ul>
                     </div>
                 </div>
-                
-                <div class="w-full md:w-48">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Action</label>
-                    <select 
-                        v-model="filters.action"
-                        @change="applyFilters"
-                        class="w-full bg-[#f8fafc] border-gray-200 rounded-lg focus:ring-orange-500 focus:border-orange-500 text-sm py-2.5 font-medium"
+
+                <!-- Date Range Dropdown -->
+                <div class="relative w-full sm:w-auto" ref="dateRangeDropdownRef">
+                    <button
+                        @click="isDateRangeDropdownOpen = !isDateRangeDropdownOpen"
+                        class="w-full sm:min-w-[160px] inline-flex items-center justify-between text-slate-800 bg-white border border-orange-500 focus:ring-4 focus:ring-orange-500/20 font-medium rounded-xl text-sm px-5 py-2.5 transition-all outline-none cursor-pointer h-[42px]"
+                        type="button"
                     >
-                        <option value="">All Actions</option>
-                        <option value="created">Created</option>
-                        <option value="updated">Updated</option>
-                        <option value="deleted">Deleted</option>
-                    </select>
+                        <span class="truncate">{{ selectedDateRangeLabel }}</span>
+                        <ChevronDown class="w-4 h-4 ms-2 -me-1 text-slate-400 transition-transform duration-200" :class="{'rotate-180': isDateRangeDropdownOpen}" />
+                    </button>
+
+                    <div v-if="isDateRangeDropdownOpen" class="absolute left-0 top-full mt-2 z-30 bg-white border border-slate-300 rounded-xl w-48 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                        <ul class="p-1.5 text-sm text-slate-700 font-medium max-h-60 overflow-y-auto space-y-1">
+                            <li v-for="(label, val) in {'': 'All Time', 'today': 'Today', 'last_7_days': 'Last 7 Days', 'last_30_days': 'Last 30 Days'}" :key="val">
+                                <button @click="filters.date_range = val; applyFilters(); isDateRangeDropdownOpen = false"
+                                    class="flex items-center w-full p-2.5 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors text-left cursor-pointer"
+                                    :class="{'text-orange-400 bg-orange-50/50': filters.date_range === val}">
+                                    {{ label }}
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-                
-                <div class="w-full md:w-48">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Date Range</label>
-                    <select 
-                        v-model="filters.date_range"
-                        @change="applyFilters"
-                        class="w-full bg-[#f8fafc] border-gray-200 rounded-lg focus:ring-orange-500 focus:border-orange-500 text-sm py-2.5 font-medium"
+
+                <p class="text-slate-500 text-xs font-bold uppercase mx-1"> | </p>
+
+                <!-- Search -->
+                <div class="relative flex-1 min-w-[300px]">
+                    <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                        type="text"
+                        v-model="filters.search"
+                        @input="debouncedSearch"
+                        placeholder="Search user, email or model..."
+                        class="w-full pl-10 pr-4 py-2.5 bg-white border border-orange-500 rounded-xl focus:ring-4 focus:ring-orange-500/20 text-sm outline-none h-[42px] transition-all"
                     >
-                        <option value="">All Time</option>
-                        <option value="today">Today</option>
-                        <option value="last_7_days">Last 7 Days</option>
-                        <option value="last_30_days">Last 30 Days</option>
-                    </select>
                 </div>
+
+                <button v-if="filters.search || filters.action || filters.date_range" @click="resetFilters" class="text-sm font-bold text-slate-500 hover:text-slate-700 transition cursor-pointer px-2">Reset</button>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="bg-white rounded-xl  border border-gray-200 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">
                     <thead class="bg-gray-50/50 text-gray-500 text-[11px] uppercase tracking-widest font-bold">
                         <tr>
-                            <th class="px-6 py-4 cursor-pointer hover:bg-gray-100 transition" @click="sortBy('created_at')">
+                            <th class="px-6 py-4 cursor-pointer hover:bg-gray-100 transition group select-none" @click="sortBy('created_at')">
                                 <div class="flex items-center gap-1">
                                     Timestamp
-                                    <svg v-if="filters.sort === 'created_at'" class="w-3 h-3" :class="filters.direction === 'asc' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <div class="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity" :class="{'opacity-100': filters.sort === 'created_at'}">
+                                        <ChevronUp class="w-2.5 h-2.5 -mb-1" :class="{'text-orange-600': filters.sort === 'created_at' && filters.direction === 'asc', 'text-slate-400': filters.sort !== 'created_at' || filters.direction !== 'asc'}" />
+                                        <ChevronDown class="w-2.5 h-2.5" :class="{'text-orange-600': filters.sort === 'created_at' && filters.direction === 'desc', 'text-slate-400': filters.sort !== 'created_at' || filters.direction !== 'desc'}" />
+                                    </div>
                                 </div>
                             </th>
                             <th class="px-6 py-4">User</th>
-                            <th class="px-6 py-4 cursor-pointer hover:bg-gray-100 transition" @click="sortBy('action')">
+                            <th class="px-6 py-4 cursor-pointer hover:bg-gray-100 transition group select-none" @click="sortBy('action')">
                                 <div class="flex items-center gap-1">
                                     Action
-                                    <svg v-if="filters.sort === 'action'" class="w-3 h-3" :class="filters.direction === 'asc' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <div class="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity" :class="{'opacity-100': filters.sort === 'action'}">
+                                        <ChevronUp class="w-2.5 h-2.5 -mb-1" :class="{'text-orange-600': filters.sort === 'action' && filters.direction === 'asc', 'text-slate-400': filters.sort !== 'action' || filters.direction !== 'asc'}" />
+                                        <ChevronDown class="w-2.5 h-2.5" :class="{'text-orange-600': filters.sort === 'action' && filters.direction === 'desc', 'text-slate-400': filters.sort !== 'action' || filters.direction !== 'desc'}" />
+                                    </div>
                                 </div>
                             </th>
-                            <th class="px-6 py-4 cursor-pointer hover:bg-gray-100 transition" @click="sortBy('model_type')">
+                            <th class="px-6 py-4 cursor-pointer hover:bg-gray-100 transition group select-none" @click="sortBy('model_type')">
                                 <div class="flex items-center gap-1">
                                     Model
-                                    <svg v-if="filters.sort === 'model_type'" class="w-3 h-3" :class="filters.direction === 'asc' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <div class="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity" :class="{'opacity-100': filters.sort === 'model_type'}">
+                                        <ChevronUp class="w-2.5 h-2.5 -mb-1" :class="{'text-orange-600': filters.sort === 'model_type' && filters.direction === 'asc', 'text-slate-400': filters.sort !== 'model_type' || filters.direction !== 'asc'}" />
+                                        <ChevronDown class="w-2.5 h-2.5" :class="{'text-orange-600': filters.sort === 'model_type' && filters.direction === 'desc', 'text-slate-400': filters.sort !== 'model_type' || filters.direction !== 'desc'}" />
+                                    </div>
                                 </div>
                             </th>
                             <th class="px-6 py-4">Target ID</th>
@@ -94,7 +138,7 @@
                                 <span v-else class="text-xs font-bold text-slate-400 uppercase tracking-wider">System</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span 
+                                <span
                                     class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest border"
                                     :class="{
                                         'bg-emerald-50 text-emerald-700 border-emerald-200': log.action === 'created',
@@ -134,7 +178,7 @@
                     </tbody>
                 </table>
             </div>
-            
+
             <!-- Pagination -->
             <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50" v-if="logs.links && logs.links.length > 3">
                 <div class="text-sm text-slate-500 font-medium">
@@ -142,11 +186,11 @@
                 </div>
                 <div class="flex gap-1">
                     <template v-for="(link, index) in logs.links" :key="index">
-                        <Link 
+                        <Link
                             v-if="link.url"
                             :href="link.url"
                             class="px-3 py-1 text-sm font-medium rounded-md transition-colors"
-                            :class="link.active ? 'bg-orange-500 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-200'"
+                            :class="link.active ? 'bg-orange-500 text-white ' : 'text-slate-600 hover:bg-slate-200'"
                             v-html="link.label"
                         />
                         <span v-else class="px-3 py-1 text-sm font-medium text-slate-400 cursor-not-allowed" v-html="link.label"></span>
@@ -159,8 +203,9 @@
 
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { Link, router } from '@inertiajs/vue3';
-import { reactive } from 'vue';
+import { Link, router, Head } from '@inertiajs/vue3';
+import { ref, reactive, onMounted, onUnmounted, computed } from 'vue';
+import { Filter, ChevronDown, Search, X } from 'lucide-vue-next';
 
 const props = defineProps({
     logs: Object,
@@ -175,12 +220,57 @@ const filters = reactive({
     direction: props.filters?.direction || 'desc',
 });
 
+// --- Custom Dropdown State ---
+const isActionDropdownOpen = ref(false);
+const isDateRangeDropdownOpen = ref(false);
+const actionDropdownRef = ref(null);
+const dateRangeDropdownRef = ref(null);
+
+const selectedActionLabel = computed(() => {
+    if (!filters.action) return 'All Actions';
+    return filters.action.charAt(0).toUpperCase() + filters.action.slice(1);
+});
+
+const selectedDateRangeLabel = computed(() => {
+    const options = {
+        '': 'All Time',
+        'today': 'Today',
+        'last_7_days': 'Last 7 Days',
+        'last_30_days': 'Last 30 Days'
+    };
+    return options[filters.date_range] || 'All Time';
+});
+
+const handleClickOutside = (event) => {
+    if (actionDropdownRef.value && !actionDropdownRef.value.contains(event.target)) {
+        isActionDropdownOpen.value = false;
+    }
+    if (dateRangeDropdownRef.value && !dateRangeDropdownRef.value.contains(event.target)) {
+        isDateRangeDropdownOpen.value = false;
+    }
+};
+
+onMounted(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+});
+
+onUnmounted(() => {
+    document.removeEventListener('mousedown', handleClickOutside);
+});
+
 const applyFilters = () => {
     router.get('/admin/audit-logs', filters, {
         preserveState: true,
         preserveScroll: true,
         replace: true
     });
+};
+
+const resetFilters = () => {
+    filters.search = '';
+    filters.action = '';
+    filters.date_range = '';
+    applyFilters();
 };
 
 const sortBy = (field) => {

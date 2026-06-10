@@ -50,6 +50,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/lecturers', [AdminController::class, 'manageLecturers'])->name('lecturers.index');
     Route::post('/lecturers/assign', [AdminController::class, 'assignLecturer'])->name('lecturers.assign');
     Route::post('/lecturers/assignment/{id}', [AdminController::class, 'removeLecturerAssignment'])->name('lecturers.remove');
+    Route::post('/lecturers/assignment/course/{courseId}', [AdminController::class, 'removeLecturerCourseAssignments'])->name('lecturers.remove.course');
 
     // Student Management
     Route::get('/students', [AdminController::class, 'manageStudents'])->name('students.index');
@@ -60,6 +61,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/courses', [AdminController::class, 'storeCourse'])->name('courses.store');
     Route::post('/courses/update/{id}', [AdminController::class, 'updateCourse'])->name('courses.update');
     Route::post('/labs', [AdminController::class, 'storeLab'])->name('labs.store');
+    Route::post('/labs/update/{id}', [AdminController::class, 'updateLab'])->name('labs.update');
     // User Management
     Route::get('/users', [AdminController::class, 'manageUsers'])->name('users.index');
     Route::post('/users', [AdminController::class, 'storeUser'])->name('users.store');

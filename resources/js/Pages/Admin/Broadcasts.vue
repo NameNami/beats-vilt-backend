@@ -10,24 +10,24 @@
             </div>
 
             <div v-if="$page.props.flash?.success" class="p-4 bg-teal-50 text-teal-800 rounded-xl border border-teal-100 font-bold flex items-center gap-3">
-                <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <CheckCircle class="w-5 h-5 text-teal-600" />
                 {{ $page.props.flash.success }}
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Composer Card -->
                 <div class="lg:col-span-1">
-                    <form @submit.prevent="submitBroadcast" class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm sticky top-6">
-                        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+                    <form @submit.prevent="submitBroadcast" class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                        <div class="px-6 py-4 border-b border-slate-100 bg-orange-50">
                             <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                                <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
+                                <Megaphone class="w-5 h-5 text-orange-600" />
                                 New Broadcast
                             </h2>
                         </div>
                         <div class="p-6 space-y-5">
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Target Audience</label>
-                                <select v-model="form.target" class="w-full bg-[#f8fafc] border-slate-200 rounded-xl focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5 font-medium">
+                                <select v-model="form.target" class="w-full bg-[#f8fafc] border-slate-200 rounded-xl focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5 font-medium cursor-pointer">
                                     <option value="all_users">Everyone (All Users)</option>
                                     <option value="all_students">All Students</option>
                                     <option value="all_lecturers">All Lecturers</option>
@@ -38,7 +38,7 @@
 
                             <div v-if="form.target === 'specific_faculty'">
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Select Faculty</label>
-                                <select v-model="form.faculty" class="w-full bg-[#f8fafc] border-slate-200 rounded-xl focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5 font-medium">
+                                <select v-model="form.faculty" class="w-full bg-[#f8fafc] border-slate-200 rounded-xl focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5 font-medium cursor-pointer">
                                     <option value="">Choose...</option>
                                     <option v-for="fac in faculties" :key="fac" :value="fac">{{ fac }}</option>
                                 </select>
@@ -58,8 +58,8 @@
                             </div>
 
                             <div class="pt-2">
-                                <button type="submit" :disabled="form.processing" class="w-full bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-xl font-bold transition disabled:opacity-50 flex items-center justify-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                                <button type="submit" :disabled="form.processing" class="w-full bg-orange-400 hover:bg-orange-500 text-white px-6 py-3 rounded-xl font-bold transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer">
+                                    <Send class="w-4 h-4" />
                                     {{ form.processing ? 'Sending...' : 'Send Broadcast Now' }}
                                 </button>
                             </div>
@@ -68,30 +68,30 @@
                 </div>
 
                 <!-- History Log -->
-                <div class="lg:col-span-2">
-                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-                        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm h-fit">
+                        <div class="px-6 py-4 border-b border-slate-100 bg-orange-50 flex justify-between items-center">
                             <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                Broadcast History
+                                <History class="w-5 h-5 text-slate-400" />
+                                History
                             </h2>
                         </div>
-                        
-                        <div class="divide-y divide-slate-100">
-                            <div v-for="log in pastBroadcasts" :key="log.created_at" class="p-6 hover:bg-slate-50/50 transition">
-                                <div class="flex justify-between items-start mb-2">
-                                    <h3 class="font-bold text-slate-900">{{ log.title }}</h3>
-                                    <span class="text-xs font-bold text-slate-400 whitespace-nowrap ml-4">{{ new Date(log.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) }}</span>
+
+                        <div class="divide-y divide-slate-100 max-h-[600px] overflow-y-auto custom-scrollbar">
+                            <div v-for="log in pastBroadcasts" :key="log.created_at" class="p-4 hover:bg-slate-50/50 transition">
+                                <div class="flex justify-between items-start mb-1 gap-2">
+                                    <h3 class="text-sm font-bold text-slate-900 truncate flex-1">{{ log.title }}</h3>
+                                    <span class="text-[10px] font-bold text-slate-400 whitespace-nowrap">{{ new Date(log.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) }}</span>
                                 </div>
-                                <p class="text-sm text-slate-600 mb-4 leading-relaxed">{{ log.body }}</p>
-                                <div class="flex items-center gap-2 text-xs font-bold text-teal-600 bg-teal-50 w-fit px-3 py-1 rounded-lg border border-teal-100">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                                    Delivered to {{ log.recipient_count }} users
+                                <p class="text-xs text-slate-600 mb-3 line-clamp-2 leading-relaxed">{{ log.body }}</p>
+                                <div class="flex items-center gap-1.5 text-[10px] font-bold text-teal-600 bg-teal-50 w-fit px-2 py-0.5 rounded-lg border border-teal-100">
+                                    <Users class="w-3 h-3" />
+                                    {{ log.recipient_count }} users
                                 </div>
                             </div>
-                            
+
                             <div v-if="pastBroadcasts.length === 0" class="p-12 text-center text-slate-500 font-medium">
-                                No broadcasts have been sent yet.
+                                No records.
                             </div>
                         </div>
                     </div>
@@ -104,6 +104,7 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
+import { Megaphone, CheckCircle, Send, History, Users } from 'lucide-vue-next';
 
 const props = defineProps({
     pastBroadcasts: Array,
@@ -121,7 +122,7 @@ const submitBroadcast = () => {
     if (!confirm('Are you sure you want to send this broadcast? It will immediately appear in the notifications of ' + form.target.replace('_', ' ') + '.')) {
         return;
     }
-    
+
     form.post(route('admin.broadcasts.store'), {
         preserveScroll: true,
         onSuccess: () => {
