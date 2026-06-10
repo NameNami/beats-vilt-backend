@@ -272,13 +272,13 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
             <div class="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
                 <!-- Navigation -->
                 <div class="flex items-center bg-slate-100/80 p-1 rounded-lg border border-slate-200/60">
-                    <button @click="navigateWeek('prev')" :disabled="!canNavigatePrev" class="p-1.5 rounded-md transition-all text-slate-500 hover:text-slate-900 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed">
+                    <button @click="navigateWeek('prev')" :disabled="!canNavigatePrev" class="p-1.5 rounded-md transition-all cursor-pointer text-slate-500 hover:text-slate-900 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed">
                         <ChevronLeft class="w-5 h-5" />
                     </button>
                     <button @click="navigateWeek('today')" class="px-3 py-1.5 text-xs font-bold text-slate-600 hover:text-orange-600 transition-colors uppercase tracking-wider">
                         Week {{ currentWeek }}
                     </button>
-                    <button @click="navigateWeek('next')" :disabled="!canNavigateNext" class="p-1.5 rounded-md transition-all text-slate-500 hover:text-slate-900 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed">
+                    <button @click="navigateWeek('next')" :disabled="!canNavigateNext" class="p-1.5 rounded-md transition-all cursor-pointer text-slate-500 hover:text-slate-900 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed">
                         <ChevronRight class="w-5 h-5" />
                     </button>
                 </div>
@@ -287,7 +287,7 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
                     {{ weekRangeDisplay }}
                 </div>
 
-                <button @click="isEditing = false; showForm = true" class="bg-orange-600 hover:bg-orange-700 text-white px-5 py-2 rounded-lg font-bold  transition flex items-center gap-2 text-sm">
+                <button @click="isEditing = false; showForm = true" class="bg-orange-400 hover:bg-orange-500 cursor-pointer text-white px-5 py-2 rounded-lg font-bold  transition flex items-center gap-2 text-sm">
                     <Plus class="w-4 h-4" />
                     NEW SLOT
                 </button>
@@ -302,21 +302,21 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
             </div>
 
             <div class="flex-1 min-w-[200px]">
-                <select v-model="activeFilters.faculty" @change="applyFilters" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg text-xs focus:ring-orange-600 focus:border-orange-600 py-2">
+                <select v-model="activeFilters.faculty" @change="applyFilters" class="w-full cursor-pointer bg-[#f8fafc] border-gray-200 rounded-lg text-xs focus:ring-orange-600 focus:border-orange-600 py-2">
                     <option value="">All Faculties</option>
                     <option v-for="f in faculties" :key="f" :value="f">{{ f }}</option>
                 </select>
             </div>
 
             <div class="flex-1 min-w-[200px]">
-                <select v-model="activeFilters.course_id" @change="applyFilters" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg text-xs focus:ring-orange-600 focus:border-orange-600 py-2">
+                <select v-model="activeFilters.course_id" @change="applyFilters" class="w-full cursor-pointer bg-[#f8fafc] border-gray-200 rounded-lg text-xs focus:ring-orange-600 focus:border-orange-600 py-2">
                     <option value="">All Subjects</option>
                     <option v-for="c in courses" :key="c.id" :value="c.id">{{ c.code }} - {{ c.name }}</option>
                 </select>
             </div>
 
             <div class="flex-1 min-w-[200px]">
-                <select v-model="activeFilters.room_id" @change="applyFilters" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg text-xs focus:ring-orange-600 focus:border-orange-600 py-2">
+                <select v-model="activeFilters.room_id" @change="applyFilters" class="w-full cursor-pointer bg-[#f8fafc] border-gray-200 rounded-lg text-xs focus:ring-orange-600 focus:border-orange-600 py-2">
                     <option value="">All Rooms</option>
                     <option v-for="r in rooms" :key="r.id" :value="r.id">{{ r.name }}</option>
                 </select>
@@ -346,13 +346,13 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
 
         <!-- Timetable View Selector -->
         <div class="flex bg-slate-100/80 p-1 rounded-lg border border-slate-200/60 w-fit mb-6">
-            <button @click="view = 'week'" :class="['flex items-center gap-2 px-5 py-2 rounded-md text-sm font-semibold transition-all', view === 'week' ? 'bg-white text-orange-600 border border-slate-200/50 ' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50']">
+            <button @click="view = 'week'" :class="['flex cursor-pointer items-center gap-2 px-5 py-2 rounded-md text-sm font-semibold transition-all', view === 'week' ? 'bg-white text-orange-600 border border-slate-200/50 ' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50']">
                 <Calendar class="w-4 h-4" /> Week
             </button>
-            <button @click="view = 'room'" :class="['flex items-center gap-2 px-5 py-2 rounded-md text-sm font-semibold transition-all', view === 'room' ? 'bg-white text-orange-600 border border-slate-200/50 ' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50']">
+            <button @click="view = 'room'" :class="['flex cursor-pointer items-center gap-2 px-5 py-2 rounded-md text-sm font-semibold transition-all', view === 'room' ? 'bg-white text-orange-600 border border-slate-200/50 ' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50']">
                 <MapPin class="w-4 h-4" /> Room Matrix
             </button>
-            <button @click="view = 'list'" :class="['flex items-center gap-2 px-5 py-2 rounded-md text-sm font-semibold transition-all', view === 'list' ? 'bg-white text-orange-600 border border-slate-200/50 ' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50']">
+            <button @click="view = 'list'" :class="['flex cursor-pointer items-center gap-2 px-5 py-2 rounded-md text-sm font-semibold transition-all', view === 'list' ? 'bg-white text-orange-600 border border-slate-200/50 ' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50']">
                 <List class="w-4 h-4" /> List
             </button>
         </div>

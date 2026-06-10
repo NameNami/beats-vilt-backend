@@ -241,7 +241,7 @@ const exportGlobalReport = () => {
             <!-- Header & Top Bar -->
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
                 <h1 class="text-2xl font-semibold text-gray-900">System-Wide Analytics</h1>
-                <button @click="exportGlobalReport" class="inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition shadow-sm">
+                <button @click="exportGlobalReport" class="cursor-pointer inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition ">
                     <Download class="w-4 h-4" />
                     Export Compliance Report (CSV)
                 </button>
@@ -348,7 +348,7 @@ const exportGlobalReport = () => {
                             >
                         </div>
                     </div>
-                    
+
                     <button v-if="form.course_id || form.programme_id || form.start_date || form.end_date" @click="resetFilters" class="text-sm font-bold text-slate-500 hover:text-slate-700 transition">Reset</button>
                 </div>
             </div>

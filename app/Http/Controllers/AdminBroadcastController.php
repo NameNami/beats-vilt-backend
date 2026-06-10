@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Course;
 use App\Models\Notification;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class AdminBroadcastController extends Controller
 {
@@ -71,6 +73,21 @@ class AdminBroadcastController extends Controller
         foreach (array_chunk($notifications, 500) as $chunk) {
             Notification::insert($chunk);
         }
+
+        // Record in Audit Log
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'broadcast',
+            'model_type' => Notification::class,
+            'model_id' => 0, // General broadcast event
+            'new_values' => [
+                'title' => $validated['title'],
+                'body' => $validated['body'],
+                'target' => $validated['target'],
+                'faculty' => $validated['faculty'],
+                'recipient_count' => count($users)
+            ]
+        ]);
 
         return back()->with('success', 'Broadcast sent successfully to ' . count($users) . ' recipients.');
     }

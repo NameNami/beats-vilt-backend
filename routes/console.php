@@ -16,6 +16,11 @@ Schedule::command('attendance:process-absences')
 Schedule::command('attendance:prune-expired-qr-token')
     ->everyMinute();
 
+Schedule::command('attendance:send-at-risk-notifications')
+    ->weeklyOn(0, '23:55') // Sundays at 23:55
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/at-risk-notifications.log'));
+
 Schedule::command('app:change-beacon-status')
     ->everyMinute();
 

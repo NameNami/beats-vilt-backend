@@ -1,4 +1,5 @@
 <template>
+    <Head title="Dashboard"></Head>
     <AdminLayout>
         <div class="mb-6">
             <h2 class="text-2xl font-semibold mb-2 text-gray-900">System Overview</h2>
@@ -99,7 +100,7 @@
 </template>
 
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import {Head, Link} from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 defineProps({
