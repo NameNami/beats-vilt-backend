@@ -360,6 +360,14 @@ const updateLeaveStatus = (id, status) => {
                             >
                         </div>
                     </div>
+
+                    <button
+                        @click="handleExport"
+                        class="sm:ms-auto inline-flex items-center gap-2 px-5 py-3 bg-orange-400 hover:bg-orange-500 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-orange-200 active:scale-95 cursor-pointer"
+                    >
+                        <Download class="w-4 h-4" />
+                        EXPORT CSV
+                    </button>
                 </div>
             </div>
 
