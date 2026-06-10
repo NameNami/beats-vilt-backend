@@ -14,9 +14,14 @@
             {{ $page.props.flash.success }}
         </div>
         <div v-if="errors && Object.keys(errors).length > 0" class="mb-6 p-4 bg-rose-50 text-rose-800 rounded-xl border border-rose-100 ">
-            <p class="font-bold flex items-center gap-2"><svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Please check the form for errors.</p>
+            <p class="font-bold flex items-center gap-2"><svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                {{ errors.csv ? 'Import Failed: Please fix the errors below' : 'Please check the form for errors.' }}
+            </p>
             <ul class="list-disc pl-8 mt-2 text-sm">
-                <li v-for="(error, key) in errors" :key="key">{{ error }}</li>
+                <template v-for="(error, key) in errors" :key="key">
+                    <li v-if="Array.isArray(error)" v-for="(subError, i) in error" :key="key + i">{{ subError }}</li>
+                    <li v-else>{{ error }}</li>
+                </template>
             </ul>
         </div>
 
@@ -61,7 +66,7 @@
 
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Email Address</label>
-                        <input type="email" v-model="form.email" placeholder="e.g. ali@beats.edu" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5" required>
+                        <input type="email" v-model="form.email" placeholder="e.g. ali@beats.namix.my" class="w-full bg-[#f8fafc] border-gray-200 rounded-lg focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5" required>
                     </div>
 
                     <div>

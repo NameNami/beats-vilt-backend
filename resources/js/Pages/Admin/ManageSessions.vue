@@ -219,7 +219,7 @@ const editSession = (session) => {
     isEditing.value = true;
     form.id = session.id;
     form.course_id = session.course_id;
-    form.lab_id = session.lab_id;
+    form.lab_id = session.lab_id || '';
     form.lecturer_id = session.lecturer_id || '';
     form.room_id = session.room_id || '';
     form.start_time = dayjs(session.start_time).format('YYYY-MM-DDTHH:mm');
@@ -574,9 +574,9 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
                             </select>
                         </div>
                         <div class="col-span-2">
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Lab Group</label>
-                            <select v-model="form.lab_id" class="w-full bg-[#f8fafc] border-gray-200 rounded-xl text-sm focus:ring-orange-600 focus:border-orange-600 py-2.5 cursor-pointer" required>
-                                <option value="">Select Lab</option>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Lab Group (Optional)</label>
+                            <select v-model="form.lab_id" class="w-full bg-[#f8fafc] border-gray-200 rounded-xl text-sm focus:ring-orange-600 focus:border-orange-600 py-2.5 cursor-pointer">
+                                <option value="">None (Lecture/Open Class)</option>
                                 <option v-for="lab in filteredLabs" :key="lab.id" :value="lab.id">{{ lab.name }}</option>
                             </select>
                         </div>
