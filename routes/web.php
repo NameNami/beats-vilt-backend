@@ -62,12 +62,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/courses/update/{id}', [AdminController::class, 'updateCourse'])->name('courses.update');
     Route::post('/labs', [AdminController::class, 'storeLab'])->name('labs.store');
     Route::post('/labs/update/{id}', [AdminController::class, 'updateLab'])->name('labs.update');
+
     // User Management
     Route::get('/users', [AdminController::class, 'manageUsers'])->name('users.index');
     Route::post('/users', [AdminController::class, 'storeUser'])->name('users.store');
+    Route::post('/users/import', [AdminController::class, 'importStudents'])->name('users.import');
     Route::post('/users/update/{id}', [AdminController::class, 'updateUser'])->name('users.update');
     Route::post('/users/{id}', [AdminController::class, 'deleteUser'])->name('users.destroy');
-    Route::post('/users/import', [AdminController::class, 'importStudents'])->name('users.import');
 
     // Broadcast Announcements
     Route::get('/broadcasts', [App\Http\Controllers\AdminBroadcastController::class, 'index'])->name('broadcasts.index');

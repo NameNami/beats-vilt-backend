@@ -34,7 +34,7 @@
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Student Search</label>
                                 <div class="flex gap-2">
                                     <input v-model="searchQuery" @keyup.enter="searchStudents" type="text" class="w-full bg-[#f8fafc] border-slate-200 rounded-xl focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5" placeholder="Name or ID...">
-                                    <button type="button" @click="searchStudents" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-xl transition">
+                                    <button type="button" @click="searchStudents" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-xl transition cursor-pointer">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                     </button>
                                 </div>
@@ -42,7 +42,7 @@
 
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Select Student</label>
-                                <select v-model="form.user_id" class="w-full bg-[#f8fafc] border-slate-200 rounded-xl focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5 font-medium">
+                                <select v-model="form.user_id" class="w-full bg-[#f8fafc] border-slate-200 rounded-xl focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5 font-medium cursor-pointer">
                                     <option value="">Select from results...</option>
                                     <option v-for="student in students" :key="student.id" :value="student.id">
                                         {{ student.name }} ({{ student.student_id }})
@@ -54,19 +54,19 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Start Date</label>
-                                    <input v-model="form.start_date" type="date" class="w-full bg-[#f8fafc] border-slate-200 rounded-xl focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5">
+                                    <input v-model="form.start_date" type="date" class="w-full bg-[#f8fafc] border-slate-200 rounded-xl focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5 cursor-pointer">
                                     <p v-if="form.errors.start_date" class="text-red-500 text-xs mt-1">{{ form.errors.start_date }}</p>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">End Date</label>
-                                    <input v-model="form.end_date" type="date" class="w-full bg-[#f8fafc] border-slate-200 rounded-xl focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5">
+                                    <input v-model="form.end_date" type="date" class="w-full bg-[#f8fafc] border-slate-200 rounded-xl focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5 cursor-pointer">
                                     <p v-if="form.errors.end_date" class="text-red-500 text-xs mt-1">{{ form.errors.end_date }}</p>
                                 </div>
                             </div>
 
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Leave Type</label>
-                                <select v-model="form.type" class="w-full bg-[#f8fafc] border-slate-200 rounded-xl focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5 font-medium">
+                                <select v-model="form.type" class="w-full bg-[#f8fafc] border-slate-200 rounded-xl focus:ring-orange-600 focus:border-orange-600 text-sm py-2.5 font-medium cursor-pointer">
                                     <option value="medical">Medical</option>
                                     <option value="emergency">Emergency</option>
                                     <option value="other">Other</option>
@@ -81,7 +81,7 @@
                             </div>
 
                             <div class="pt-2">
-                                <button type="submit" :disabled="form.processing" class="w-full bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-xl font-bold transition disabled:opacity-50 flex items-center justify-center gap-2">
+                                <button type="submit" :disabled="form.processing" class="w-full bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-xl font-bold transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                     {{ form.processing ? 'Applying...' : 'Override & Apply' }}
                                 </button>

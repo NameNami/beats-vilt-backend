@@ -217,33 +217,77 @@ class AdminController extends Controller
             'end_time' => 'required|date|after:start_time',
             'mode' => 'required|in:online,physical',
             'checkin_method' => 'required|in:ble,qr,manual',
+            'is_recurring' => 'boolean',
         ]);
 
-        $conflict = ClassSession::where(function ($query) use ($validated) {
-            $query->where('room_id', $validated['room_id'])
-                  ->orWhere('lecturer_id', $validated['lecturer_id'])
-                  ->orWhere('lab_id', $validated['lab_id']);
-        })->where(function ($query) use ($validated) {
-            $query->whereBetween('start_time', [$validated['start_time'], $validated['end_time']])
-                  ->orWhereBetween('end_time', [$validated['start_time'], $validated['end_time']])
-                  ->orWhere(function ($q) use ($validated) {
-                      $q->where('start_time', '<=', $validated['start_time'])
-                        ->where('end_time', '>=', $validated['end_time']);
-                  });
-        })->first();
+        $sessionsToCreate = [];
+        $startTime = Carbon::parse($validated['start_time']);
+        $endTime = Carbon::parse($validated['end_time']);
 
-        if ($conflict) {
-            $conflictReason = [];
-            if ($conflict->room_id == $validated['room_id']) $conflictReason[] = 'Room';
-            if ($conflict->lecturer_id == $validated['lecturer_id']) $conflictReason[] = 'Lecturer';
-            if ($conflict->lab_id == $validated['lab_id']) $conflictReason[] = 'Lab Group';
+        $isRecurring = $request->boolean('is_recurring');
+        unset($validated['is_recurring']);
+
+        if ($isRecurring) {
+            $semesterEndDate = Carbon::parse(SystemSetting::get('semester_end_date', '2026-06-20'))->endOfDay();
             
-            return back()->withErrors(['conflict' => 'Scheduling conflict detected for: ' . implode(', ', $conflictReason) . '. Please select a different time, room, or lecturer.']);
+            $currentStart = $startTime->copy();
+            $currentEnd = $endTime->copy();
+
+            while ($currentStart->lte($semesterEndDate)) {
+                $sessionsToCreate[] = [
+                    'start' => $currentStart->toDateTimeString(),
+                    'end' => $currentEnd->toDateTimeString(),
+                ];
+                $currentStart->addWeek();
+                $currentEnd->addWeek();
+            }
+        } else {
+            $sessionsToCreate[] = [
+                'start' => $startTime->toDateTimeString(),
+                'end' => $endTime->toDateTimeString(),
+            ];
         }
 
-        ClassSession::create($validated);
+        $createdCount = 0;
+        $conflicts = [];
 
-        return back()->with('success', 'Session created successfully.');
+        foreach ($sessionsToCreate as $slot) {
+            $conflict = ClassSession::where(function ($query) use ($validated) {
+                $query->where('room_id', $validated['room_id'])
+                      ->orWhere('lecturer_id', $validated['lecturer_id'])
+                      ->orWhere('lab_id', $validated['lab_id']);
+            })->where(function ($query) use ($slot) {
+                $query->whereBetween('start_time', [$slot['start'], $slot['end']])
+                      ->orWhereBetween('end_time', [$slot['start'], $slot['end']])
+                      ->orWhere(function ($q) use ($slot) {
+                          $q->where('start_time', '<=', $slot['start'])
+                            ->where('end_time', '>=', $slot['end']);
+                      });
+            })->first();
+
+            if ($conflict) {
+                $dateStr = Carbon::parse($slot['start'])->format('d M');
+                $conflicts[] = "Conflict on {$dateStr}";
+                continue;
+            }
+
+            ClassSession::create(array_merge($validated, [
+                'start_time' => $slot['start'],
+                'end_time' => $slot['end'],
+            ]));
+            $createdCount++;
+        }
+
+        if (count($conflicts) > 0 && $createdCount === 0) {
+            return back()->withErrors(['conflict' => 'Could not create sessions. All dates had conflicts: ' . implode(', ', $conflicts)]);
+        }
+
+        $msg = "Successfully created {$createdCount} sessions.";
+        if (count($conflicts) > 0) {
+            $msg .= " Skipped " . count($conflicts) . " due to conflicts: " . implode(', ', $conflicts);
+        }
+
+        return back()->with('success', $msg);
     }
 
     public function updateSession(Request $request, $id)
@@ -432,9 +476,13 @@ class AdminController extends Controller
 
         $file = $request->file('file');
 
-        // Open and read the CSV file natively
-        $csvData = file_get_contents($file);
-        $rows = array_map('str_getcsv', explode("\n", $csvData));
+        // Robust CSV reading: Use file() to handle line endings and empty lines
+        $lines = file($file->getPathname(), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if (!$lines) {
+            return back()->withErrors(['file' => 'The uploaded file is empty or invalid.']);
+        }
+
+        $rows = array_map('str_getcsv', $lines);
 
         // Remove the header row
         array_shift($rows);
@@ -444,11 +492,11 @@ class AdminController extends Controller
         $programmes = \App\Models\Programme::all()->pluck('id', 'code');
 
         foreach ($rows as $row) {
-            // Ensure the row actually has enough columns
+            // Ensure the row actually has enough columns (Name, Email, StudentID)
             if (count($row) >= 3) {
-                $name = trim($row[0]);
-                $email = trim($row[1]);
-                $studentId = trim($row[2]);
+                $name = trim($row[0] ?? '');
+                $email = trim($row[1] ?? '');
+                $studentId = trim($row[2] ?? '');
                 $programmeCode = isset($row[3]) ? trim($row[3]) : null;
 
                 if ($name && $email && $studentId) {

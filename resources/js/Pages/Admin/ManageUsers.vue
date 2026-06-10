@@ -36,7 +36,7 @@
                     class="px-5 block w-full md:w-auto text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 cursor-pointer transition"
                     required
                 />
-                <button type="submit" :disabled="importForm.processing" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-1.5 rounded-md text-sm font-medium transition disabled:opacity-50 whitespace-nowrap cursor-pointer">
+                <button type="submit" :disabled="importForm.processing" class="bg-orange-400 hover:bg-orange-500 text-white px-4 py-1.5 rounded-md text-sm font-medium transition disabled:opacity-50 whitespace-nowrap cursor-pointer">
                     {{ importForm.processing ? 'Uploading...' : 'Import CSV' }}
                 </button>
             </form>

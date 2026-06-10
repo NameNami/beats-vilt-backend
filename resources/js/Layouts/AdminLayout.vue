@@ -107,7 +107,7 @@ onUnmounted(() => {
             <nav class="flex-1 px-4 mt-8 space-y-1 overflow-y-auto">
                 <Link
                     href="/admin/dashboard"
-                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer"
                     :class="[ $page.url === '/admin/dashboard' ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <LayoutDashboard class="w-5 h-5" />
@@ -118,7 +118,7 @@ onUnmounted(() => {
 
                 <Link
                     href="/admin/users"
-                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer"
                     :class="[ $page.url.startsWith('/admin/users') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <UserCircle class="w-5 h-5" />
@@ -127,7 +127,7 @@ onUnmounted(() => {
 
                 <Link
                     href="/admin/students"
-                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer"
                     :class="[ $page.url.startsWith('/admin/students') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <GraduationCap class="w-5 h-5" />
@@ -136,7 +136,7 @@ onUnmounted(() => {
 
                 <Link
                     href="/admin/lecturers"
-                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer"
                     :class="[ $page.url.startsWith('/admin/lecturers') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <Briefcase class="w-5 h-5" />
@@ -147,7 +147,7 @@ onUnmounted(() => {
 
                 <Link
                     href="/admin/courses"
-                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer"
                     :class="[ $page.url.startsWith('/admin/courses') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <BookOpen class="w-5 h-5" />
@@ -156,7 +156,7 @@ onUnmounted(() => {
 
                 <Link
                     href="/admin/sessions"
-                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer"
                     :class="[ $page.url.startsWith('/admin/sessions') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <Calendar class="w-5 h-5" />
@@ -165,7 +165,7 @@ onUnmounted(() => {
 
                 <Link
                     href="/admin/leave-management"
-                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer"
                     :class="[ $page.url.startsWith('/admin/leave-management') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
@@ -174,7 +174,7 @@ onUnmounted(() => {
 
                 <Link
                     href="/admin/ble-devices"
-                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer"
                     :class="[ $page.url.startsWith('/admin/ble-devices') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <Radio class="w-5 h-5" />
@@ -183,7 +183,7 @@ onUnmounted(() => {
 
                 <Link
                     href="/admin/analytics"
-                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer"
                     :class="[ $page.url.startsWith('/admin/analytics') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <BarChart3 class="w-5 h-5" />
@@ -192,7 +192,7 @@ onUnmounted(() => {
 
                 <Link
                     href="/admin/audit-logs"
-                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer"
                     :class="[ $page.url.startsWith('/admin/audit-logs') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <FileText class="w-5 h-5" />
@@ -203,7 +203,7 @@ onUnmounted(() => {
 
                 <Link
                     href="/admin/broadcasts"
-                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer"
                     :class="[ $page.url.startsWith('/admin/broadcasts') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
@@ -214,7 +214,7 @@ onUnmounted(() => {
 
                 <Link
                     href="/admin/badges"
-                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer"
                     :class="[ $page.url.startsWith('/admin/badges') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <Award class="w-5 h-5" />
@@ -223,7 +223,7 @@ onUnmounted(() => {
 
                 <Link
                     href="/admin/redemptions"
-                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer"
                     :class="[ $page.url.startsWith('/admin/redemptions') ? ' text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100' ]"
                 >
                     <Gift class="w-5 h-5" />
@@ -235,7 +235,7 @@ onUnmounted(() => {
                 <div class="px-3 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">System</div>
                 <Link
                     href="/admin/settings"
-                    class="flex items-center gap-3 px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100"
+                    class="flex items-center gap-3 px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100 cursor-pointer"
                     :class="[ $page.url.startsWith('/admin/settings') ? 'text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100 border-transparent' ]"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -244,7 +244,7 @@ onUnmounted(() => {
 
                 <Link
                     href="/admin/system-health"
-                    class="flex items-center gap-3 px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100"
+                    class="flex items-center gap-3 px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100 cursor-pointer"
                     :class="[ $page.url.startsWith('/admin/system-health') ? 'text-orange-400 font-medium ' : 'text-gray-600 hover:bg-gray-100 border-transparent' ]"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -277,7 +277,7 @@ onUnmounted(() => {
                             <span v-if="unreadCount > 0" class="absolute top-1 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
                         </button>
 
-                        <div v-if="showNotifications" @click="showNotifications = false" class="fixed inset-0 z-40"></div>
+                        <div v-if="showNotifications" @click="showNotifications = false" class="fixed inset-0 z-40 cursor-pointer"></div>
 
                         <div v-if="showNotifications" class="absolute top-full right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-100 z-50 overflow-hidden">
                             <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">

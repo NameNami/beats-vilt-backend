@@ -17,7 +17,7 @@
 
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Assign to Room</label>
-                        <select v-model="form.room_id" @change="handleRoomChange" class="w-full bg-[#f8fafc] border-gray-200 rounded-xl text-sm focus:ring-amber-600 focus:border-amber-600">
+                        <select v-model="form.room_id" @change="handleRoomChange" class="w-full bg-[#f8fafc] border-gray-200 rounded-xl text-sm focus:ring-amber-600 focus:border-amber-600 cursor-pointer">
                             <option :value="null">-- No Room (Unassigned) --</option>
                             <option v-for="room in rooms" :key="room.id" :value="room.id">{{ room.name }}</option>
                         </select>
@@ -43,8 +43,8 @@
                     </div>
 
                     <div class="pt-4 flex justify-end gap-3 border-t border-gray-50">
-                        <button type="button" @click="showEditModal = false" class="px-6 py-2.5 text-slate-600 font-bold hover:text-slate-800 transition">Cancel</button>
-                        <button type="submit" :disabled="form.processing" class="px-6 py-2.5 bg-amber-700 text-white rounded-xl font-bold  hover:bg-amber-800 transition disabled:opacity-50">Save Changes</button>
+                        <button type="button" @click="showEditModal = false" class="px-6 py-2.5 text-slate-600 font-bold hover:text-slate-800 transition cursor-pointer">Cancel</button>
+                        <button type="submit" :disabled="form.processing" class="px-6 py-2.5 bg-amber-700 text-white rounded-xl font-bold  hover:bg-amber-800 transition disabled:opacity-50 cursor-pointer">Save Changes</button>
                     </div>
                 </form>
             </div>

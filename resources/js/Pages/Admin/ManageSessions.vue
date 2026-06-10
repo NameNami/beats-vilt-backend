@@ -206,7 +206,8 @@ const form = useForm({
     start_time: '',
     end_time: '',
     mode: 'physical',
-    checkin_method: 'qr'
+    checkin_method: 'qr',
+    is_recurring: false
 });
 
 const filteredLabs = computed(() => {
@@ -275,7 +276,7 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
                     <button @click="navigateWeek('prev')" :disabled="!canNavigatePrev" class="p-1.5 rounded-md transition-all cursor-pointer text-slate-500 hover:text-slate-900 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed">
                         <ChevronLeft class="w-5 h-5" />
                     </button>
-                    <button @click="navigateWeek('today')" class="px-3 py-1.5 text-xs font-bold text-slate-600 hover:text-orange-600 transition-colors uppercase tracking-wider">
+                    <button @click="navigateWeek('today')" class="px-3 py-1.5 text-xs font-bold text-slate-600 hover:text-orange-600 transition-colors uppercase tracking-wider cursor-pointer">
                         Week {{ currentWeek }}
                     </button>
                     <button @click="navigateWeek('next')" :disabled="!canNavigateNext" class="p-1.5 rounded-md transition-all cursor-pointer text-slate-500 hover:text-slate-900 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed">
@@ -322,7 +323,7 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
                 </select>
             </div>
 
-            <button v-if="activeFilters.course_id || activeFilters.faculty || activeFilters.room_id" @click="clearFilters" class="flex items-center gap-1.5 px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-lg transition text-xs font-bold">
+            <button v-if="activeFilters.course_id || activeFilters.faculty || activeFilters.room_id" @click="clearFilters" class="flex items-center gap-1.5 px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-lg transition text-xs font-bold cursor-pointer">
                 <X class="w-3.5 h-3.5" />
                 CLEAR
             </button>
@@ -339,7 +340,7 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
                     <p class="text-xs text-rose-700">There are {{ Math.ceil(totalHardConflicts) }} detected conflicts where rooms or lecturers are double-booked.</p>
                 </div>
             </div>
-            <button @click="view = 'list'" class="text-xs font-bold bg-rose-600 text-white px-3 py-1.5 rounded-lg hover:bg-rose-700 transition">
+            <button @click="view = 'list'" class="text-xs font-bold bg-rose-600 text-white px-3 py-1.5 rounded-lg hover:bg-rose-700 transition cursor-pointer">
                 REVIEW LIST
             </button>
         </div>
@@ -530,10 +531,10 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
                             <p class="text-xs text-orange-700 font-bold uppercase">{{ session.location }}</p>
                         </td>
                         <td class="px-6 py-4 text-right space-x-3">
-                            <button @click="editSession(session)" class="text-slate-400 hover:text-orange-600 transition">
+                            <button @click="editSession(session)" class="text-slate-400 hover:text-orange-600 transition cursor-pointer">
                                 <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                             </button>
-                            <button @click="deleteSession(session.id)" class="text-slate-400 hover:text-rose-600 transition">
+                            <button @click="deleteSession(session.id)" class="text-slate-400 hover:text-rose-600 transition cursor-pointer">
                                 <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                             </button>
                         </td>
@@ -547,10 +548,10 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
 
         <!-- Modal -->
         <div v-if="showForm" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
+            <div class="bg-white rounded-2xl shadow-xl w-full max-lg overflow-hidden">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-slate-50/50">
                     <h3 class="text-xl font-bold text-slate-900">{{ isEditing ? 'Edit' : 'Add' }} Class Session</h3>
-                    <button @click="closeModal" class="text-gray-400 hover:text-gray-600 p-2">
+                    <button @click="closeModal" class="text-gray-400 hover:text-gray-600 p-2 cursor-pointer">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
@@ -567,28 +568,28 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
                     <div class="grid grid-cols-2 gap-4">
                         <div class="col-span-2">
                             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Course</label>
-                            <select v-model="form.course_id" class="w-full bg-[#f8fafc] border-gray-200 rounded-xl text-sm focus:ring-orange-600 focus:border-orange-600 py-2.5" required>
+                            <select v-model="form.course_id" class="w-full bg-[#f8fafc] border-gray-200 rounded-xl text-sm focus:ring-orange-600 focus:border-orange-600 py-2.5 cursor-pointer" required>
                                 <option value="">Select Course</option>
                                 <option v-for="course in courses" :key="course.id" :value="course.id">{{ course.code }} - {{ course.name }}</option>
                             </select>
                         </div>
                         <div class="col-span-2">
                             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Lab Group</label>
-                            <select v-model="form.lab_id" class="w-full bg-[#f8fafc] border-gray-200 rounded-xl text-sm focus:ring-orange-600 focus:border-orange-600 py-2.5" required>
+                            <select v-model="form.lab_id" class="w-full bg-[#f8fafc] border-gray-200 rounded-xl text-sm focus:ring-orange-600 focus:border-orange-600 py-2.5 cursor-pointer" required>
                                 <option value="">Select Lab</option>
                                 <option v-for="lab in filteredLabs" :key="lab.id" :value="lab.id">{{ lab.name }}</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Lecturer</label>
-                            <select v-model="form.lecturer_id" class="w-full bg-[#f8fafc] border-gray-200 rounded-xl text-sm focus:ring-orange-600 focus:border-orange-600 py-2.5">
+                            <select v-model="form.lecturer_id" class="w-full bg-[#f8fafc] border-gray-200 rounded-xl text-sm focus:ring-orange-600 focus:border-orange-600 py-2.5 cursor-pointer">
                                 <option value="">Select...</option>
                                 <option v-for="l in lecturers" :key="l.id" :value="l.id">{{ l.name }}</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Room</label>
-                            <select v-model="form.room_id" class="w-full bg-[#f8fafc] border-gray-200 rounded-xl text-sm focus:ring-orange-600 focus:border-orange-600 py-2.5">
+                            <select v-model="form.room_id" class="w-full bg-[#f8fafc] border-gray-200 rounded-xl text-sm focus:ring-orange-600 focus:border-orange-600 py-2.5 cursor-pointer">
                                 <option value="">Select...</option>
                                 <option v-for="r in rooms" :key="r.id" :value="r.id">{{ r.name }}</option>
                             </select>
@@ -601,10 +602,36 @@ const formatDate = (time) => dayjs(time).format('ddd, D MMM');
                             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">End Time</label>
                             <input type="datetime-local" v-model="form.end_time" class="w-full bg-[#f8fafc] border-gray-200 rounded-xl text-sm focus:ring-orange-600 focus:border-orange-600 py-2.5" required>
                         </div>
+
+                        <!-- Recurrence Toggle -->
+                        <div v-if="!isEditing" class="col-span-2 bg-orange-50/50 p-4 rounded-xl border border-orange-100/50 mt-2">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="p-2 bg-orange-100 rounded-lg">
+                                        <Calendar class="w-4 h-4 text-orange-600" />
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-bold text-orange-900">Weekly Recurrence</p>
+                                        <p class="text-[10px] text-orange-700 font-medium">Auto-generate for the whole semester</p>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" v-model="form.is_recurring" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+                                </label>
+                            </div>
+                            
+                            <div v-if="form.is_recurring && form.start_time" class="mt-3 pt-3 border-t border-orange-200/40 flex items-center gap-2">
+                                <span class="text-[10px] font-bold text-orange-800 uppercase px-2 py-0.5 bg-orange-200/50 rounded">
+                                    Repeat Every {{ dayjs(form.start_time).format('dddd') }}
+                                </span>
+                                <span class="text-[10px] text-orange-600">Until semester ends ({{ dayjs(semesterEnd).format('DD MMM') }})</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="pt-4 flex justify-end gap-3 border-t border-gray-50 mt-4">
-                        <button type="button" @click="closeModal" class="px-6 py-2.5 text-slate-600 font-bold hover:text-slate-800 transition">Cancel</button>
-                        <button type="submit" :disabled="form.processing" class="px-6 py-2.5 bg-orange-600 text-white rounded-xl font-bold  hover:bg-orange-700 transition disabled:opacity-50">
+                        <button type="button" @click="closeModal" class="px-6 py-2.5 text-slate-600 font-bold hover:text-slate-800 transition cursor-pointer">Cancel</button>
+                        <button type="submit" :disabled="form.processing" class="px-6 py-2.5 bg-orange-600 text-white rounded-xl font-bold hover:bg-orange-700 transition disabled:opacity-50 cursor-pointer">
                             {{ isEditing ? 'Update' : 'Save' }} Session
                         </button>
                     </div>
