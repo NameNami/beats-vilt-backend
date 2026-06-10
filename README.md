@@ -3,6 +3,7 @@
 BEATS is a modern, automated student attendance tracking platform designed to eliminate the friction of manual roll-calls. Built on the VILT stack (Vue, Inertia, Laravel, Tailwind), BEATS leverages a robust Bluetooth Low Energy (BLE) ecosystem and dynamic QR codes to provide seamless check-ins. A sophisticated built-in gamification engine motivates student participation through XP, streaks, levels, and badges.
 
 This repository is the central backend API and administration web portal (`beats.namix.my`). 
+https://beats.namix.my
 
 ### 🔗 Related Repositories
 BEATS is a multi-component ecosystem. You can find the related projects here:
@@ -119,7 +120,8 @@ The seeder automatically provisions the database with several accounts across al
 *   Password: `password`
 
 **Student Accounts: in Mobile App ONLY**
-*   Username/Password: Uses Student IDs (e.g., `52101324169`)
+*   Username: Uses Student IDs (`52101324169`)
+*   Password: password
 *   Seeded Students: Check the `users` table after seeding.
 
 ---
