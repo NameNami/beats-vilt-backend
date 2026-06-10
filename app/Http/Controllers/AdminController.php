@@ -436,31 +436,34 @@ class AdminController extends Controller
         $csvData = file_get_contents($file);
         $rows = array_map('str_getcsv', explode("\n", $csvData));
 
-        // Remove the header row (Name, Email, Student ID)
+        // Remove the header row
         array_shift($rows);
 
         $importedCount = 0;
+        // Pre-fetch all programmes to avoid repeated DB queries in the loop
+        $programmes = \App\Models\Programme::all()->pluck('id', 'code');
 
         foreach ($rows as $row) {
-            // Ensure the row actually has 3 columns to prevent crashes
+            // Ensure the row actually has enough columns
             if (count($row) >= 3) {
                 $name = trim($row[0]);
                 $email = trim($row[1]);
                 $studentId = trim($row[2]);
+                $programmeCode = isset($row[3]) ? trim($row[3]) : null;
 
                 if ($name && $email && $studentId) {
-                    // Extract a default username from email
-                    $username = explode('@', $email)[0] . rand(10, 99);
-                    
+                    $programmeId = $programmeCode ? ($programmes[strtoupper($programmeCode)] ?? null) : null;
+
                     // UpdateOrCreate prevents duplicates! If email exists, it updates. If not, it creates.
                     User::updateOrCreate(
                         ['email' => $email],
                         [
                             'name' => $name,
-                            'username' => $username,
+                            'username' => $studentId, // Username defaults to Student ID
                             'student_id' => $studentId,
+                            'programme_id' => $programmeId,
                             'role' => 'student',
-                            // FYP Trick: Set their default password to their Student ID!
+                            // Default password is their Student ID
                             'password' => \Illuminate\Support\Facades\Hash::make($studentId)
                         ]
                     );

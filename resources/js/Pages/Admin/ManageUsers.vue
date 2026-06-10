@@ -24,7 +24,7 @@
             <div>
                 <h2 class="text-base font-bold text-orange-900">Bulk Import Students</h2>
                 <p class="text-xs text-orange-700 mt-1">Upload a CSV file to create multiple accounts instantly.</p>
-                <p class="text-[13px] text-orange-600 mt-1.5 font-mono">Format: Name, Email, Student_ID</p>
+                <p class="text-[13px] text-orange-600 mt-1.5 font-mono">Format: Name, Email, Student_ID, Programme_Code (Optional)</p>
             </div>
 
             <form @submit.prevent="submitImport" class="flex items-center gap-3 w-full md:w-auto">
