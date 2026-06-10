@@ -26,11 +26,11 @@
 
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Device Status</label>
-                        <select v-model="form.status" class="w-full bg-[#f8fafc] border-gray-200 rounded-xl text-sm focus:ring-amber-600 focus:border-amber-600" :disabled="form.room_id === null">
-                            <option value="Online">🟢 Online (Broadcasting)</option>
-                            <option value="Maintenance">🟠 Maintenance</option>
-                            <option value="Offline">🔴 Offline</option>
-                            <option value="Unassigned" v-if="form.room_id === null">🟡 Unassigned</option>
+                        <select v-model="form.status" class="w-full bg-[#f8fafc] border-gray-200 rounded-xl text-sm focus:ring-amber-600 focus:border-amber-600 cursor-pointer" :disabled="form.room_id === null">
+                            <option value="active">🟢 Online (Broadcasting)</option>
+                            <option value="maintenance">🟠 Maintenance</option>
+                            <option value="inactive">🔴 Offline</option>
+                            <option value="unassigned" v-if="form.room_id === null">🟡 Unassigned</option>
                         </select>
                     </div>
 
@@ -102,13 +102,13 @@
                             </td>
 
                             <td class="px-6 py-4">
-                                    <span v-if="beacon.status === 'Online'" class="px-3 py-1 bg-teal-50 text-teal-700 border border-teal-200 rounded-full text-[10px] font-bold tracking-widest uppercase flex items-center gap-1.5 w-fit">
+                                    <span v-if="beacon.status === 'active'" class="px-3 py-1 bg-teal-50 text-teal-700 border border-teal-200 rounded-full text-[10px] font-bold tracking-widest uppercase flex items-center gap-1.5 w-fit">
                                         <span class="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse"></span> Online
                                     </span>
-                                <span v-else-if="beacon.status === 'Unassigned'" class="px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-[10px] font-bold tracking-widest uppercase flex items-center gap-1.5 w-fit">
+                                <span v-else-if="beacon.status === 'unassigned'" class="px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-[10px] font-bold tracking-widest uppercase flex items-center gap-1.5 w-fit">
                                         <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Unassigned
                                     </span>
-                                <span v-else-if="beacon.status === 'Maintenance'" class="px-3 py-1 bg-orange-50 text-orange-700 border border-orange-200 rounded-full text-[10px] font-bold tracking-widest uppercase flex items-center gap-1.5 w-fit">
+                                <span v-else-if="beacon.status === 'maintenance'" class="px-3 py-1 bg-orange-50 text-orange-700 border border-orange-200 rounded-full text-[10px] font-bold tracking-widest uppercase flex items-center gap-1.5 w-fit">
                                         <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span> Maintenance
                                     </span>
                                 <span v-else class="px-3 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-full text-[10px] font-bold tracking-widest uppercase flex items-center gap-1.5 w-fit">
@@ -176,8 +176,8 @@ onUnmounted(() => {
 });
 
 // Computed properties for the top counters
-const onlineCount = computed(() => props.beacons ? props.beacons.filter(b => b.status === 'Online').length : 0);
-const unassignedCount = computed(() => props.beacons ? props.beacons.filter(b => b.status === 'Unassigned').length : 0);
+const onlineCount = computed(() => props.beacons ? props.beacons.filter(b => b.status === 'active').length : 0);
+const unassignedCount = computed(() => props.beacons ? props.beacons.filter(b => b.status === 'unassigned').length : 0);
 
 const showEditModal = ref(false);
 
@@ -201,10 +201,10 @@ const openEditModal = (beacon) => {
 // Automatic status adjustment based on room selection
 const handleRoomChange = () => {
     if (form.room_id === null) {
-        form.status = 'Unassigned';
+        form.status = 'unassigned';
     } else {
-        if (form.status === 'Unassigned') {
-            form.status = 'Online';
+        if (form.status === 'unassigned') {
+            form.status = 'active';
         }
     }
 };

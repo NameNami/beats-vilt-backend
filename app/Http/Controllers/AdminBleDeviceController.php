@@ -36,13 +36,13 @@ class AdminBleDeviceController extends Controller
     {
         $validated = $request->validate([
             'room_id' => 'nullable|exists:rooms,id',
-            'status' => 'required|string|in:Online,Offline,Maintenance,Unassigned',
+            'status' => 'required|string|in:active,inactive,maintenance,unassigned',
             'rssi_threshold' => 'required|integer|between:-100,0',
         ]);
 
-        // If room_id is null, force status to Unassigned (matching frontend logic)
+        // If room_id is null, force status to unassigned (matching frontend logic)
         if ($validated['room_id'] === null) {
-            $validated['status'] = 'Unassigned';
+            $validated['status'] = 'unassigned';
         }
 
         $beacon->update($validated);
@@ -54,7 +54,7 @@ class AdminBleDeviceController extends Controller
     {
         $beacon->update([
             'room_id' => null,
-            'status' => 'Unassigned',
+            'status' => 'unassigned',
         ]);
 
         return back()->with('success', "Beacon {$beacon->mac_address} unassigned successfully.");
