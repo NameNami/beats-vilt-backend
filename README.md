@@ -3,6 +3,7 @@
 BEATS is a modern, automated student attendance tracking platform designed to eliminate the friction of manual roll-calls. Built on the VILT stack (Vue, Inertia, Laravel, Tailwind), BEATS leverages a robust Bluetooth Low Energy (BLE) ecosystem and dynamic QR codes to provide seamless check-ins. A sophisticated built-in gamification engine motivates student participation through XP, streaks, levels, and badges.
 
 This repository is the central backend API and administration web portal (`beats.namix.my`). 
+https://beats.namix.my
 
 ### 🔗 Related Repositories
 BEATS is a multi-component ecosystem. You can find the related projects here:
@@ -15,8 +16,9 @@ BEATS is a multi-component ecosystem. You can find the related projects here:
 
 ### Seamless Attendance Ecosystem
 *   **Proximity-based BLE Check-ins:** Students automatically mark their attendance via mobile devices when in range of classroom BLE beacons.
-*   **Dynamic QR Codes:** A fallback method utilizing time-sensitive, rotating QR codes projected by the lecturer.
+*   **Dynamic Rotating QR Codes:** A fallback method utilizing time-sensitive QR codes that automatically rotate every 15-30 seconds with a 5-second grace period to prevent unauthorized sharing.
 *   **Automated Processing:** Background jobs automatically classify missing students as 'Absent' once a class session concludes.
+*   **Weekly At-Risk Automation:** An automated cronjob runs every Sunday to calculate attendance percentages and notify students who fall below the required threshold (e.g., 80%).
 
 ### Gamification Engine
 *   **XP & Leveling:** Students earn XP for on-time and present check-ins, leveling up their gamification profiles.
@@ -26,19 +28,23 @@ BEATS is a multi-component ecosystem. You can find the related projects here:
 *   **Reward Redemptions:** Students can exchange earned XP/currency for real-world rewards.
 
 ### Multi-Role Dashboards
-*   **Administrator Portal:** Total system control including user management, course/session scheduling, BLE device assignments, gamification asset creation, and system-wide analytics.
-*   **Lecturer Portal:** Tools to manage daily classroom attendance, generate QR codes, view course-specific reports, process student leave applications, and identify "at-risk" students.
-*   **Student App (API):** A dedicated, secure API layer for the mobile app, allowing students to check in, view their timetables, track their attendance history, and monitor their gamification progress.
+*   **Administrator Portal:** Total system control including user management, course/session scheduling, and BLE device assignments.
+    *   **Refactored Lecturer Assignments:** Supports assigning a single lecturer to multiple specific labs within a course via direct database ownership.
+    *   **Enhanced Bulk Import:** Provision student accounts instantly via CSV with automated Programme lookup and standardized credentials.
+    *   **System-Wide Analytics:** Visual dashboards for monitoring attendance trends and system performance.
+*   **Lecturer Portal:** Tools to manage daily classroom attendance, generate rotating QR codes, view course-specific reports, and process student leave applications.
+*   **Student App (API):** A dedicated, secure API layer for the mobile app, allowing students to check in, view their timetables, and monitor their gamification progress.
 
 ### System-Wide Audit Logging
 *   **Full Accountability:** An automated `Auditable` trait tracks every creation, update, and deletion across all primary models.
-*   **Transparent History:** An administrative interface provides a searchable, filterable ledger of exactly who changed what, complete with old and new values.
+*   **Mass Broadcast Logging:** Manual audit logging for global announcement broadcasts ensures administrative transparency.
+*   **Transparent History:** A filterable ledger providing a detailed record of exactly who changed what, complete with old and new values.
 
 ---
 
 ## 🛠️ Technology Stack
 
-*   **Framework:** Laravel 13.x
+*   **Framework:** Laravel 11.x
 *   **Frontend:** Vue.js 3 + Inertia.js
 *   **Styling:** Tailwind CSS + Lucide Icons
 *   **Database:** MySQL 8.0
@@ -56,29 +62,7 @@ BEATS is a multi-component ecosystem. You can find the related projects here:
 *   MySQL 8.0
 *   *Alternatively, Docker & Docker Compose*
 
-### Method 1: Docker (Recommended for Production/Staging)
-
-The project includes a `docker-compose.yml` pre-configured for the backend, database, and an optional Cloudflare tunnel.
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/NameNami/beats-vilt-backend.git
-    cd beats-vilt-backend
-    ```
-
-2.  **Environment Setup:**
-    ```bash
-    cp .env.example .env
-    ```
-    *Ensure you populate your `.env` with the correct DB credentials and `CLOUDFLARE_TUNNEL_TOKEN` if exposing it.*
-
-3.  **Deploy via Docker Compose:**
-    ```bash
-    docker compose up -d
-    ```
-    This will spin up `beats_api` (ghcr image), `beats_db` (MySQL), and `cloudflare_tunnel`.
-
-### Method 2: Local Development
+### Local Development
 
 1.  **Clone the repository:**
     ```bash
@@ -100,7 +84,7 @@ The project includes a `docker-compose.yml` pre-configured for the backend, data
     *Update the `.env` file with your local MySQL database credentials.*
 
 4.  **Database Migration & Seeding:**
-    Run the migrations and seed the database with initial testing data (users, courses, sessions, beacons, etc.):
+    Run the migrations and seed the database with initial testing data (users, courses, sessions, beacons, etc.) for a consistent 14-week timeline:
     ```bash
     php artisan migrate:fresh --seed
     ```
@@ -115,8 +99,8 @@ The project includes a `docker-compose.yml` pre-configured for the backend, data
     php artisan serve
     ```
 
-7.  **Run the Scheduler (Optional but recommended):**
-    To ensure background tasks (like beacon rotation and automated absences) fire:
+7.  **Run the Scheduler:**
+    To ensure background tasks (like dynamic QR rotation, beacon monitoring, and weekly notifications) fire:
     ```bash
     php artisan schedule:work
     ```
@@ -125,8 +109,8 @@ The project includes a `docker-compose.yml` pre-configured for the backend, data
 
 ## 🔐 Testing Accounts
 
-The seeder automatically provisions the database with several accounts across all roles. The primary domain configured for the app is `beats.namix.my`.
-https://beats.namix.my
+The seeder automatically provisions the database with several accounts across all roles.
+
 **Admin Account:**
 *   Email: `admin@beats.namix.my`
 *   Password: `password`
@@ -135,9 +119,10 @@ https://beats.namix.my
 *   Email: `azrai@beats.namix.my` / `hafiz@beats.namix.my` / `suraya@beats.namix.my`
 *   Password: `password`
 
-**Student Accounts: (Only in mobile app)**
-*   Email: `najmi@student.beats.namix.my` / `khaizuran@student.beats.namix.my` (and various others generated by the seeder)
-*   Password: `password`
+**Student Accounts: in Mobile App ONLY**
+*   Username: Uses Student IDs (`52101324169`)
+*   Password: password
+*   Seeded Students: Check the `users` table after seeding.
 
 ---
 
