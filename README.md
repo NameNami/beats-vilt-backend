@@ -43,7 +43,7 @@ BEATS is a multi-component ecosystem. You can find the related projects here:
 
 ## 🛠️ Technology Stack
 
-*   **Framework:** Laravel 11.x
+*   **Framework:** Laravel 13.x
 *   **Frontend:** Vue.js 3 + Inertia.js
 *   **Styling:** Tailwind CSS + Lucide Icons
 *   **Database:** MySQL 8.0
