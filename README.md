@@ -30,9 +30,12 @@ BEATS is a multi-component ecosystem. You can find the related projects here:
 ### Multi-Role Dashboards
 *   **Administrator Portal:** Total system control including user management, course/session scheduling, and BLE device assignments.
     *   **Refactored Lecturer Assignments:** Supports assigning a single lecturer to multiple specific labs within a course via direct database ownership.
-    *   **Enhanced Bulk Import:** Provision student accounts instantly via CSV with automated Programme lookup and standardized credentials.
+    *   **Weekly Recurrence Scheduling:** Effortlessly auto-generate class sessions for the entire semester with intelligent conflict detection for every recurring instance.
+    *   **Robust Bulk Import:** Provision student accounts via CSV with improved parsing for various file encodings and automated validation.
     *   **System-Wide Analytics:** Visual dashboards for monitoring attendance trends and system performance.
+    *   **UX Refinements:** Consistent interactive feedback across the portal with optimized pointer cursors and responsive elements.
 *   **Lecturer Portal:** Tools to manage daily classroom attendance, generate rotating QR codes, view course-specific reports, and process student leave applications.
+    *   **Enhanced Session Visibility:** Improved session card styling with clear indicators for 'Cancelled', 'Active', 'Upcoming', and 'Passed' statuses.
 *   **Student App (API):** A dedicated, secure API layer for the mobile app, allowing students to check in, view their timetables, and monitor their gamification progress.
 
 ### System-Wide Audit Logging
