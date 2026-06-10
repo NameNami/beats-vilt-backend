@@ -111,6 +111,7 @@ class WebLecturerReport extends Controller
         // --- Attendance Trend (Always 8 Points) ---
         $attendanceTrend = [];
         $semStart = Carbon::parse(SystemSetting::get('semester_start_date', '2026-03-04'))->startOfDay();
+        $semStartMonday = $semStart->copy()->startOfWeek(Carbon::MONDAY);
         $currentWeek = $semesterInfo['current_week'];
 
         // Always show 8 weeks. If current week is 12, show 5-12.
@@ -119,7 +120,7 @@ class WebLecturerReport extends Controller
         $startWeek = max(1, $endWeek - 7);
 
         for ($i = $startWeek; $i <= $endWeek; $i++) {
-            $weekStart = $semStart->copy()->addWeeks($i - 1)->startOfWeek();
+            $weekStart = $semStartMonday->copy()->addWeeks($i - 1);
             $weekEnd = $weekStart->copy()->endOfWeek();
 
             $weekSessions = ClassSession::where('lecturer_id', $lecturerId)
@@ -243,7 +244,7 @@ class WebLecturerReport extends Controller
 
     private function getSemesterInfo()
     {
-        $startDateStr = SystemSetting::get('semester_start_date', '2026-03-04');
+        $startDateStr = SystemSetting::get('semester_start_date', '2026-03-09');
         $startDate = Carbon::parse($startDateStr)->startOfDay();
         $totalWeeks = (int) SystemSetting::get('semester_total_weeks', 14);
         
@@ -252,8 +253,8 @@ class WebLecturerReport extends Controller
         if ($now->lt($startDate)) {
             $currentWeek = 0;
         } else {
-            // Calculate week based on days to be more consistent
-            $currentWeek = (int) ($startDate->diffInDays($now) / 7) + 1;
+            // Calculate week based on Monday-to-Monday difference
+            $currentWeek = (int) $startDate->diffInWeeks($now) + 1;
         }
 
         if ($currentWeek > $totalWeeks) $currentWeek = $totalWeeks;
@@ -263,7 +264,7 @@ class WebLecturerReport extends Controller
             'start_date' => $startDate->format('d M Y'),
             'total_weeks' => $totalWeeks,
             'current_week' => $currentWeek,
-            'end_date' => $startDate->copy()->addWeeks($totalWeeks)->format('d M Y')
+            'end_date' => $startDate->copy()->addWeeks($totalWeeks)->subDay()->format('d M Y')
         ];
     }
 

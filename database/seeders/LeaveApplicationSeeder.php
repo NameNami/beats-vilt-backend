@@ -23,7 +23,7 @@ class LeaveApplicationSeeder extends Seeder
         }
 
         // Create some pending leave applications
-        foreach ($students->random(5) as $student) {
+        foreach ($students->random(min(15, $students->count())) as $student) {
             $session = $sessions->random();
             
             // Check if application already exists (unique constraint)
@@ -42,7 +42,7 @@ class LeaveApplicationSeeder extends Seeder
         }
 
         // Create some approved leave applications
-        foreach ($students->random(3) as $student) {
+        foreach ($students->random(min(10, $students->count())) as $student) {
             $session = $sessions->random();
             $lecturer = $lecturers->random();
 
@@ -63,7 +63,7 @@ class LeaveApplicationSeeder extends Seeder
         }
 
         // Create some rejected leave applications
-        foreach ($students->random(2) as $student) {
+        foreach ($students->random(min(5, $students->count())) as $student) {
             $session = $sessions->random();
             $lecturer = $lecturers->random();
 
