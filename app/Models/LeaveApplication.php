@@ -25,7 +25,7 @@ class LeaveApplication extends Model
     protected function casts(): array
     {
         return [
-            'reviewed_at' => 'datetime',
+            'reviewed_at' => 'datetime:Y-m-d H:i:s',
         ];
     }
 

@@ -14,7 +14,7 @@ class AttendanceRecord extends Model
     protected function casts(): array
     {
         return [
-            'check_in_time' => 'datetime',
+            'check_in_time' => 'datetime:Y-m-d H:i:s',
         ];
     }
 
