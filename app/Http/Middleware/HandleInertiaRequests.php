@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\SystemSetting;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -41,20 +43,24 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'semester_info' => [
-                'name' => \App\Models\SystemSetting::get('semester'),
-                'start_date' => $startDate = \App\Models\SystemSetting::get('semester_start_date'),
-                'total_weeks' => (int) ($totalWeeks = \App\Models\SystemSetting::get('semester_total_weeks', 14)),
-                'current_week' => (function() use ($startDate, $totalWeeks) {
-                    if (!$startDate) return null;
-                    $start = \Carbon\Carbon::parse($startDate)->startOfDay();
-                    $now = \Carbon\Carbon::now()->startOfDay();
-                    
-                    if ($now->lt($start)) return 1;
-                    
+                'name' => SystemSetting::get('semester'),
+                'start_date' => $startDate = SystemSetting::get('semester_start_date'),
+                'total_weeks' => (int) ($totalWeeks = SystemSetting::get('semester_total_weeks', 14)),
+                'current_week' => (function () use ($startDate, $totalWeeks) {
+                    if (! $startDate) {
+                        return null;
+                    }
+                    $start = Carbon::parse($startDate)->startOfDay();
+                    $now = Carbon::now()->startOfDay();
+
+                    if ($now->lt($start)) {
+                        return 1;
+                    }
+
                     // Use start of week for consistency with timetable
-                    $startOfCurrentWeek = $now->copy()->startOfWeek(\Carbon\Carbon::MONDAY);
+                    $startOfCurrentWeek = $now->copy()->startOfWeek(Carbon::MONDAY);
                     $week = (int) $start->diffInWeeks($startOfCurrentWeek) + 1;
-                    
+
                     return min($week, (int) $totalWeeks);
                 })(),
             ],

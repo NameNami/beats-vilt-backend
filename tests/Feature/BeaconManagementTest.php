@@ -1,11 +1,12 @@
 <?php
 
 use App\Models\Beacon;
-use App\Models\User;
 use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
-use function Pest\Laravel\{post, seed};
+
+use function Pest\Laravel\post;
 
 uses(RefreshDatabase::class);
 
@@ -15,7 +16,7 @@ beforeEach(function () {
 
 test('heartbeat creates unassigned beacon if it does not exist', function () {
     $mac = 'AA:BB:CC:DD:EE:FF';
-    
+
     post('/api/beacon/heartbeat', ['mac_address' => $mac])
         ->assertStatus(200)
         ->assertJson(['uuid' => 'pending_uuid']);
@@ -41,7 +42,7 @@ test('heartbeat updates last_seen for existing beacon', function () {
         'id' => $beacon->id,
         'mac_address' => $beacon->mac_address,
     ]);
-    
+
     $beacon->refresh();
     expect($beacon->last_seen->gt(now()->subMinute()))->toBeTrue();
 });
@@ -49,7 +50,7 @@ test('heartbeat updates last_seen for existing beacon', function () {
 test('change-beacon-status command deactivates offline beacons and notifies admin', function () {
     // Ensure there is at least one admin to receive notification
     $admin = User::factory()->create(['role' => 'admin']);
-    
+
     $beacon = Beacon::factory()->create([
         'status' => 'active',
         'last_seen' => now()->subMinutes(10),
@@ -58,7 +59,7 @@ test('change-beacon-status command deactivates offline beacons and notifies admi
     Artisan::call('app:change-beacon-status');
 
     expect($beacon->refresh()->status)->toBe('inactive');
-    
+
     $this->assertDatabaseHas('notifications', [
         'user_id' => $admin->id,
         'title' => 'Beacon Offline',

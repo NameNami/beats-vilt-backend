@@ -1,8 +1,9 @@
 <?php
 
 use App\Providers\AppServiceProvider;
+use Tighten\Ziggy\ZiggyServiceProvider;
 
 return [
     AppServiceProvider::class,
-    Tighten\Ziggy\ZiggyServiceProvider::class,
+    ZiggyServiceProvider::class,
 ];

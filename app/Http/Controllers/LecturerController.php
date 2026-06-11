@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ClassSession;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Models\ClassSession;
 
 class LecturerController extends Controller
 {
@@ -34,7 +34,7 @@ class LecturerController extends Controller
         return Inertia::render('Lecturer/Dashboard', [
             'lecturer' => $lecturer,
             'courses' => $courses,
-            'schedule' => $schedule
+            'schedule' => $schedule,
         ]);
     }
 }

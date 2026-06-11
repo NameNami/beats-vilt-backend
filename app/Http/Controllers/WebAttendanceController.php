@@ -3,17 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\AttendanceRecord;
-use App\Models\CourseEnrollment;
-use App\Models\User;
-use App\Models\SystemSetting;
 use App\Models\ClassSession;
 use App\Models\Course;
+use App\Models\CourseEnrollment;
+use App\Models\QrToken;
+use App\Models\SystemSetting;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
-use Carbon\Carbon;
-use App\Models\QrToken;
 
 class WebAttendanceController extends Controller
 {
@@ -25,8 +25,8 @@ class WebAttendanceController extends Controller
         $courses = Course::whereHas('enrollments', function ($query) use ($lecturerId) {
             $query->where('user_id', $lecturerId)->where('role', 'lecturer');
         })
-        ->withCount(['students'])
-        ->get();
+            ->withCount(['students'])
+            ->get();
 
         $courseData = $courses->map(function ($course) {
             return [
@@ -70,7 +70,7 @@ class WebAttendanceController extends Controller
                     'lab' => $session->lab->name ?? null,
                     'date' => $session->start_time->format('d M Y'),
                     'day' => $session->start_time->format('l'),
-                    'time' => $session->start_time->format('H:i') . ' - ' . $session->end_time->format('H:i'),
+                    'time' => $session->start_time->format('H:i').' - '.$session->end_time->format('H:i'),
                     'location' => $session->room->name ?? 'N/A',
                     'status' => $status,
                     'week' => $week,
@@ -85,9 +85,9 @@ class WebAttendanceController extends Controller
         $subjectRiskCounts = []; // [course_code => count]
 
         foreach ($courses as $course) {
-            $enrolledStudents = User::whereHas('courseEnrollments', function($q) use ($course) {
+            $enrolledStudents = User::whereHas('courseEnrollments', function ($q) use ($course) {
                 $q->where('course_id', $course->id)->where('role', 'student');
-            })->with(['courseEnrollments' => function($q) use ($course) {
+            })->with(['courseEnrollments' => function ($q) use ($course) {
                 $q->where('course_id', $course->id);
             }])->get();
 
@@ -97,14 +97,16 @@ class WebAttendanceController extends Controller
                 $studentPastSessionIds = ClassSession::where('course_id', $course->id)
                     ->where('lecturer_id', $lecturerId)
                     ->where('is_completed', true)
-                    ->where(function($q) use ($studentEnrollment) {
+                    ->where(function ($q) use ($studentEnrollment) {
                         $q->whereNull('lab_id')
-                          ->orWhere('lab_id', $studentEnrollment->lab_id);
+                            ->orWhere('lab_id', $studentEnrollment->lab_id);
                     })
                     ->pluck('id');
 
                 $totalPast = $studentPastSessionIds->count();
-                if ($totalPast === 0) continue;
+                if ($totalPast === 0) {
+                    continue;
+                }
 
                 $presentCount = AttendanceRecord::whereIn('session_id', $studentPastSessionIds)
                     ->where('user_id', $student->id)
@@ -112,8 +114,8 @@ class WebAttendanceController extends Controller
                     ->count();
 
                 $rate = round(($presentCount / $totalPast) * 100, 1);
-                
-                if (!isset($studentStatsMap[$student->id])) {
+
+                if (! isset($studentStatsMap[$student->id])) {
                     $studentStatsMap[$student->id] = [
                         'id' => $student->id,
                         'name' => $student->name,
@@ -136,15 +138,15 @@ class WebAttendanceController extends Controller
 
         // Filter map to only include students who are at risk in at least one subject
         $atRiskStudentList = collect($studentStatsMap)
-            ->filter(fn($s) => $s['min_rate'] < $thresholdValue)
+            ->filter(fn ($s) => $s['min_rate'] < $thresholdValue)
             ->sortBy('min_rate')
             ->values();
 
         // 4. Subject Stats for Dropdown
-        $uniqueSubjects = $courses->map(fn($c) => [
+        $uniqueSubjects = $courses->map(fn ($c) => [
             'code' => $c->code,
             'name' => $c->name,
-            'risk_count' => $subjectRiskCounts[$c->code] ?? 0
+            'risk_count' => $subjectRiskCounts[$c->code] ?? 0,
         ]);
 
         return Inertia::render('LecturerAttendance', [
@@ -157,7 +159,7 @@ class WebAttendanceController extends Controller
             'uniqueSubjects' => $uniqueSubjects,
             'threshold' => $thresholdValue,
             'totalUniqueStudents' => $uniqueStudentsCount,
-            'qrRotationSeconds' => (int) SystemSetting::get('qr_rotation_seconds', 15)
+            'qrRotationSeconds' => (int) SystemSetting::get('qr_rotation_seconds', 15),
         ]);
     }
 
@@ -173,10 +175,10 @@ class WebAttendanceController extends Controller
         // Get students enrolled in the course, filtered by lab if applicable
         $students = User::whereHas('courseEnrollments', function ($query) use ($session) {
             $query->where('course_id', $session->course_id)
-                  ->where('role', 'student')
-                  ->when($session->lab_id, function ($q) use ($session) {
-                      return $q->where('lab_id', $session->lab_id);
-                  });
+                ->where('role', 'student')
+                ->when($session->lab_id, function ($q) use ($session) {
+                    return $q->where('lab_id', $session->lab_id);
+                });
         })->get()->map(function ($student) use ($session, $threshold, $lecturerId) {
             $record = $session->attendanceRecords->firstWhere('user_id', $student->id);
             $rawStatus = $record ? $record->status : 'absent';
@@ -192,9 +194,9 @@ class WebAttendanceController extends Controller
             $studentPastSessionIds = ClassSession::where('course_id', $session->course_id)
                 ->where('lecturer_id', $lecturerId)
                 ->where('is_completed', true)
-                ->where(function($q) use ($studentEnrollment) {
+                ->where(function ($q) use ($studentEnrollment) {
                     $q->whereNull('lab_id')
-                      ->orWhere('lab_id', $studentEnrollment->lab_id);
+                        ->orWhere('lab_id', $studentEnrollment->lab_id);
                 })
                 ->pluck('id');
 
@@ -213,13 +215,14 @@ class WebAttendanceController extends Controller
                 'name' => $student->name,
                 'status' => $uiStatus,
                 'is_at_risk' => $isAtRisk,
-                'attendance_rate' => round($rate * 100, 1)
+                'attendance_rate' => round($rate * 100, 1),
             ];
         })->sort(function ($a, $b) {
             // Sort by is_at_risk descending, then by name
             if ($a['is_at_risk'] === $b['is_at_risk']) {
                 return strcmp($a['name'], $b['name']);
             }
+
             return $b['is_at_risk'] <=> $a['is_at_risk'];
         })->values();
 
@@ -245,14 +248,14 @@ class WebAttendanceController extends Controller
                 'absent' => $students->where('status', 'absent')->count(),
                 'leave' => $students->where('status', 'leave')->count(),
                 'total' => $students->count(),
-            ]
+            ],
         ]);
     }
 
     public function toggleDisplay(Request $request, ClassSession $session)
     {
         $session->update([
-            'is_display' => $request->boolean('is_display')
+            'is_display' => $request->boolean('is_display'),
         ]);
 
         return response()->json(['success' => true]);
@@ -262,10 +265,10 @@ class WebAttendanceController extends Controller
     {
         $rotationSeconds = (int) SystemSetting::get('qr_rotation_seconds', 15);
         $gracePeriod = 5; // 5 seconds grace period
-        
+
         $token = QrToken::create([
             'session_id' => $session->id,
-            'token' => \Illuminate\Support\Str::random(64),
+            'token' => Str::random(64),
             'expires_at' => now()->addSeconds($rotationSeconds + $gracePeriod),
         ]);
 
@@ -276,7 +279,7 @@ class WebAttendanceController extends Controller
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
-            'status' => 'required|in:present,absent,leave'
+            'status' => 'required|in:present,absent,leave',
         ]);
 
         $session->attendanceRecords()->updateOrCreate(
@@ -284,7 +287,7 @@ class WebAttendanceController extends Controller
             [
                 'status' => $request->status,
                 'check_in_time' => now(),
-                'checkin_method' => 'manual'
+                'checkin_method' => 'manual',
             ]
         );
 
@@ -295,10 +298,10 @@ class WebAttendanceController extends Controller
     {
         $studentIds = User::whereHas('courseEnrollments', function ($query) use ($session) {
             $query->where('course_id', $session->course_id)
-                  ->where('role', 'student')
-                  ->when($session->lab_id, function ($q) use ($session) {
-                      return $q->where('lab_id', $session->lab_id);
-                  });
+                ->where('role', 'student')
+                ->when($session->lab_id, function ($q) use ($session) {
+                    return $q->where('lab_id', $session->lab_id);
+                });
         })->pluck('id');
 
         foreach ($studentIds as $userId) {
@@ -307,7 +310,7 @@ class WebAttendanceController extends Controller
                 [
                     'status' => 'present',
                     'check_in_time' => now(),
-                    'checkin_method' => 'manual'
+                    'checkin_method' => 'manual',
                 ]
             );
         }
@@ -319,10 +322,10 @@ class WebAttendanceController extends Controller
     {
         $studentIds = User::whereHas('courseEnrollments', function ($query) use ($session) {
             $query->where('course_id', $session->course_id)
-                  ->where('role', 'student')
-                  ->when($session->lab_id, function ($q) use ($session) {
-                      return $q->where('lab_id', $session->lab_id);
-                  });
+                ->where('role', 'student')
+                ->when($session->lab_id, function ($q) use ($session) {
+                    return $q->where('lab_id', $session->lab_id);
+                });
         })->pluck('id');
 
         foreach ($studentIds as $userId) {
@@ -331,7 +334,7 @@ class WebAttendanceController extends Controller
                 [
                     'status' => 'absent',
                     'check_in_time' => now(),
-                    'checkin_method' => 'manual'
+                    'checkin_method' => 'manual',
                 ]
             );
         }

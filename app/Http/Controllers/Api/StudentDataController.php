@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\ClassSession;
-use App\Models\AttendanceRecord;
-use App\Models\Notification;
-use App\Models\LeaveApplication;
 use App\Models\GamificationProfile;
-use App\Models\Reward;
+use App\Models\LeaveApplication;
+use App\Models\Notification;
 use App\Models\Redemption;
+use App\Models\Reward;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class StudentDataController extends Controller
@@ -24,7 +23,7 @@ class StudentDataController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $rewards
+            'data' => $rewards,
         ], 200);
     }
 
@@ -41,17 +40,17 @@ class StudentDataController extends Controller
         $student = $request->user();
         $profile = $student->gamificationProfile;
 
-        if (!$profile || $profile->total_points < $reward->cost_points) {
+        if (! $profile || $profile->total_points < $reward->cost_points) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Insufficient points.'
+                'message' => 'Insufficient points.',
             ], 400);
         }
 
         if ($reward->stock <= 0) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Reward out of stock.'
+                'message' => 'Reward out of stock.',
             ], 400);
         }
 
@@ -70,7 +69,7 @@ class StudentDataController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Reward redeemed successfully.'
+            'message' => 'Reward redeemed successfully.',
         ], 201);
     }
 
@@ -86,7 +85,7 @@ class StudentDataController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $leaderboard
+            'data' => $leaderboard,
         ], 200);
     }
 
@@ -119,7 +118,7 @@ class StudentDataController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Leave application submitted successfully.',
-            'data' => $leave
+            'data' => $leave,
         ], 201);
     }
 
@@ -135,7 +134,7 @@ class StudentDataController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $leaves
+            'data' => $leaves,
         ], 200);
     }
 
@@ -148,7 +147,7 @@ class StudentDataController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $student
+            'data' => $student,
         ], 200);
     }
 
@@ -164,7 +163,7 @@ class StudentDataController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $attendance
+            'data' => $attendance,
         ], 200);
     }
 
@@ -180,7 +179,7 @@ class StudentDataController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $redemptions
+            'data' => $redemptions,
         ], 200);
     }
 
@@ -219,7 +218,7 @@ class StudentDataController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $notifications
+            'data' => $notifications,
         ], 200);
     }
 
@@ -238,7 +237,7 @@ class StudentDataController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $enrollments
+            'data' => $enrollments,
         ], 200);
     }
 
@@ -271,7 +270,7 @@ class StudentDataController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $schedule
+            'data' => $schedule,
         ], 200);
     }
 
@@ -288,13 +287,13 @@ class StudentDataController extends Controller
         if ($beacons->isEmpty()) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'No active beacons found for this room'
+                'message' => 'No active beacons found for this room',
             ], 404);
         }
 
         return response()->json([
             'status' => 'success',
-            'data' => $beacons
+            'data' => $beacons,
         ], 200);
     }
 }

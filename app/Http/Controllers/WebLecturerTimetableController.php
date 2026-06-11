@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
-
 use App\Models\ClassSession;
 use App\Models\SystemSetting;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class WebLecturerTimetableController extends Controller
 {
@@ -61,7 +60,7 @@ class WebLecturerTimetableController extends Controller
                 'students' => $session->course->students()->count(),
                 'color' => $courseColorMap[$session->course_id] ?? 'indigo',
                 'isCancelled' => $session->is_cancelled,
-                'isOngoing' => now()->between($session->start_time, $session->end_time) && !$session->is_cancelled,
+                'isOngoing' => now()->between($session->start_time, $session->end_time) && ! $session->is_cancelled,
             ];
         });
 

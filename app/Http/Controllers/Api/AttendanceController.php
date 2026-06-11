@@ -3,18 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\AttendanceRecord;
 use App\Models\Beacon;
-use Illuminate\Http\Request;
 use App\Models\ClassSession;
 use App\Services\AttendanceServices;
-use App\Models\AttendanceRecord;
+use App\Services\GamificationService;
 use Carbon\Carbon;
-use App\Models\QrToken;
+use Illuminate\Http\Request;
 
 class AttendanceController extends Controller
 {
-    public function checkInBle(Request $request, AttendanceServices $attendanceServices, \App\Services\GamificationService $gamificationService)
-    //public function checkInBle(Request $request, AttendanceServices $attendanceServices)
+    public function checkInBle(Request $request, AttendanceServices $attendanceServices, GamificationService $gamificationService)
+    // public function checkInBle(Request $request, AttendanceServices $attendanceServices)
     {
 
         $request->validate([
@@ -54,8 +54,7 @@ class AttendanceController extends Controller
             ], 409);
         }
 
-        if ($class_session->is_cancelled)
-        {
+        if ($class_session->is_cancelled) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Class is cancelled',
@@ -64,16 +63,15 @@ class AttendanceController extends Controller
 
         // classify arrival status using the timestamp
         $arrivalStatus = $attendanceServices->classifyArrival($class_session, $request->timestamp);
-        if ($arrivalStatus === 'invalid') // if timestamp is invalid because API called after the class ended
-        {
+        if ($arrivalStatus === 'invalid') { // if timestamp is invalid because API called after the class ended
             return response()->json([
-                'status' => 'error',
-                'message' => 'Invalid timestamp',
-            ], 400);
+                    'status' => 'error',
+                    'message' => 'Invalid timestamp',
+                ], 400);
         }
 
         // calculate xp
-        //$xp = $attendanceServices->calculateXp($arrivalStatus);
+        // $xp = $attendanceServices->calculateXp($arrivalStatus);
 
         // check in time from request
         $check_in_time = Carbon::createFromTimestamp($request->timestamp)->toDateTimeString();
@@ -99,14 +97,14 @@ class AttendanceController extends Controller
                 'xp_earned' => $rewards['xp'],
                 'total_xp' => $rewards['new_total_xp'],
                 'level' => $rewards['level'],
-                //'xp_earned' => $xp,
+                // 'xp_earned' => $xp,
                 'check_in_time' => $check_in_time,
-            ]
+            ],
         ]);
     }
 
-    public function checkInQr(Request $request, AttendanceServices $attendanceServices, \App\Services\GamificationService $gamificationService)
-    //public function checkInQr(Request $request, AttendanceServices $attendanceServices)
+    public function checkInQr(Request $request, AttendanceServices $attendanceServices, GamificationService $gamificationService)
+    // public function checkInQr(Request $request, AttendanceServices $attendanceServices)
     {
         $request->validate([
             'timestamp' => 'required|string', // timestamp untuk compare dgn timeframe kelas
@@ -117,12 +115,11 @@ class AttendanceController extends Controller
         // check if qr token is valid
         $class_session = ClassSession::findOrFail($request->class_session_id);
         $validationResult = $attendanceServices->checkInValidationQr($class_session, $request->timestamp, $request->token, $request->user());
-        if (! $validationResult['status']) // if not valid then return error
-        {
+        if (! $validationResult['status']) { // if not valid then return error
             return response()->json([
-                'status' => 'error',
-                'message' => $validationResult['message'],
-            ], $validationResult['code']);
+                    'status' => 'error',
+                    'message' => $validationResult['message'],
+                ], $validationResult['code']);
         }
 
         /*
@@ -139,7 +136,7 @@ class AttendanceController extends Controller
 
         // calculate xp
         // TODO: check ni
-        //$xp = $attendanceServices->calculateXp($arrivalStatus);
+        // $xp = $attendanceServices->calculateXp($arrivalStatus);
 
         // check in time from request
         $check_in_time = Carbon::createFromTimestamp($request->timestamp)->toDateTimeString();
@@ -165,9 +162,9 @@ class AttendanceController extends Controller
                 'xp_earned' => $rewards['xp'],
                 'total_xp' => $rewards['new_total_xp'],
                 'level' => $rewards['level'],
-                //'xp_earned' => $xp,
+                // 'xp_earned' => $xp,
                 'check_in_time' => $check_in_time,
-            ]
+            ],
         ]);
     }
 }

@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
+use App\Models\AttendanceRecord;
 use App\Models\ClassSession;
 use App\Models\CourseEnrollment;
-use App\Models\AttendanceRecord;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
 class AttendanceSeeder extends Seeder
@@ -24,20 +24,20 @@ class AttendanceSeeder extends Seeder
         foreach ($sessions as $session) {
             $enrollments = CourseEnrollment::where('course_id', $session->course_id)
                 ->where('role', 'student')
-                ->where(function($q) use ($session) {
+                ->where(function ($q) use ($session) {
                     $q->whereNull('lab_id')->orWhere('lab_id', $session->lab_id);
                 })
                 ->get();
 
             foreach ($enrollments as $enrollment) {
                 $userId = $enrollment->user_id;
-                
+
                 // Create some deterministic "at-risk" students based on their ID
                 // Students with IDs divisible by 3 will have poor attendance (~60%)
                 // Others will have good attendance (~90%)
                 $isAtRiskCandidate = ($userId % 3 === 0);
                 $random = rand(1, 100);
-                
+
                 $status = 'absent';
                 $checkIn = null;
                 $method = 'manual';
@@ -60,7 +60,7 @@ class AttendanceSeeder extends Seeder
                     $start = Carbon::parse($session->start_time);
                     $checkIn = match ($status) {
                         'on-time' => $start->copy()->addMinutes(rand(0, 5)),
-                        'late'    => $start->copy()->addMinutes(rand(11, 25)),
+                        'late' => $start->copy()->addMinutes(rand(11, 25)),
                         'present' => $start->copy()->addMinutes(rand(0, 10)),
                     };
                     $method = ($status === 'late') ? 'manual' : 'ble';
@@ -72,10 +72,10 @@ class AttendanceSeeder extends Seeder
                     ['user_id' => $userId, 'session_id' => $session->id],
                     [
                         'check_in_time' => $checkIn,
-                        'status'        => $status,
-                        'checkin_method'=> $method,
-                        'created_at'    => $checkIn,
-                        'updated_at'    => $checkIn,
+                        'status' => $status,
+                        'checkin_method' => $method,
+                        'created_at' => $checkIn,
+                        'updated_at' => $checkIn,
                     ]
                 );
             }
@@ -86,7 +86,7 @@ class AttendanceSeeder extends Seeder
     {
         $statuses = ['on-time', 'late', 'present'];
         $weights = [70, 20, 10]; // Probabilities
-        
+
         $r = rand(1, 100);
         $current = 0;
         foreach ($weights as $index => $weight) {
@@ -95,6 +95,7 @@ class AttendanceSeeder extends Seeder
                 return $statuses[$index];
             }
         }
+
         return 'on-time';
     }
 }

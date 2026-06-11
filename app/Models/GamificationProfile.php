@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-
 use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -15,8 +14,8 @@ class GamificationProfile extends Model
     protected function casts(): array
     {
         return [
-            'total_xp'       => 'integer',
-            'total_points'   => 'integer',
+            'total_xp' => 'integer',
+            'total_points' => 'integer',
             'current_streak' => 'integer',
         ];
     }

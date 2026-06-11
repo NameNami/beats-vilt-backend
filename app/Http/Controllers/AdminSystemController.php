@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AttendanceRecord;
+use App\Models\ClassSession;
+use App\Models\CourseEnrollment;
+use App\Models\GamificationProfile;
+use App\Models\LeaveApplication;
+use App\Models\SystemSetting;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
+use Inertia\Inertia;
 
 class AdminSystemController extends Controller
 {
@@ -14,13 +19,13 @@ class AdminSystemController extends Controller
         // Gather basic database health metrics
         $dbConnection = env('DB_CONNECTION', 'sqlite');
         $dbName = env('DB_DATABASE', database_path('database.sqlite'));
-        
+
         $dbSize = 0;
         if ($dbConnection === 'sqlite' && file_exists($dbName)) {
             $dbSize = filesize($dbName) / 1024 / 1024; // MB
         } elseif ($dbConnection === 'mysql') {
             $result = DB::select("SELECT table_schema AS 'db', SUM(data_length + index_length) / 1024 / 1024 AS 'size' FROM information_schema.TABLES WHERE table_schema = ? GROUP BY table_schema", [$dbName]);
-            if (!empty($result)) {
+            if (! empty($result)) {
                 $dbSize = $result[0]->size;
             }
         }
@@ -36,43 +41,45 @@ class AdminSystemController extends Controller
         ];
 
         return Inertia::render('Admin/SystemHealth', [
-            'health' => $health
+            'health' => $health,
         ]);
     }
 
     public function downloadBackup()
     {
         $dbConnection = env('DB_CONNECTION');
-        
+
         if ($dbConnection === 'sqlite') {
             $dbPath = env('DB_DATABASE', database_path('database.sqlite'));
-            if (!file_exists($dbPath)) {
+            if (! file_exists($dbPath)) {
                 return back()->withErrors(['message' => 'SQLite database file not found.']);
             }
-            return response()->download($dbPath, 'backup_' . date('Y_m_d_His') . '.sqlite');
-        } 
-        
+
+            return response()->download($dbPath, 'backup_'.date('Y_m_d_His').'.sqlite');
+        }
+
         if ($dbConnection === 'mysql') {
             $host = env('DB_HOST', '127.0.0.1');
             $port = env('DB_PORT', '3306');
             $database = env('DB_DATABASE');
             $username = env('DB_USERNAME');
             $password = env('DB_PASSWORD');
-            
-            $filename = "backup_{$database}_" . date('Y_m_d_His') . '.sql';
+
+            $filename = "backup_{$database}_".date('Y_m_d_His').'.sql';
             $path = storage_path("app/private/{$filename}");
 
             // Note: This requires mysqldump to be in the system PATH
-            $passwordStr = empty($password) ? "" : "-p\"{$password}\"";
+            $passwordStr = empty($password) ? '' : "-p\"{$password}\"";
             $command = "mysqldump -h {$host} -P {$port} -u {$username} {$passwordStr} {$database} > \"{$path}\"";
 
             // Use exec to run mysqldump
             exec($command, $output, $returnVar);
 
-            if ($returnVar !== 0 || !file_exists($path) || filesize($path) === 0) {
+            if ($returnVar !== 0 || ! file_exists($path) || filesize($path) === 0) {
                 if (file_exists($path)) {
                     unlink($path);
                 }
+
                 return back()->withErrors(['message' => 'Failed to generate MySQL backup. Ensure mysqldump is installed and accessible.']);
             }
 
@@ -87,16 +94,16 @@ class AdminSystemController extends Controller
         $request->validate([
             'confirmation' => 'required|in:CONFIRM',
             'new_semester' => 'required|string',
-            'new_start_date' => 'required|date'
+            'new_start_date' => 'required|date',
         ]);
 
-        $currentSemester = \App\Models\SystemSetting::get('semester', 'Unknown-Semester');
+        $currentSemester = SystemSetting::get('semester', 'Unknown-Semester');
 
         DB::beginTransaction();
 
         try {
             // 1. Move Class Sessions
-            $sessions = \App\Models\ClassSession::all();
+            $sessions = ClassSession::all();
             $archivedSessions = [];
             foreach ($sessions as $session) {
                 $archivedSessions[] = [
@@ -120,7 +127,7 @@ class AdminSystemController extends Controller
             }
 
             // 2. Move Course Enrollments (Only Students)
-            $enrollments = \App\Models\CourseEnrollment::where('role', 'student')->get();
+            $enrollments = CourseEnrollment::where('role', 'student')->get();
             $archivedEnrollments = [];
             foreach ($enrollments as $enrollment) {
                 $archivedEnrollments[] = [
@@ -140,7 +147,7 @@ class AdminSystemController extends Controller
             }
 
             // 3. Move Attendance Records
-            $attendances = \App\Models\AttendanceRecord::all();
+            $attendances = AttendanceRecord::all();
             $archivedAttendances = [];
             foreach ($attendances as $attendance) {
                 $archivedAttendances[] = [
@@ -160,31 +167,32 @@ class AdminSystemController extends Controller
             }
 
             // 4. Delete the active data (Order matters due to foreign keys)
-            \App\Models\AttendanceRecord::query()->delete();
-            \App\Models\LeaveApplication::query()->delete();
+            AttendanceRecord::query()->delete();
+            LeaveApplication::query()->delete();
             // Delete student enrollments, keep lecturer assignments
-            \App\Models\CourseEnrollment::where('role', 'student')->delete();
-            \App\Models\ClassSession::query()->delete();
+            CourseEnrollment::where('role', 'student')->delete();
+            ClassSession::query()->delete();
 
             // 5. Update the System Settings
-            \App\Models\SystemSetting::updateOrCreate(
+            SystemSetting::updateOrCreate(
                 ['key' => 'semester'],
                 ['value' => $request->new_semester]
             );
-            \App\Models\SystemSetting::updateOrCreate(
+            SystemSetting::updateOrCreate(
                 ['key' => 'semester_start_date'],
                 ['value' => $request->new_start_date]
             );
 
             // 6. Reset Gamification Streaks
-            \App\Models\GamificationProfile::query()->update(['current_streak' => 0]);
+            GamificationProfile::query()->update(['current_streak' => 0]);
 
             DB::commit();
 
             return back()->with('success', 'Semester successfully archived and rolled over!');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['message' => 'Rollover failed: ' . $e->getMessage()]);
+
+            return back()->withErrors(['message' => 'Rollover failed: '.$e->getMessage()]);
         }
     }
 }

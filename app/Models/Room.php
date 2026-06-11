@@ -2,11 +2,9 @@
 
 namespace App\Models;
 
-
 use App\Traits\Auditable;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
-
+use Illuminate\Database\Eloquent\Model;
 
 #[Fillable(['name', 'capacity', 'location'])]
 class Room extends Model
@@ -19,6 +17,7 @@ class Room extends Model
             'capacity' => 'integer',
         ];
     }
+
     public function beacons()
     {
         return $this->hasMany(Beacon::class);

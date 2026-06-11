@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\Course;
+use App\Models\CourseEnrollment;
 use App\Models\GamificationProfile;
 use App\Models\LeaderboardSnapshot;
-use App\Models\CourseEnrollment;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 class SnapshotLeaderboard extends Command
@@ -38,7 +38,7 @@ class SnapshotLeaderboard extends Command
             // 1. Snapshot Global Leaderboard (null course_id)
             $this->info('Processing global leaderboard...');
             $globalProfiles = GamificationProfile::with('user')
-                ->whereHas('user', function($q) {
+                ->whereHas('user', function ($q) {
                     $q->where('role', 'student');
                 })
                 ->orderByDesc('total_xp')
@@ -57,16 +57,16 @@ class SnapshotLeaderboard extends Command
                 ];
             }
 
-            if (!empty($snapshots)) {
+            if (! empty($snapshots)) {
                 LeaderboardSnapshot::insert($snapshots);
             }
 
             // 2. Snapshot Per-Course Leaderboards
             $courses = Course::all();
-            
+
             foreach ($courses as $course) {
                 $this->info("Processing leaderboard for course: {$course->code}");
-                
+
                 // Get students enrolled in this course
                 $enrolledStudentIds = CourseEnrollment::where('course_id', $course->id)
                     ->where('role', 'student')
@@ -94,7 +94,7 @@ class SnapshotLeaderboard extends Command
                     ];
                 }
 
-                if (!empty($courseSnapshots)) {
+                if (! empty($courseSnapshots)) {
                     LeaderboardSnapshot::insert($courseSnapshots);
                 }
             }

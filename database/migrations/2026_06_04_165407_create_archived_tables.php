@@ -44,7 +44,7 @@ return new class extends Migration
             $table->string('semester_tag');
             $table->unsignedBigInteger('original_id');
             // Do not use foreign keys for session_id because the original session is deleted
-            $table->unsignedBigInteger('session_id'); 
+            $table->unsignedBigInteger('session_id');
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('status');
             $table->timestamp('scanned_at')->nullable();

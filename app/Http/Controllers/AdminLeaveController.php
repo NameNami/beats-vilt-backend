@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\LeaveApplication;
+use App\Models\AttendanceRecord;
 use App\Models\ClassSession;
+use App\Models\LeaveApplication;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -17,7 +19,7 @@ class AdminLeaveController extends Controller
         $students = User::where('role', 'student')
             ->when($search, function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%")
-                      ->orWhere('student_id', 'like', "%{$search}%");
+                    ->orWhere('student_id', 'like', "%{$search}%");
             })
             ->select('id', 'name', 'student_id')
             ->orderBy('name')
@@ -64,23 +66,27 @@ class AdminLeaveController extends Controller
         // Find all sessions this student is supposed to attend between the dates
         // A student is expected to attend a session if they are enrolled in the course,
         // and either the session has no lab, or the session's lab matches their enrollment's lab.
-        
+
         $sessions = ClassSession::whereBetween('start_time', [
-                \Carbon\Carbon::parse($validated['start_date'])->startOfDay(),
-                \Carbon\Carbon::parse($validated['end_date'])->endOfDay()
-            ])
+            Carbon::parse($validated['start_date'])->startOfDay(),
+            Carbon::parse($validated['end_date'])->endOfDay(),
+        ])
             ->whereHas('course.enrollments', function ($query) use ($student) {
                 $query->where('user_id', $student->id)
-                      ->where('role', 'student');
+                    ->where('role', 'student');
             })
             ->get()
             ->filter(function ($session) use ($student) {
                 // Get the student's enrollment for this specific course
                 $enrollment = $student->courseEnrollments()->where('course_id', $session->course_id)->first();
-                if (!$enrollment) return false;
+                if (! $enrollment) {
+                    return false;
+                }
 
                 // If session is a full lecture (no lab), they must attend
-                if (is_null($session->lab_id)) return true;
+                if (is_null($session->lab_id)) {
+                    return true;
+                }
 
                 // If session is a lab, they only attend if their assigned lab matches
                 return $session->lab_id === $enrollment->lab_id;
@@ -96,29 +102,30 @@ class AdminLeaveController extends Controller
         foreach ($sessions as $session) {
             // Check if a leave application already exists for this exact session
             $existing = LeaveApplication::where('user_id', $student->id)
-                                        ->where('session_id', $session->id)
-                                        ->first();
+                ->where('session_id', $session->id)
+                ->first();
 
-            if (!$existing) {
+            if (! $existing) {
                 LeaveApplication::create([
                     'user_id' => $student->id,
                     'session_id' => $session->id,
                     'type' => $validated['type'],
-                    'reason' => "Global Admin Override: " . $validated['reason'],
+                    'reason' => 'Global Admin Override: '.$validated['reason'],
                     'status' => 'approved',
                     'reviewed_by' => $adminId,
                     'reviewed_at' => now(),
                 ]);
-                
+
                 // If there's an existing attendance record for this session, update it to 'leave'
-                \App\Models\AttendanceRecord::updateOrCreate(
+                AttendanceRecord::updateOrCreate(
                     [
                         'session_id' => $session->id,
                         'user_id' => $student->id,
                     ],
                     [
                         'status' => 'leave',
-                        'scanned_at' => now(),
+                        'check_in_time' => now(),
+                        'checkin_method' => 'manual',
                     ]
                 );
 
@@ -128,19 +135,20 @@ class AdminLeaveController extends Controller
                 if ($existing->status !== 'approved') {
                     $existing->update([
                         'status' => 'approved',
-                        'reason' => "Global Admin Override: " . $validated['reason'],
+                        'reason' => 'Global Admin Override: '.$validated['reason'],
                         'reviewed_by' => $adminId,
                         'reviewed_at' => now(),
                     ]);
-                    
-                    \App\Models\AttendanceRecord::updateOrCreate(
+
+                    AttendanceRecord::updateOrCreate(
                         [
                             'session_id' => $session->id,
                             'user_id' => $student->id,
                         ],
                         [
                             'status' => 'leave',
-                            'scanned_at' => now(),
+                            'check_in_time' => now(),
+                            'checkin_method' => 'manual',
                         ]
                     );
 

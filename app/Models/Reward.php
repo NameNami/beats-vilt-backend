@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-
 use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -17,7 +16,7 @@ class Reward extends Model
         return [
             'cost_points' => 'integer',
             'is_active' => 'boolean',
-            'stock'     => 'integer',
+            'stock' => 'integer',
         ];
     }
 
