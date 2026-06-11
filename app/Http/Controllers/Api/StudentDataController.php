@@ -152,6 +152,61 @@ class StudentDataController extends Controller
     }
 
     /**
+     * Update the student's profile information.
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,'.$user->id,
+            'username' => 'required|string|max:255|unique:users,username,'.$user->id,
+        ]);
+
+        $user->update($validated);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profile updated successfully.',
+            'data' => $user->fresh(['gamificationProfile.level', 'badges', 'programme']),
+        ], 200);
+    }
+
+    /**
+     * Update the student's profile photo.
+     */
+    public function updatePhoto(Request $request)
+    {
+        $request->validate([
+            'photo' => 'required|image|max:2048', // Max 2MB
+        ]);
+
+        $user = $request->user();
+
+        // Delete old photo if it exists
+        if ($user->profile_photo_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_photo_path);
+        }
+
+        // Store new photo
+        $path = $request->file('photo')->store('profile-photos', 'public');
+
+        $user->update([
+            'profile_photo_path' => $path,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profile photo updated successfully.',
+            'data' => [
+                'profile_photo_path' => $path,
+                'profile_photo_url' => \Illuminate\Support\Facades\Storage::disk('public')->url($path),
+            ],
+        ], 200);
+    }
+
+    /**
      * Return the student's attendance history.
      */
     public function getAttendanceHistory(Request $request)
