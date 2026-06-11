@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use App\Models\Programme;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -15,11 +15,11 @@ class UserSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'admin@beats.namix.my'],
             [
-                'name'       => 'System Admin',
-                'username'   => 'admin',
-                'password'   => Hash::make('password'),
-                'role'       => 'admin',
-                'is_active'  => true,
+                'name' => 'System Admin',
+                'username' => 'admin',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+                'is_active' => true,
             ]
         );
 
@@ -32,12 +32,12 @@ class UserSeeder extends Seeder
 
         foreach ($lecturers as $lecturer) {
             User::updateOrCreate(
-                ['email' => $lecturer['username'] . '@beats.namix.my'],
+                ['email' => $lecturer['username'].'@beats.namix.my'],
                 [
-                    'name'      => $lecturer['name'],
-                    'username'  => $lecturer['username'],
-                    'password'  => Hash::make('password'),
-                    'role'      => 'lecturer',
+                    'name' => $lecturer['name'],
+                    'username' => $lecturer['username'],
+                    'password' => Hash::make('password'),
+                    'role' => 'lecturer',
                     'is_active' => true,
                 ]
             );
@@ -89,15 +89,15 @@ class UserSeeder extends Seeder
 
         foreach ($students as $student) {
             User::updateOrCreate(
-                ['email' => $student['username'] . '@s.beats.namix.my'],
+                ['email' => $student['username'].'@s.beats.namix.my'],
                 [
-                    'name'           => $student['name'],
-                    'username'       => $student['username'],
-                    'password'       => Hash::make('password'),
-                    'role'           => 'student',
-                    'student_id'     => $student['student_id'],
-                    'programme_id'   => $student['programme']->id,
-                    'is_active'      => true,
+                    'name' => $student['name'],
+                    'username' => $student['username'],
+                    'password' => Hash::make('password'),
+                    'role' => 'student',
+                    'student_id' => $student['student_id'],
+                    'programme_id' => $student['programme']->id,
+                    'is_active' => true,
                 ]
             );
         }

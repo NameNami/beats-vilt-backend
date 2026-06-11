@@ -15,7 +15,7 @@ class LeaveApplicationFactory extends Factory
     {
         $status = $this->faker->randomElement(['pending', 'approved', 'rejected']);
         $reviewedAt = $status !== 'pending' ? $this->faker->dateTimeBetween('-1 month', 'now') : null;
-        
+
         return [
             'user_id' => User::factory(),
             'session_id' => ClassSession::factory(),

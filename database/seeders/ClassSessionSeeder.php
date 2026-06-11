@@ -2,11 +2,12 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\ClassSession;
-use App\Models\Lab;
 use App\Models\Course;
+use App\Models\Lab;
 use App\Models\Room;
+use App\Models\SystemSetting;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
 class ClassSessionSeeder extends Seeder
@@ -28,10 +29,10 @@ class ClassSessionSeeder extends Seeder
         $lecturerSchedules = [];
 
         // Get semester start date from settings
-        $semStartStr = \App\Models\SystemSetting::get('semester_start_date', '2026-03-09');
+        $semStartStr = SystemSetting::get('semester_start_date', '2026-03-09');
         $semStart = Carbon::parse($semStartStr)->startOfDay();
-        
-        $totalWeeks = (int) \App\Models\SystemSetting::get('semester_total_weeks', 14);
+
+        $totalWeeks = (int) SystemSetting::get('semester_total_weeks', 14);
 
         // Generate sessions for exactly the semester duration (14 weeks)
         for ($weekNum = 1; $weekNum <= $totalWeeks; $weekNum++) {
@@ -62,7 +63,9 @@ class ClassSessionSeeder extends Seeder
                     $slot = null;
                     for ($day = 1; $day <= 4; $day++) {
                         $slot = $this->findFreeSlot($lecturerSchedules, $lab->lecturer_id, $weekStart, $day);
-                        if ($slot) break;
+                        if ($slot) {
+                            break;
+                        }
                     }
 
                     if ($slot) {
@@ -92,7 +95,7 @@ class ClassSessionSeeder extends Seeder
             $start = $baseDate->copy()->setTimeFromTimeString($time['start']);
             $end = $baseDate->copy()->setTimeFromTimeString($time['end']);
 
-            if (!$this->isOccupied($schedules, $lecturerId, $start, $end)) {
+            if (! $this->isOccupied($schedules, $lecturerId, $start, $end)) {
                 return ['start' => $start, 'end' => $end];
             }
         }
@@ -102,10 +105,14 @@ class ClassSessionSeeder extends Seeder
 
     private function isOccupied($schedules, $lecturerId, $start, $end)
     {
-        if (!isset($schedules[$lecturerId])) return false;
+        if (! isset($schedules[$lecturerId])) {
+            return false;
+        }
 
         $dateKey = $start->toDateString();
-        if (!isset($schedules[$lecturerId][$dateKey])) return false;
+        if (! isset($schedules[$lecturerId][$dateKey])) {
+            return false;
+        }
 
         foreach ($schedules[$lecturerId][$dateKey] as $busy) {
             // Check for overlap
@@ -143,17 +150,17 @@ class ClassSessionSeeder extends Seeder
         }
 
         ClassSession::create([
-            'course_id'        => $courseId,
-            'lab_id'           => $labId,
-            'lecturer_id'      => $lecturerId,
-            'room_id'          => $roomId,
-            'start_time'       => $start,
-            'end_time'         => $end,
-            'mode'             => $mode,
-            'checkin_method'   => $method,
-            'is_display'       => $is_active && !$is_cancelled,
-            'is_cancelled'     => $is_cancelled,
-            'is_completed'     => $is_completed && !$is_cancelled,
+            'course_id' => $courseId,
+            'lab_id' => $labId,
+            'lecturer_id' => $lecturerId,
+            'room_id' => $roomId,
+            'start_time' => $start,
+            'end_time' => $end,
+            'mode' => $mode,
+            'checkin_method' => $method,
+            'is_display' => $is_active && ! $is_cancelled,
+            'is_cancelled' => $is_cancelled,
+            'is_completed' => $is_completed && ! $is_cancelled,
             'announce_cancelled' => $is_cancelled,
         ]);
     }

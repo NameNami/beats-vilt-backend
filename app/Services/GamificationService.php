@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
-use App\Models\User;
+use App\Models\AttendanceRecord;
+use App\Models\Badge;
 use App\Models\GamificationProfile;
 use App\Models\Level;
-use App\Models\Badge;
-use App\Models\AttendanceRecord;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -37,12 +37,12 @@ class GamificationService
         DB::transaction(function () use ($profile, $xp, $points, $user, $arrivalStatus) {
             $profile->total_xp += $xp;
             $profile->total_points += $points;
-            
+
             $this->updateStreak($user, $profile);
             $this->checkLevelUp($user, $profile);
-            
+
             $profile->save();
-            
+
             $this->checkBadges($user, $profile, $arrivalStatus);
         });
 
@@ -50,7 +50,7 @@ class GamificationService
             'xp' => $xp,
             'points' => $points,
             'new_total_xp' => $profile->total_xp,
-            'level' => $profile->refresh()->level?->level ?? '1'
+            'level' => $profile->refresh()->level?->level ?? '1',
         ];
     }
 
@@ -60,15 +60,16 @@ class GamificationService
     protected function updateStreak(User $user, GamificationProfile $profile)
     {
         $today = now()->startOfDay();
-        
+
         $lastAttendance = AttendanceRecord::where('user_id', $user->id)
             ->where('status', '!=', 'absent')
             ->where('check_in_time', '<', $today)
             ->orderBy('check_in_time', 'desc')
             ->first();
 
-        if (!$lastAttendance) {
+        if (! $lastAttendance) {
             $profile->current_streak = 1;
+
             return;
         }
 
@@ -89,7 +90,7 @@ class GamificationService
     protected function checkLevelUp(User $user, GamificationProfile $profile)
     {
         $currentXp = $profile->total_xp;
-        
+
         $newLevel = Level::where('xp_required', '<=', $currentXp)
             ->orderBy('xp_required', 'desc')
             ->first();
@@ -109,20 +110,28 @@ class GamificationService
         $userBadgeIds = $user->badges()->pluck('badge_id')->toArray();
 
         foreach ($badges as $badge) {
-            if (in_array($badge->id, $userBadgeIds)) continue;
+            if (in_array($badge->id, $userBadgeIds)) {
+                continue;
+            }
 
             $shouldAward = false;
 
             switch ($badge->requirement_type) {
                 case 'on_time_checkins':
                     $count = AttendanceRecord::where('user_id', $user->id)->where('status', 'on-time')->count();
-                    if ($count >= $badge->requirement_value) $shouldAward = true;
+                    if ($count >= $badge->requirement_value) {
+                        $shouldAward = true;
+                    }
                     break;
                 case 'streak_count':
-                    if ($profile->current_streak >= $badge->requirement_value) $shouldAward = true;
+                    if ($profile->current_streak >= $badge->requirement_value) {
+                        $shouldAward = true;
+                    }
                     break;
                 case 'total_xp':
-                    if ($profile->total_xp >= $badge->requirement_value) $shouldAward = true;
+                    if ($profile->total_xp >= $badge->requirement_value) {
+                        $shouldAward = true;
+                    }
                     break;
             }
 

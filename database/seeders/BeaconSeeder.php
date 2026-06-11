@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Beacon;
 use App\Models\Room;
+use Illuminate\Database\Seeder;
 
 class BeaconSeeder extends Seeder
 {

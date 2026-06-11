@@ -2,11 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Beacon;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
-
-use App\Models\Beacon;
 use Illuminate\Support\Str;
 
 #[Signature('app:renew-beacon-uuid')]
@@ -26,6 +25,6 @@ class RenewBeaconUUID extends Command
             $this->info("Renewed UUID for Beacon {$beacon->mac_address}: {$newUuid}");
         }
 
-        $this->info("Successfully renewed UUIDs for " . $activeBeacons->count() . " active beacons.");
+        $this->info('Successfully renewed UUIDs for '.$activeBeacons->count().' active beacons.');
     }
 }

@@ -19,6 +19,7 @@ import {
     AlertTriangle
 } from 'lucide-vue-next';
 import axios from 'axios';
+import { useQRCode } from '@vueuse/integrations/useQRCode';
 
 const props = defineProps({
     overallAttendance: String,
@@ -47,6 +48,8 @@ const pollingInterval = ref(null);
 const qrInterval = ref(null);
 const isProcessing = ref(false);
 const isQrGenerated = ref(false);
+
+const qrDataUrl = useQRCode(() => selectedSessionData.value?.qr_token || '');
 
 const nextClassTime = computed(() => {
     if (!props.scheduleItems || props.scheduleItems.length === 0) return null;
@@ -425,7 +428,7 @@ onUnmounted(() => {
                                     <div v-if="isQrGenerated" class="w-full h-full flex items-center justify-center">
                                         <img
                                             v-if="selectedSessionData?.qr_token"
-                                            :src="`https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${selectedSessionData.qr_token}`"
+                                            :src="qrDataUrl"
                                             alt="Attendance QR"
                                             class="w-full h-full p-2"
                                         >

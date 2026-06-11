@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\ClassSession;
 use App\Models\Course;
 use App\Models\CourseEnrollment;
 use App\Models\Lab;
-use App\Models\ClassSession;
+use App\Models\Programme;
 use App\Models\Room;
 use App\Models\SystemSetting;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Inertia\Inertia;
 
 class AdminController extends Controller
 {
@@ -31,7 +32,7 @@ class AdminController extends Controller
         ];
 
         return Inertia::render('Admin/Dashboard', [
-            'stats' => $stats
+            'stats' => $stats,
         ]);
     }
 
@@ -41,12 +42,12 @@ class AdminController extends Controller
     public function manageCourses()
     {
         return Inertia::render('Admin/ManageCourses', [
-            'courses' => Course::with(['enrollments' => function($q) {
+            'courses' => Course::with(['enrollments' => function ($q) {
                 $q->where('role', 'student');
-            }, 'labs.lecturer', 'labs.enrollments' => function($q) {
+            }, 'labs.lecturer', 'labs.enrollments' => function ($q) {
                 $q->where('role', 'student');
             }])->get(),
-            'lecturers' => User::where('role', 'lecturer')->get()
+            'lecturers' => User::where('role', 'lecturer')->get(),
         ]);
     }
 
@@ -67,7 +68,7 @@ class AdminController extends Controller
     {
         $course = Course::findOrFail($id);
         $validated = $request->validate([
-            'code' => 'required|string|unique:courses,code,' . $id,
+            'code' => 'required|string|unique:courses,code,'.$id,
             'name' => 'required|string',
             'faculty' => 'required|string',
         ]);
@@ -80,6 +81,7 @@ class AdminController extends Controller
     public function deleteCourse($id)
     {
         Course::findOrFail($id)->delete();
+
         return back()->with('success', 'Course deleted successfully.');
     }
 
@@ -117,6 +119,7 @@ class AdminController extends Controller
     public function deleteLab($id)
     {
         Lab::findOrFail($id)->delete();
+
         return back()->with('success', 'Lab deleted successfully.');
     }
 
@@ -146,7 +149,7 @@ class AdminController extends Controller
         }
 
         if ($facultyFilter) {
-            $query->whereHas('course', function($q) use ($facultyFilter) {
+            $query->whereHas('course', function ($q) use ($facultyFilter) {
                 $q->where('faculty', $facultyFilter);
             });
         }
@@ -178,7 +181,7 @@ class AdminController extends Controller
                 'students' => $session->course->students()->count(),
                 'color' => $courseColorMap[$session->course_id] ?? 'indigo',
                 'isCancelled' => $session->is_cancelled,
-                'isOngoing' => now()->between($session->start_time, $session->end_time) && !$session->is_cancelled,
+                'isOngoing' => now()->between($session->start_time, $session->end_time) && ! $session->is_cancelled,
 
                 // CRUD fields
                 'course_id' => $session->course_id,
@@ -204,7 +207,7 @@ class AdminController extends Controller
             'filters' => [
                 'course_id' => $courseIdFilter,
                 'faculty' => $facultyFilter,
-            ]
+            ],
         ]);
     }
 
@@ -346,11 +349,17 @@ class AdminController extends Controller
 
         if ($conflict) {
             $conflictReason = [];
-            if ($conflict->room_id == $validated['room_id']) $conflictReason[] = 'Room';
-            if ($conflict->lecturer_id == $validated['lecturer_id']) $conflictReason[] = 'Lecturer';
-            if ($conflict->lab_id == $validated['lab_id']) $conflictReason[] = 'Lab Group';
-            
-            return back()->withErrors(['conflict' => 'Scheduling conflict detected for: ' . implode(', ', $conflictReason) . '. Please select a different time, room, or lecturer.']);
+            if ($conflict->room_id == $validated['room_id']) {
+                $conflictReason[] = 'Room';
+            }
+            if ($conflict->lecturer_id == $validated['lecturer_id']) {
+                $conflictReason[] = 'Lecturer';
+            }
+            if ($conflict->lab_id == $validated['lab_id']) {
+                $conflictReason[] = 'Lab Group';
+            }
+
+            return back()->withErrors(['conflict' => 'Scheduling conflict detected for: '.implode(', ', $conflictReason).'. Please select a different time, room, or lecturer.']);
         }
 
         $session->update($validated);
@@ -361,6 +370,7 @@ class AdminController extends Controller
     public function deleteSession($id)
     {
         ClassSession::findOrFail($id)->delete();
+
         return back()->with('success', 'Session deleted successfully.');
     }
 
@@ -371,14 +381,14 @@ class AdminController extends Controller
     {
         $lecturers = User::where('role', 'lecturer')->with(['courseEnrollments.course', 'labs.course', 'conductedSessions'])->get();
         $availableCourses = Course::all();
-        $availableLabs = Lab::with(['enrollments' => function($q) {
+        $availableLabs = Lab::with(['enrollments' => function ($q) {
             $q->where('role', 'student');
         }])->get();
 
         return Inertia::render('Admin/ManageLecturers', [
             'lecturers' => $lecturers,
             'availableCourses' => $availableCourses,
-            'availableLabs' => $availableLabs
+            'availableLabs' => $availableLabs,
         ]);
     }
 
@@ -410,6 +420,7 @@ class AdminController extends Controller
         } else {
             CourseEnrollment::findOrFail($id)->delete();
         }
+
         return back()->with('success', 'Assignment removed.');
     }
 
@@ -437,13 +448,14 @@ class AdminController extends Controller
     public function manageStudents()
     {
         $students = User::where('role', 'student')->with(['courseEnrollments.course', 'courseEnrollments.lab', 'programme'])->get();
+
         return Inertia::render('Admin/ManageStudents', [
             'students' => $students,
             'availableCourses' => Course::all(),
-            'availableProgrammes' => \App\Models\Programme::all(),
-            'availableLabs' => Lab::with(['enrollments' => function($q) {
+            'availableProgrammes' => Programme::all(),
+            'availableLabs' => Lab::with(['enrollments' => function ($q) {
                 $q->where('role', 'student');
-            }])->get()
+            }])->get(),
         ]);
     }
 
@@ -461,7 +473,7 @@ class AdminController extends Controller
             $currentEnrollments = CourseEnrollment::where('lab_id', $lab->id)
                 ->where('role', 'student')
                 ->count();
-            
+
             // Note: Simplistic capacity check. In a real system you'd count existing users not already in this lab.
             if ($currentEnrollments + count($request->user_ids) > $lab->capacity) {
                 return back()->withErrors(['lab_id' => 'Adding these students would exceed the lab maximum capacity.']);
@@ -475,7 +487,7 @@ class AdminController extends Controller
             );
         }
 
-        return back()->with('success', count($request->user_ids) . ' student(s) enrolled successfully.');
+        return back()->with('success', count($request->user_ids).' student(s) enrolled successfully.');
     }
     // =====================================================================
     // 7. USER MANAGEMENT (CRUD)
@@ -487,7 +499,7 @@ class AdminController extends Controller
         $users = User::orderBy('role')->orderBy('name')->get();
 
         return Inertia::render('Admin/ManageUsers', [
-            'users' => $users
+            'users' => $users,
         ]);
     }
 
@@ -627,10 +639,10 @@ class AdminController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users,username,' . $id,
+            'username' => 'required|string|max:255|unique:users,username,'.$id,
             // Ignore THIS user's current email/student_id when checking for uniqueness
-            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
-            'student_id' => 'nullable|string|max:255|unique:users,student_id,' . $id,
+            'email' => 'required|string|email|max:255|unique:users,email,'.$id,
+            'student_id' => 'nullable|string|max:255|unique:users,student_id,'.$id,
             'role' => 'required|in:admin,lecturer,student',
             // Password is optional when updating
             'password' => 'nullable|string|min:8|confirmed',

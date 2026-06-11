@@ -9,7 +9,6 @@ use App\Models\Notification;
 use App\Models\SystemSetting;
 use App\Models\User;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 class SendAtRiskNotifications extends Command
 {
@@ -42,19 +41,23 @@ class SendAtRiskNotifications extends Command
         foreach ($students as $student) {
             foreach ($student->courseEnrollments as $enrollment) {
                 $course = $enrollment->course;
-                if (!$course) continue;
+                if (! $course) {
+                    continue;
+                }
 
                 // Get all completed sessions the student should have attended for this course
                 $totalSessionsIds = ClassSession::where('course_id', $course->id)
                     ->where('is_completed', true)
-                    ->where(function($query) use ($enrollment) {
+                    ->where(function ($query) use ($enrollment) {
                         $query->whereNull('lab_id')
-                              ->orWhere('lab_id', $enrollment->lab_id);
+                            ->orWhere('lab_id', $enrollment->lab_id);
                     })
                     ->pluck('id');
 
                 $totalCount = $totalSessionsIds->count();
-                if ($totalCount === 0) continue;
+                if ($totalCount === 0) {
+                    continue;
+                }
 
                 // Count successful attendances
                 $attendedCount = AttendanceRecord::whereIn('session_id', $totalSessionsIds)
@@ -68,7 +71,7 @@ class SendAtRiskNotifications extends Command
                     $formattedPercent = round($percentage, 1);
                     $notifications[] = [
                         'user_id' => $student->id,
-                        'title' => 'Attendance Warning: ' . $course->code,
+                        'title' => 'Attendance Warning: '.$course->code,
                         'body' => "Your current attendance for {$course->code} is {$formattedPercent}%, which is below the required {$threshold}%. Please ensure you attend future classes to avoid academic penalties.",
                         'type' => 'alert',
                         'is_read' => false,
@@ -79,12 +82,12 @@ class SendAtRiskNotifications extends Command
             }
         }
 
-        if (!empty($notifications)) {
+        if (! empty($notifications)) {
             // Chunk to avoid issues with large inserts
             foreach (array_chunk($notifications, 500) as $chunk) {
                 Notification::insert($chunk);
             }
-            $this->info('Sent ' . count($notifications) . ' at-risk notifications.');
+            $this->info('Sent '.count($notifications).' at-risk notifications.');
         } else {
             $this->info('No at-risk students found this week.');
         }

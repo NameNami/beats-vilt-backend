@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\User;
-use App\Http\Middleware\CheckRoleWeb;
 
 test('lecturer can access dashboard', function () {
     $lecturer = User::factory()->create(['role' => 'lecturer']);

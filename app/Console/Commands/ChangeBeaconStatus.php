@@ -2,14 +2,12 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Attributes\Description;
-use Illuminate\Console\Attributes\Signature;
-use Illuminate\Console\Command;
-
 use App\Models\Beacon;
 use App\Models\Notification;
 use App\Models\User;
-use Carbon\Carbon;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
+use Illuminate\Console\Command;
 
 #[Signature('app:change-beacon-status')]
 #[Description('Update beacon status to inactive if last_seen > 5 minutes, and reactive if seen recently.')]
@@ -35,9 +33,9 @@ class ChangeBeaconStatus extends Command
             foreach ($admins as $admin) {
                 Notification::create([
                     'user_id' => $admin->id,
-                    'title'   => 'Beacon Offline',
-                    'body'    => "Beacon with MAC {$beacon->mac_address} has gone offline. Last seen: {$beacon->last_seen->format('Y-m-d H:i:s')}",
-                    'type'    => 'risk',
+                    'title' => 'Beacon Offline',
+                    'body' => "Beacon with MAC {$beacon->mac_address} has gone offline. Last seen: {$beacon->last_seen->format('Y-m-d H:i:s')}",
+                    'type' => 'risk',
                 ]);
             }
 

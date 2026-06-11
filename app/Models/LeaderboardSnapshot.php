@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-
 use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -13,6 +12,7 @@ class LeaderboardSnapshot extends Model
     use Auditable;
 
     const CREATED_AT = 'created_at';
+
     public $timestamps = false;
 
     protected function casts(): array

@@ -22,7 +22,7 @@ class WebLecturerReport extends Controller
     public function index(Request $request)
     {
         $lecturerId = Auth::id();
-        
+
         // 1. Get Semester Info
         $semesterInfo = $this->getSemesterInfo();
 
@@ -33,23 +33,23 @@ class WebLecturerReport extends Controller
 
         // 3. Apply Filters
         $courseId = $request->input('course_id');
-        
+
         // --- Enforce Single Course View ---
-        if (!$courseId && $courses->isNotEmpty()) {
+        if (! $courseId && $courses->isNotEmpty()) {
             $courseId = $courses->first()->id;
         }
 
         // Get only programmes that have students enrolled in this course for this lecturer
         $programmes = Programme::whereHas('users', function ($q) use ($courseId, $lecturerId) {
             $q->where('role', 'student')
-              ->whereHas('courseEnrollments', function ($eq) use ($courseId, $lecturerId) {
-                  $eq->where('course_id', $courseId)
-                     ->whereHas('course', function ($cq) use ($lecturerId) {
-                        $cq->whereHas('enrollments', function ($leq) use ($lecturerId) {
-                            $leq->where('user_id', $lecturerId)->where('role', 'lecturer');
+                ->whereHas('courseEnrollments', function ($eq) use ($courseId, $lecturerId) {
+                    $eq->where('course_id', $courseId)
+                        ->whereHas('course', function ($cq) use ($lecturerId) {
+                            $cq->whereHas('enrollments', function ($leq) use ($lecturerId) {
+                                $leq->where('user_id', $lecturerId)->where('role', 'lecturer');
+                            });
                         });
-                     });
-              });
+                });
         })->get();
 
         $programmeId = $request->input('programme_id');
@@ -59,19 +59,19 @@ class WebLecturerReport extends Controller
         $data = $this->getReportData($lecturerId, $courseId, $programmeId, $startDate, $endDate);
 
         // --- Real Gamification Data ---
-        
+
         // 1. Gamification Pulse
         $gamificationPulse = [
             'activeStreaks' => GamificationProfile::where('current_streak', '>', 0)->count(),
             'badgesAwarded' => DB::table('user_badges')->count(),
-            'levelUps'      => GamificationProfile::whereNotNull('level_id')->count(), // Simple count of students who reached at least lvl 1
-            'avgStudentLevel' => round(GamificationProfile::with('level')->get()->avg(fn($p) => $p->level->level ?? 1), 1)
+            'levelUps' => GamificationProfile::whereNotNull('level_id')->count(), // Simple count of students who reached at least lvl 1
+            'avgStudentLevel' => round(GamificationProfile::with('level')->get()->avg(fn ($p) => $p->level->level ?? 1), 1),
         ];
 
         // 2. Leaderboard (Top 5 by XP - Students Only)
-        $leaderboard = GamificationProfile::whereHas('user', function($q) {
-                $q->where('role', 'student');
-            })
+        $leaderboard = GamificationProfile::whereHas('user', function ($q) {
+            $q->where('role', 'student');
+        })
             ->with(['user', 'level'])
             ->orderBy('total_xp', 'desc')
             ->limit(5)
@@ -82,7 +82,7 @@ class WebLecturerReport extends Controller
                     'name' => $p->user->name,
                     'xp' => $p->total_xp,
                     'level' => $p->level->level ?? 1,
-                    'streak' => $p->current_streak
+                    'streak' => $p->current_streak,
                 ];
             });
 
@@ -99,13 +99,13 @@ class WebLecturerReport extends Controller
                     'id' => uniqid(),
                     'name' => $b->name,
                     'student' => $b->student,
-                    'date' => Carbon::parse($b->created_at)->diffForHumans()
+                    'date' => Carbon::parse($b->created_at)->diffForHumans(),
                 ];
             });
 
         $gamificationHub = [
             'leaderboard' => $leaderboard,
-            'recentBadges' => $recentBadges
+            'recentBadges' => $recentBadges,
         ];
 
         // --- Attendance Trend (Always 8 Points) ---
@@ -126,11 +126,12 @@ class WebLecturerReport extends Controller
             $weekSessions = ClassSession::where('lecturer_id', $lecturerId)
                 ->where('is_completed', true)
                 ->whereBetween('start_time', [$weekStart, $weekEnd])
-                ->when($courseId, fn($q) => $q->where('course_id', $courseId))
+                ->when($courseId, fn ($q) => $q->where('course_id', $courseId))
                 ->get();
 
             if ($weekSessions->isEmpty()) {
                 $attendanceTrend[] = ['week' => "W$i", 'rate' => 0];
+
                 continue;
             }
 
@@ -140,14 +141,14 @@ class WebLecturerReport extends Controller
             foreach ($weekSessions as $session) {
                 // Expected students for this specific session
                 $expected = CourseEnrollment::where('course_id', $session->course_id)
-                    ->when($session->lab_id, fn($q) => $q->where('lab_id', $session->lab_id))
+                    ->when($session->lab_id, fn ($q) => $q->where('lab_id', $session->lab_id))
                     ->where('role', 'student')
                     ->count();
-                
+
                 $totalExpected += $expected;
 
                 $presentCount += AttendanceRecord::where('session_id', $session->id)
-                    ->whereIn('status', ["on-time", "late", "present", "leave"])
+                    ->whereIn('status', ['on-time', 'late', 'present', 'leave'])
                     ->count();
             }
 
@@ -159,7 +160,7 @@ class WebLecturerReport extends Controller
         $pendingLeaves = LeaveApplication::with(['user', 'classSession.course'])
             ->whereHas('classSession', function ($q) use ($lecturerId, $courseId) {
                 $q->where('lecturer_id', $lecturerId)
-                  ->when($courseId, fn($sq) => $sq->where('course_id', $courseId));
+                    ->when($courseId, fn ($sq) => $sq->where('course_id', $courseId));
             })
             ->where('status', 'pending')
             ->orderBy('created_at', 'desc')
@@ -172,7 +173,7 @@ class WebLecturerReport extends Controller
                     'course' => $l->classSession->course->code,
                     'date' => $l->classSession->start_time->format('d M Y'),
                     'type' => $l->type,
-                    'reason' => $l->reason
+                    'reason' => $l->reason,
                 ];
             });
 
@@ -193,7 +194,7 @@ class WebLecturerReport extends Controller
             'gamificationPulse' => $gamificationPulse,
             'attendanceTrend' => $attendanceTrend,
             'pendingLeaves' => $pendingLeaves,
-            'gamificationHub' => $gamificationHub
+            'gamificationHub' => $gamificationHub,
         ]);
     }
 
@@ -209,14 +210,14 @@ class WebLecturerReport extends Controller
         $students = $data['allStudents'];
 
         $headers = [
-            "Content-type"        => "text/csv",
-            "Content-Disposition" => "attachment; filename=attendance_report_" . now()->format('YmdHis') . ".csv",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
+            'Content-type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename=attendance_report_'.now()->format('YmdHis').'.csv',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
         ];
 
-        $callback = function() use ($students) {
+        $callback = function () use ($students) {
             $file = fopen('php://output', 'w');
             fputcsv($file, ['Student ID', 'Name', 'Programme', 'Course', 'On-Time', 'Late', 'Absent', 'Leave', 'Total Sessions', 'Rate (%)', 'Status']);
 
@@ -232,7 +233,7 @@ class WebLecturerReport extends Controller
                     $student['leave'],
                     $student['total'],
                     $student['rate'],
-                    $student['is_at_risk'] ? 'At Risk' : 'Good'
+                    $student['is_at_risk'] ? 'At Risk' : 'Good',
                 ]);
             }
 
@@ -247,9 +248,9 @@ class WebLecturerReport extends Controller
         $startDateStr = SystemSetting::get('semester_start_date', '2026-03-09');
         $startDate = Carbon::parse($startDateStr)->startOfDay();
         $totalWeeks = (int) SystemSetting::get('semester_total_weeks', 14);
-        
+
         $now = now()->startOfDay();
-        
+
         if ($now->lt($startDate)) {
             $currentWeek = 0;
         } else {
@@ -257,14 +258,16 @@ class WebLecturerReport extends Controller
             $currentWeek = (int) $startDate->diffInWeeks($now) + 1;
         }
 
-        if ($currentWeek > $totalWeeks) $currentWeek = $totalWeeks;
+        if ($currentWeek > $totalWeeks) {
+            $currentWeek = $totalWeeks;
+        }
 
         return [
             'semester' => SystemSetting::get('semester', '2025/2026-1'),
             'start_date' => $startDate->format('d M Y'),
             'total_weeks' => $totalWeeks,
             'current_week' => $currentWeek,
-            'end_date' => $startDate->copy()->addWeeks($totalWeeks)->subDay()->format('d M Y')
+            'end_date' => $startDate->copy()->addWeeks($totalWeeks)->subDay()->format('d M Y'),
         ];
     }
 
@@ -293,9 +296,9 @@ class WebLecturerReport extends Controller
 
         // Get relevant students
         $studentQuery = User::where('role', 'student')
-            ->whereHas('courseEnrollments', function($q) use ($lecturerId, $courseId) {
-                $q->whereHas('course', function($cq) use ($lecturerId) {
-                    $cq->whereHas('enrollments', function($eq) use ($lecturerId) {
+            ->whereHas('courseEnrollments', function ($q) use ($lecturerId, $courseId) {
+                $q->whereHas('course', function ($cq) use ($lecturerId) {
+                    $cq->whereHas('enrollments', function ($eq) use ($lecturerId) {
                         $eq->where('user_id', $lecturerId)->where('role', 'lecturer');
                     });
                 });
@@ -312,7 +315,7 @@ class WebLecturerReport extends Controller
 
         $allStudentsData = [];
         $atRiskStudents = [];
-        
+
         $totalPresent = 0;
         $totalAbsent = 0;
         $totalLeave = 0;
@@ -321,28 +324,31 @@ class WebLecturerReport extends Controller
 
         foreach ($students as $student) {
             // Filter enrollments to match the lecturer/course scope
-            $enrollments = $student->courseEnrollments->filter(function($e) use ($lecturerId, $courseId) {
+            $enrollments = $student->courseEnrollments->filter(function ($e) use ($lecturerId, $courseId) {
                 $isAssigned = CourseEnrollment::where('course_id', $e->course_id)
                     ->where('user_id', $lecturerId)
                     ->where('role', 'lecturer')
                     ->exists();
-                return $isAssigned && (!$courseId || $e->course_id == $courseId);
+
+                return $isAssigned && (! $courseId || $e->course_id == $courseId);
             });
 
             foreach ($enrollments as $enrollment) {
                 $studentPastSessionIds = ClassSession::where('course_id', $enrollment->course_id)
                     ->where('lecturer_id', $lecturerId)
                     ->where('is_completed', true)
-                    ->where(function($q) use ($enrollment) {
+                    ->where(function ($q) use ($enrollment) {
                         $q->whereNull('lab_id')
-                          ->orWhere('lab_id', $enrollment->lab_id);
+                            ->orWhere('lab_id', $enrollment->lab_id);
                     })
-                    ->when($startDate, fn($q) => $q->whereDate('start_time', '>=', $startDate))
-                    ->when($endDate, fn($q) => $q->whereDate('start_time', '<=', $endDate))
+                    ->when($startDate, fn ($q) => $q->whereDate('start_time', '>=', $startDate))
+                    ->when($endDate, fn ($q) => $q->whereDate('start_time', '<=', $endDate))
                     ->pluck('id');
 
                 $total = $studentPastSessionIds->count();
-                if ($total === 0) continue;
+                if ($total === 0) {
+                    continue;
+                }
 
                 $records = AttendanceRecord::whereIn('session_id', $studentPastSessionIds)
                     ->where('user_id', $student->id)
@@ -351,7 +357,7 @@ class WebLecturerReport extends Controller
                 $present = $records->whereIn('status', ['on-time', 'late', 'present', 'leave'])->count();
                 $leave = $records->where('status', 'leave')->count();
                 $absent = $total - $present;
-                
+
                 // For breakdowns
                 $onTime = $records->whereIn('status', ['on-time', 'present'])->count();
                 $late = $records->where('status', 'late')->count();
@@ -378,7 +384,7 @@ class WebLecturerReport extends Controller
                     'late' => $late,
                     'total' => $total,
                     'rate' => $rate,
-                    'is_at_risk' => $isAtRisk
+                    'is_at_risk' => $isAtRisk,
                 ];
 
                 $allStudentsData[] = $studentEntry;
@@ -401,11 +407,11 @@ class WebLecturerReport extends Controller
                     'late' => $totalLate,
                     'absent' => $totalAbsent,
                     'leave' => $totalLeave,
-                    'total' => $grandTotal
-                ]
+                    'total' => $grandTotal,
+                ],
             ],
             'atRiskStudents' => $atRiskStudents,
-            'allStudents' => $allStudentsData
+            'allStudents' => $allStudentsData,
         ];
     }
 }

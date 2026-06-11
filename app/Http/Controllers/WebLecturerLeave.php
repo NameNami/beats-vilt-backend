@@ -27,11 +27,11 @@ class WebLecturerLeave extends Controller
                     'courseCode' => $app->classSession->course->code ?? 'N/A',
                     'courseName' => $app->classSession->course->name ?? 'N/A',
                     'sessionDate' => $app->classSession->start_time->format('d M Y'),
-                    'sessionTime' => $app->classSession->start_time->format('H:i') . ' - ' . $app->classSession->end_time->format('H:i'),
+                    'sessionTime' => $app->classSession->start_time->format('H:i').' - '.$app->classSession->end_time->format('H:i'),
                     'leaveType' => $app->type,
                     'reason' => $app->reason,
-                    'hasDocument' => (bool)$app->document_path,
-                    'documentUrl' => $app->document_path ? asset('storage/' . $app->document_path) : null,
+                    'hasDocument' => (bool) $app->document_path,
+                    'documentUrl' => $app->document_path ? asset('storage/'.$app->document_path) : null,
                     'status' => $app->status,
                     'submittedAt' => $app->created_at->format('d M Y, H:i A'),
                     'reviewedAt' => $app->reviewed_at ? $app->reviewed_at->format('d M Y, H:i A') : null,
@@ -59,6 +59,20 @@ class WebLecturerLeave extends Controller
             'reviewed_by' => Auth::id(),
             'reviewed_at' => $request->status === 'pending' ? null : now(),
         ]);
+
+        if ($request->status === 'approved') {
+            \App\Models\AttendanceRecord::updateOrCreate(
+                [
+                    'session_id' => $application->session_id,
+                    'user_id' => $application->user_id,
+                ],
+                [
+                    'status' => 'leave',
+                    'check_in_time' => now(),
+                    'checkin_method' => 'manual',
+                ]
+            );
+        }
 
         return back()->with('success', 'Leave application status updated.');
     }

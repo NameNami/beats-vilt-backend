@@ -4,13 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\AttendanceRecord;
 use App\Models\ClassSession;
+use App\Models\Course;
 use App\Models\CourseEnrollment;
 use App\Models\LeaveApplication;
 use App\Models\SystemSetting;
 use App\Models\User;
-use App\Models\Course;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -60,7 +59,7 @@ class WebLecturerDashboardController extends Controller
             $totalPresent += count($presentStudentIds);
 
             foreach ($enrollments as $enrollment) {
-                if (!isset($studentAttendance[$enrollment->user_id])) {
+                if (! isset($studentAttendance[$enrollment->user_id])) {
                     $studentAttendance[$enrollment->user_id] = ['total' => 0, 'present' => 0];
                 }
                 $studentAttendance[$enrollment->user_id]['total']++;
@@ -83,9 +82,9 @@ class WebLecturerDashboardController extends Controller
         })->get();
 
         foreach ($courses as $course) {
-            $enrolledStudents = User::whereHas('courseEnrollments', function($q) use ($course) {
+            $enrolledStudents = User::whereHas('courseEnrollments', function ($q) use ($course) {
                 $q->where('course_id', $course->id)->where('role', 'student');
-            })->with(['courseEnrollments' => function($q) use ($course) {
+            })->with(['courseEnrollments' => function ($q) use ($course) {
                 $q->where('course_id', $course->id);
             }])->get();
 
@@ -95,14 +94,16 @@ class WebLecturerDashboardController extends Controller
                 $studentPastSessionIds = ClassSession::where('course_id', $course->id)
                     ->where('lecturer_id', $lecturerId)
                     ->where('is_completed', true)
-                    ->where(function($q) use ($studentEnrollment) {
+                    ->where(function ($q) use ($studentEnrollment) {
                         $q->whereNull('lab_id')
-                          ->orWhere('lab_id', $studentEnrollment->lab_id);
+                            ->orWhere('lab_id', $studentEnrollment->lab_id);
                     })
                     ->pluck('id');
 
                 $totalPastCount = $studentPastSessionIds->count();
-                if ($totalPastCount === 0) continue;
+                if ($totalPastCount === 0) {
+                    continue;
+                }
 
                 $presentPastCount = AttendanceRecord::whereIn('session_id', $studentPastSessionIds)
                     ->where('user_id', $student->id)
@@ -155,18 +156,18 @@ class WebLecturerDashboardController extends Controller
                         ->where('role', 'student')
                         ->count(),
                     'status' => $status,
-                    'is_cancelled' => (bool)$session->is_cancelled,
-                    'can_cancel' => $now->lt($session->end_time) && !$session->is_completed,
+                    'is_cancelled' => (bool) $session->is_cancelled,
+                    'can_cancel' => $now->lt($session->end_time) && ! $session->is_completed,
                 ];
             });
 
         return Inertia::render('LecturerDashboard', [
-            'overallAttendance' => (string)$overallAttendance,
-            'classTodayCount' => (string)$classTodayCount,
-            'pendingLeaveCount' => (string)$pendingLeaveCount,
-            'atRiskStudentCount' => (string)$atRiskStudentCount,
+            'overallAttendance' => (string) $overallAttendance,
+            'classTodayCount' => (string) $classTodayCount,
+            'pendingLeaveCount' => (string) $pendingLeaveCount,
+            'atRiskStudentCount' => (string) $atRiskStudentCount,
             'scheduleItems' => $scheduleItems,
-            'qrRotationSeconds' => (int) SystemSetting::get('qr_rotation_seconds', 15)
+            'qrRotationSeconds' => (int) SystemSetting::get('qr_rotation_seconds', 15),
         ]);
     }
 
@@ -176,14 +177,11 @@ class WebLecturerDashboardController extends Controller
             abort(403);
         }
 
-        $session->is_cancelled = !$session->is_cancelled;
+        $session->is_cancelled = ! $session->is_cancelled;
         $session->save();
 
         return back();
     }
 
-    public function averageAttendance()
-    {
-
-    }
+    public function averageAttendance() {}
 }

@@ -34,10 +34,10 @@ trait Auditable
             $changes = $model->getChanges();
             $oldValues = array_intersect_key($model->getOriginal(), $changes);
             $newValues = $changes;
-            
+
             // Unset timestamp columns if they are the only things changed
             unset($oldValues['updated_at'], $newValues['updated_at']);
-            
+
             if (empty($newValues)) {
                 return;
             }
