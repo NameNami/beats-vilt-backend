@@ -13,7 +13,7 @@ use phpDocumentor\Reflection\Types\Boolean;
 
 class AttendanceServices
 {
-    public function classifyArrival(ClassSession $session, string $checkInTimestamp, string $method = 'qr'): String
+    public function classifyArrival(ClassSession $session, string $checkInTimestamp, string $method = 'qr'): string
     //public function classifyArrival(ClassSession $session, string $checkInTimestamp): String
     {
         if (strtolower($session->mode) === 'online' || $method === 'manual') {

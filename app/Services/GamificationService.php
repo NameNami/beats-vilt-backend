@@ -50,7 +50,7 @@ class GamificationService
             'xp' => $xp,
             'points' => $points,
             'new_total_xp' => $profile->total_xp,
-            'level' => $profile->refresh()->level->level ?? '1'
+            'level' => $profile->refresh()->level?->level ?? '1'
         ];
     }
 

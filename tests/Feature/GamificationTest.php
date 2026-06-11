@@ -153,4 +153,37 @@ class GamificationTest extends TestCase
         
         \Carbon\Carbon::setTestNow(); // Reset
     }
+
+    public function test_qr_checkin_updates_existing_absent_record()
+    {
+        $lecturer = User::factory()->create(['role' => 'lecturer']);
+        $student = User::factory()->create(['role' => 'student']);
+        $session = $this->createTestSession($lecturer);
+        
+        // Create an 'absent' record first
+        AttendanceRecord::create([
+            'user_id' => $student->id,
+            'session_id' => $session->id,
+            'status' => 'absent',
+            'check_in_time' => now(),
+            'checkin_method' => 'qr',
+        ]);
+
+        $token = QrToken::create([
+            'session_id' => $session->id,
+            'token' => \Illuminate\Support\Str::random(64),
+            'expires_at' => now()->addMinutes(15),
+        ]);
+
+        $response = $this->actingAs($student, 'sanctum')->postJson(route('api.student.check-in-qr'), [
+            'class_session_id' => $session->id,
+            'token' => $token->token,
+            'timestamp' => (string) now()->timestamp,
+        ]);
+
+        $response->assertStatus(200);
+        
+        $record = AttendanceRecord::where('user_id', $student->id)->where('session_id', $session->id)->first();
+        $this->assertEquals('present', $record->status);
+    }
 }

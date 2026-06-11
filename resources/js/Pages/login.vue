@@ -64,7 +64,6 @@ const submitLogin = () => {
         </div>
     </div>
     <img :src="'/images/Background Visual.png'" alt="island" class="absolute bottom-0 left-0 w-full h-auto">
-    // TODO: make sure convert semua png jadi webp nanti
 </template>
 
 <style scoped>
