@@ -60,6 +60,20 @@ class WebLecturerLeave extends Controller
             'reviewed_at' => $request->status === 'pending' ? null : now(),
         ]);
 
+        if ($request->status === 'approved') {
+            \App\Models\AttendanceRecord::updateOrCreate(
+                [
+                    'session_id' => $application->session_id,
+                    'user_id' => $application->user_id,
+                ],
+                [
+                    'status' => 'leave',
+                    'check_in_time' => now(),
+                    'checkin_method' => 'manual',
+                ]
+            );
+        }
+
         return back()->with('success', 'Leave application status updated.');
     }
 }

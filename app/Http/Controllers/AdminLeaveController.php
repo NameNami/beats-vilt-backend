@@ -124,7 +124,8 @@ class AdminLeaveController extends Controller
                     ],
                     [
                         'status' => 'leave',
-                        'scanned_at' => now(),
+                        'check_in_time' => now(),
+                        'checkin_method' => 'manual',
                     ]
                 );
 
@@ -146,7 +147,8 @@ class AdminLeaveController extends Controller
                         ],
                         [
                             'status' => 'leave',
-                            'scanned_at' => now(),
+                            'check_in_time' => now(),
+                            'checkin_method' => 'manual',
                         ]
                     );
 
