@@ -17,8 +17,8 @@ class ClassSession extends Model
     protected function casts(): array
     {
         return [
-            'start_time' => 'datetime',
-            'end_time' => 'datetime',
+            'start_time' => 'datetime:Y-m-d H:i:s',
+            'end_time' => 'datetime:Y-m-d H:i:s',
             'is_display' => 'boolean',
             'is_cancelled' => 'boolean',
             'announce_cancelled' => 'boolean',
