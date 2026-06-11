@@ -78,14 +78,15 @@ class AttendanceController extends Controller
         // check in time from request
         $check_in_time = Carbon::createFromTimestamp($request->timestamp)->toDateTimeString();
 
-        // create record for attendance record table
-        $attendanceRecord = new AttendanceRecord();
-        $attendanceRecord->user_id = $request->user()->id;
-        $attendanceRecord->session_id = $class_session->id;
-        $attendanceRecord->check_in_time = $check_in_time;
-        $attendanceRecord->status = $arrivalStatus;
-        $attendanceRecord->checkin_method = 'ble';
-        $attendanceRecord->save();
+        // update or create record for attendance record table
+        $attendanceRecord = AttendanceRecord::updateOrCreate(
+            ['user_id' => $request->user()->id, 'session_id' => $class_session->id],
+            [
+                'check_in_time' => $check_in_time,
+                'status' => $arrivalStatus,
+                'checkin_method' => 'ble',
+            ]
+        );
 
         // calculate and award rewards
         $rewards = $gamificationService->awardAttendanceRewards($request->user(), $arrivalStatus);
@@ -143,14 +144,15 @@ class AttendanceController extends Controller
         // check in time from request
         $check_in_time = Carbon::createFromTimestamp($request->timestamp)->toDateTimeString();
 
-        // create record for attendance record table
-        $attendanceRecord = new AttendanceRecord();
-        $attendanceRecord->user_id = $request->user()->id;
-        $attendanceRecord->session_id = $class_session->id;
-        $attendanceRecord->check_in_time = $check_in_time;
-        $attendanceRecord->status = $arrivalStatus;
-        $attendanceRecord->checkin_method = 'qr';
-        $attendanceRecord->save();
+        // update or create record for attendance record table
+        $attendanceRecord = AttendanceRecord::updateOrCreate(
+            ['user_id' => $request->user()->id, 'session_id' => $class_session->id],
+            [
+                'check_in_time' => $check_in_time,
+                'status' => $arrivalStatus,
+                'checkin_method' => 'qr',
+            ]
+        );
 
         // calculate and award rewards
         $rewards = $gamificationService->awardAttendanceRewards($request->user(), $arrivalStatus);
