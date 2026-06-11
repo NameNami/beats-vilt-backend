@@ -45,6 +45,48 @@ BEATS is a multi-component ecosystem. You can find the related projects here:
 
 ---
 
+## 🏗️ System Architecture
+
+BEATS is structured as a distributed system with a centralized Laravel backend. Below is the high-level architecture:
+
+```mermaid
+flowchart TB
+    subgraph Clients [Client Layer]
+        Mobile[Student Mobile App<br>Kotlin/Android]
+        Web[Admin/Lecturer Portal<br>Vue 3 / Inertia]
+    end
+
+    subgraph Backend [Application Layer - Laravel]
+        direction TB
+        Auth[Sanctum & Session Auth]
+        Controllers[Domain Controllers]
+        Logic[Service Layer<br>Attendance & Gamification]
+        Cron[Scheduled Task Scheduler]
+    end
+
+    subgraph Hardware [Hardware Layer]
+        ESP[ESP32 Beacons]
+    end
+
+    subgraph Data [Data Layer]
+        MySQL[(MySQL 8.4)]
+        Storage[Local File Storage]
+    end
+
+    ESP -. "BLE Signal" .-> Mobile
+    ESP -- "Heartbeat" --> Auth
+    Mobile -- "API Requests" --> Auth
+    Web -- "Inertia Protocol" --> Auth
+    Auth --> Controllers
+    Controllers --> Logic
+    Logic <--> MySQL
+    Cron -- "Scheduled Jobs" --> MySQL
+```
+
+> **Note:** For a comprehensive breakdown including all controllers, services, and detailed interaction flows, see the [**Detailed Architecture Diagram**](./architecture.mermaid).
+
+---
+
 ## 🛠️ Technology Stack
 
 *   **Framework:** Laravel 13.x
