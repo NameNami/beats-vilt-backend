@@ -1,11 +1,19 @@
 # BEATS Student App API Contract (Detailed)
 # Base URL: /api
-# Last Updated: May 31, 2026
+# Last Updated: June 22, 2026
 # General Headers: 
 #   Accept: application/json
 #   Content-Type: application/json (for POST/PUT requests)
 
 ---
+
+## Contents
+- [1. Authentication](#1-authentication)
+- [2. Attendance & Check-In](#2-attendance--check-in)
+  - [POST /student/check-in-ble](#post-studentcheck-in-ble)
+  - [POST /student/check-in-qr](#post-studentcheck-in-qr)
+- [3. Student Data & Records](#3-student-data--records)
+- [4. Hardware Heartbeat & Beacons](#4-hardware-heartbeat--beacons)
 
 ## 1. Authentication
 
@@ -93,7 +101,7 @@
     "created_at": "2026-05-31T06:02:29.000000Z",
     "updated_at": "2026-05-31T06:02:29.000000Z",
     "deleted_at": null
-}
+  }
   ```
 - **Error Response (401 Unauthorized)**: Token is missing or invalid.
 
@@ -104,13 +112,16 @@ All attendance endpoints require `Authorization: Bearer {token}` and `role:stude
 
 ### POST /student/check-in-ble
 - **Purpose**: Mark attendance using a BLE Beacon scan.
-- **Headers**: `Authorization: Bearer {token}`
+- **Headers**:
+  - `Authorization: Bearer {token}`
+  - `Content-Type: application/json`
+  - `Accept: application/json`
 - **Payload**:
   ```json
   {
-    "timestamp": "1717140000",
-    "class_session_id": 12,
-    "uuid": "550e8400-e29b-41d4-a716-446655440000",
+    "timestamp": "1234567890",
+    "class_session_id": 1,
+    "uuid": "uuid-here",
     "rssi": -65
   }
   ```
@@ -128,6 +139,9 @@ All attendance endpoints require `Authorization: Bearer {token}` and `role:stude
     }
   }
   ```
+- **Notes**:
+  - Response shape is identical to `/student/check-in-qr`.
+  - `timestamp` must be sent as a string numeric (e.g., "1234567890").
 - **Error Responses**:
   - **403 Forbidden**: `{"status": "error", "message": "Invalid beacon scanned for this classroom"}`
   - **400 Bad Request (Weak Signal)**: `{"status": "error", "message": "Signal too weak"}`
@@ -137,18 +151,39 @@ All attendance endpoints require `Authorization: Bearer {token}` and `role:stude
 
 ### POST /student/check-in-qr
 - **Purpose**: Mark attendance using a scanned dynamic QR token.
-- **Headers**: `Authorization: Bearer {token}`
+- **Headers**:
+  - `Authorization: Bearer {token}`
+  - `Content-Type: application/json`
+  - `Accept: application/json`
 - **Payload**:
   ```json
   {
-    "timestamp": "1717140000",
-    "class_session_id": 12,
+    "timestamp": "1234567890",
+    "class_session_id": 1,
     "token": "qr_token_abc123"
   }
   ```
-- **Success Response (200 OK)**: Returns the same structure as BLE check-in.
-- **Note**: Arrival status defaults to `present` for QR check-ins currently.
-- **Error Response (400 Bad Request)**: `{"status": "error", "message": "Invalid or expired QR token"}`
+- **Success Response (200 OK)**:
+  ```json
+  {
+    "status": "success",
+    "message": "Successfully checked in.",
+    "data": {
+      "attendance_status": "present",
+      "xp_earned": 50,
+      "total_xp": 1500,
+      "level": 3,
+      "check_in_time": "2026-05-29 08:30:00"
+    }
+  }
+  ```
+- **Notes**:
+  - Arrival status defaults to `present` for QR check-ins currently.
+  - `timestamp` must be sent as a string numeric (e.g., "1234567890").
+- **Error Responses**:
+  - 400 Bad Request: `{"status":"error","message":"Invalid or expired QR token"}`
+  - 401 Unauthorized: Missing or invalid bearer token
+  - 403 Forbidden: Session not accessible to this user
 
 ---
 
@@ -204,6 +239,52 @@ All endpoints require `Authorization: Bearer {token}` and `role:student`.
     }
   }
 
+  ```
+
+### POST /student/profile
+- **Purpose**: Update student's basic profile information.
+- **Headers**:
+  - `Authorization: Bearer {token}`
+  - `Content-Type: application/json`
+  - `Accept: application/json`
+- **Payload**:
+  ```json
+  {
+    "name": "Muhammad Najmi",
+    "email": "najmi@student.beats.namix.my",
+    "username": "najmi"
+  }
+  ```
+- **Success Response (200 OK)**:
+  ```json
+  {
+    "status": "success",
+    "message": "Profile updated successfully.",
+    "data": {}
+  }
+  ```
+- **Error Response (422 Unprocessable Entity)**: Validation errors for duplicate email/username or invalid formats.
+- **Notes**:
+  - `data` returns the full user object with relations (same structure as `GET /student/profile`).
+
+### POST /student/profile/gegephoto
+- **Purpose**: Update student's profile photo.
+- **Headers**:
+  - `Authorization: Bearer {token}`
+  - `Content-Type: multipart/form-data`
+  - `Accept: application/json`
+- **Payload (multipart/form-data)**:
+  - `photo` (image, required, max 2MB)
+- **Success Response (200 OK)**:
+  ```json
+  {
+    "status": "success",
+    "message": "Profile photo updated successfully.",
+    "data": {
+      "profile_photo_path": "profile-photos/abc123.jpg",
+      "profile_photo_url": "https://your-domain/storage/profile-photos/abc123.jpg"
+    }
+  }
   ```
 
 ### GET /student/courses
@@ -551,11 +632,12 @@ All endpoints require `Authorization: Bearer {token}` and `role:student`.
     "status": "success",
     "data": [
       {
-        "id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
-        "type": "App\\Notifications\\WarningNotification",
-        "data": { "message": "Your attendance is below 80%" },
-        "read_at": null,
-        "created_at": "2026-05-30T10:00:00.000000Z"
+        "id": 123,
+        "title": "Attendance Warning",
+        "body": "Your attendance is below 80%",
+        "type": "warning",
+        "is_read": false,
+        "created_at": "2026-05-30 10:00:00"
       }
     ]
   }
@@ -569,6 +651,8 @@ All endpoints require `Authorization: Bearer {token}` and `role:student`.
   ```json
   {"status": "success", "message": "Notification marked as read"}
   ```
+- **Error Responses**:
+  - 403 Forbidden: `{"status":"error","message":"Unauthorized"}`
 
 ### POST /student/notifications/mark-all-read
 - **Purpose**: Mark all unread notifications as read.
@@ -1093,12 +1177,12 @@ All endpoints require `Authorization: Bearer {token}` and `role:student`.
   - `session_id` (integer, required)
   - `type` (string, required): e.g., 'medical', 'emergency', 'other'
   - `reason` (string, required)
-  - `document` (file, required): Image or PDF file
+  - `document` (file, optional): Image or PDF file
 - **Success Response (201 Created)**:
   ```json
   {
     "status": "success",
-    "message": "Leave application submitted."
+    "message": "Leave application submitted successfully."
   }
   ```
 

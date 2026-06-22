@@ -31,7 +31,7 @@ Route::middleware(['auth:sanctum', CheckRoleApi::class.':student'])->group(funct
     // Profile & Records
     Route::get('/student/profile', [StudentDataController::class, 'getProfile'])->name('api.student.profile');
     Route::post('/student/profile', [StudentDataController::class, 'updateProfile'])->name('api.student.profile.update');
-    Route::post('/student/profile/photo', [StudentDataController::class, 'updatePhoto'])->name('api.student.profile.photo');
+    Route::post('/student/profile/gegephoto', [StudentDataController::class, 'updatePhoto'])->name('api.student.profile.photo');
     Route::get('/student/courses', [StudentDataController::class, 'getCourses'])->name('api.student.courses');
     Route::get('/student/schedule', [StudentDataController::class, 'getSchedule'])->name('api.student.schedule');
     Route::get('/student/attendance', [StudentDataController::class, 'getAttendanceHistory'])->name('api.student.attendance');
