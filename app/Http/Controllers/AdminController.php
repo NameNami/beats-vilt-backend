@@ -137,9 +137,14 @@ class AdminController extends Controller
 
         $semesterStartDate = Carbon::parse(SystemSetting::get('semester_start_date', '2026-03-04'));
         $totalWeeks = (int) SystemSetting::get('semester_total_weeks', 14);
-        $semesterEndDate = $semesterStartDate->copy()->addWeeks($totalWeeks)->endOfWeek(Carbon::SUNDAY);
+        $semesterStartWeek = $semesterStartDate->copy()->startOfWeek(Carbon::MONDAY);
+        $semesterEndDate = $semesterStartWeek->copy()->addWeeks($totalWeeks)->endOfWeek(Carbon::SUNDAY);
 
-        $currentWeek = (int) $semesterStartDate->diffInWeeks($startOfWeek) + 1;
+        if ($startOfWeek->lt($semesterStartWeek)) {
+            $currentWeek = 1;
+        } else {
+            $currentWeek = (int) $semesterStartWeek->diffInWeeks($startOfWeek) + 1;
+        }
 
         $query = ClassSession::with(['course', 'lab', 'lecturer', 'room'])
             ->whereBetween('start_time', [$startOfWeek, $endOfWeek]);
@@ -234,7 +239,7 @@ class AdminController extends Controller
 
         if ($isRecurring) {
             $semesterEndDate = Carbon::parse(SystemSetting::get('semester_end_date', '2026-06-20'))->endOfDay();
-            
+
             $currentStart = $startTime->copy();
             $currentEnd = $endTime->copy();
 
@@ -258,7 +263,7 @@ class AdminController extends Controller
 
         foreach ($sessionsToCreate as $slot) {
             $conflict = null;
-            
+
             // Only check for conflicts if we have a room, lecturer, or lab to check against
             if (!empty($validated['room_id']) || !empty($validated['lecturer_id']) || !empty($validated['lab_id'])) {
                 $conflict = ClassSession::where(function ($query) use ($validated) {
@@ -511,7 +516,7 @@ class AdminController extends Controller
 
         $file = $request->file('file');
         $lines = file($file->getPathname(), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        
+
         if (!$lines || count($lines) <= 1) {
             return back()->withErrors(['file' => 'The uploaded file is empty or contains no data.']);
         }
@@ -523,13 +528,13 @@ class AdminController extends Controller
         $validatedData = [];
         $emailsInFile = [];
         $idsInFile = [];
-        
+
         // Pre-fetch programs to avoid DB overhead
         $programmes = \App\Models\Programme::all()->pluck('id', 'code')->toArray();
 
         foreach ($rows as $index => $row) {
             $lineNumber = $index + 2; // +1 for 0-indexing, +1 for header row
-            
+
             // 1. Basic Column Count check
             if (count($row) < 3) {
                 $errors[] = "Line {$lineNumber}: Missing required columns. Expected at least Name, Email, and Student ID.";
