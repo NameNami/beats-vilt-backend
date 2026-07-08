@@ -178,3 +178,12 @@ The project is thoroughly tested using Pest. To run the test suite:
 ```bash
 php artisan test
 ```
+
+
+
+### Optional Seeder: LecturerTimetableSeeder
+- The LecturerTimetableSeeder is not required for normal operation. The main ClassSessionSeeder generates the semester's schedule.
+- To avoid duplicate/overlapping sessions, LecturerTimetableSeeder is no longer included in DatabaseSeeder.
+- You can still run it manually for demo data aligned to the semester_start_date week:
+
+  php artisan db:seed --class=Database\\Seeders\\LecturerTimetableSeeder
