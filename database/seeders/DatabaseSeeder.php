@@ -33,7 +33,6 @@ class DatabaseSeeder extends Seeder
             AttendanceSeeder::class,
             LeaveApplicationSeeder::class,
             GamificationSeeder::class,
-            LecturerTimetableSeeder::class,
         ]);
     }
 }
