@@ -29,7 +29,7 @@ class ClassSessionSeeder extends Seeder
         $lecturerSchedules = [];
 
         // Get semester start date from settings
-        $semStartStr = SystemSetting::get('semester_start_date', '2026-03-09');
+        $semStartStr = SystemSetting::get('semester_start_date', '2026-07-01');
         $semStart = Carbon::parse($semStartStr)->startOfDay();
 
         $totalWeeks = (int) SystemSetting::get('semester_total_weeks', 14);

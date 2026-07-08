@@ -249,13 +249,14 @@ class WebLecturerReport extends Controller
         $startDate = Carbon::parse($startDateStr)->startOfDay();
         $totalWeeks = (int) SystemSetting::get('semester_total_weeks', 14);
 
-        $now = now()->startOfDay();
+        $startWeek = $startDate->copy()->startOfWeek(Carbon::MONDAY);
+        $nowWeekStart = now()->copy()->startOfWeek(Carbon::MONDAY);
 
-        if ($now->lt($startDate)) {
-            $currentWeek = 0;
+        if ($nowWeekStart->lt($startWeek)) {
+            $currentWeek = 1; // Start with week 1 (no week 0)
         } else {
-            // Calculate week based on Monday-to-Monday difference
-            $currentWeek = (int) $startDate->diffInWeeks($now) + 1;
+            // Calculate week based on aligned Monday starts
+            $currentWeek = (int) $startWeek->diffInWeeks($nowWeekStart) + 1;
         }
 
         if ($currentWeek > $totalWeeks) {
@@ -267,7 +268,7 @@ class WebLecturerReport extends Controller
             'start_date' => $startDate->format('d M Y'),
             'total_weeks' => $totalWeeks,
             'current_week' => $currentWeek,
-            'end_date' => $startDate->copy()->addWeeks($totalWeeks)->subDay()->format('d M Y'),
+            'end_date' => $startWeek->copy()->addWeeks($totalWeeks)->subDay()->format('d M Y'),
         ];
     }
 

@@ -50,14 +50,14 @@ class HandleInertiaRequests extends Middleware
                     if (! $startDate) {
                         return null;
                     }
-                    $start = Carbon::parse($startDate)->startOfDay();
+                    $start = Carbon::parse($startDate)->startOfWeek(Carbon::MONDAY);
                     $now = Carbon::now()->startOfDay();
 
                     if ($now->lt($start)) {
                         return 1;
                     }
 
-                    // Use start of week for consistency with timetable
+                    // Use aligned Monday starts for consistency
                     $startOfCurrentWeek = $now->copy()->startOfWeek(Carbon::MONDAY);
                     $week = (int) $start->diffInWeeks($startOfCurrentWeek) + 1;
 

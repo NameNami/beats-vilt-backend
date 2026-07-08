@@ -18,7 +18,7 @@ class SystemSettingSeeder extends Seeder
             ['key' => 'semester',                   'value' => '2025/2026-1',           'description' => 'Active academic semester'],
 
             // Term dates and weeks
-            ['key' => 'semester_start_date',        'value' => '2026-03-09',            'description' => 'Semester start date (Monday of Week 1)'],
+            ['key' => 'semester_start_date',        'value' => '2026-07-01',            'description' => 'Semester start date (Monday of Week 1)'],
             ['key' => 'semester_total_weeks',       'value' => '14',                    'description' => 'Number of teaching weeks in the semester'],
             ['key' => 'non_teaching_weeks',         'value' => '[]',                    'description' => 'JSON array of week-start dates (YYYY-MM-DD) that are non-teaching'],
 
